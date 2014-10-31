@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 31-Oct-2014 12:33:10
+% Last Modified by GUIDE v2.5 31-Oct-2014 15:08:02
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -41,6 +41,11 @@ if nargout
 else
     gui_mainfcn(gui_State, varargin{:});
 end
+
+global program_name;
+
+program_name = 'Online EOG GUI';
+
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before online_gui is made visible.
@@ -78,32 +83,55 @@ function varargout = online_gui_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
-% --- Executes on button press in update_button.
-function update_button_Callback(hObject, eventdata, handles)
-% hObject    handle to update_button (see GCBO)
+% --- Executes on button press in start_button.
+function start_button_Callback(hObject, eventdata, handles)
+% hObject    handle to start_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-axes(handles.current_signal);
-cla;
-EOG = randn(100,2);
-hold on;
-plot(EOG(:,1));
-plot(EOG(:,2)+10, '-r');
-line([0 100], [0 0], 'color', 'black');
-line([0 100], [10 10], 'color', 'black');
-ylim([-10 20]);
-legend('Vx', 'Vy', 'Orientation', 'horizontal');
+global program_name;
+global g_handles;
+global timer_id_data;
+global p;
 
-axes(handles.current_hist);
-hist(EOG);
-legend('Vx', 'Vy');
+g_handles = handles;
 
-mean_x = mean(EOG(:,1));
-mean_y = mean(EOG(:,2));
+p.DelayTime = 1;
 
-axes(handles.current_position);
-compass(mean_x,mean_y);
+timer_id_data= timer('TimerFcn','DataProcessing', ...
+        'StartDelay', 0, 'Period', p.DelayTime, 'ExecutionMode', 'FixedRate');
+
+choice = questdlg('Do you want to start data gaining?', program_name, ...
+    'Yes', 'No', 'Yes');
+
+switch choice
+    case 'Yes'        
+        start(timer_id_data);
+    case 'No'
+        return;
+end
+    
+
+% --- Executes on button press in stop_button.
+function stop_button_Callback(hObject, eventdata, handles)
+% hObject    handle to stop_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global program_name;
+global timer_id_data;
+
+choice = questdlg('Do you want to stop data gaining?', program_name, ...
+    'Yes', 'No', 'No');
+
+switch choice
+    case 'Yes'
+        stop(timer_id_data);
+        warndlg('Data gaining has been stopped.', program_name);
+
+    case 'No'
+        return;
+end
+
 
 % --------------------------------------------------------------------
 function FileMenu_Callback(hObject, eventdata, handles)
@@ -167,3 +195,27 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
+
+
+
+function console_Callback(hObject, eventdata, handles)
+% hObject    handle to console (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of console as text
+%        str2double(get(hObject,'String')) returns contents of console as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function console_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to console (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
