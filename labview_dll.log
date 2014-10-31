@@ -1761,3 +1761,45 @@ detached
 attached
 detached
 detached
+***************
+Log started at: Fri Oct 31 11:41:19 2014
+Version 20091118
+Using labview_dll.ini
+***************
+open_driver called
+No USB driver found
+detached
+***************
+Log started at: Fri Oct 31 11:42:13 2014
+Version 20091118
+Using labview_dll.ini
+***************
+open_driver called
+attached
+No USB driver found
+detached
+***************
+Log started at: Fri Oct 31 12:03:12 2014
+Version 20091118
+Using labview_dll.ini
+***************
+open_driver called
+No USB driver found
+detached
+***************
+Log started at: Fri Oct 31 12:07:25 2014
+Version 20091118
+Using labview_dll.ini
+***************
+open_driver called
+detached
+No USB driver found
+detached
+***************
+Log started at: Fri Oct 31 12:07:26 2014
+Version 20091118
+Using labview_dll.ini
+***************
+open_driver called
+No USB driver found
+detached
