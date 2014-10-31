@@ -85,9 +85,14 @@ function update_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 axes(handles.current_signal);
+cla;
 EOG = randn(100,2);
-plot(EOG);
+hold on;
+plot(EOG(:,1));
+plot(EOG(:,2)+10, '-r');
 line([0 100], [0 0], 'color', 'black');
+line([0 100], [10 10], 'color', 'black');
+ylim([-10 20]);
 legend('Vx', 'Vy', 'Orientation', 'horizontal');
 
 axes(handles.current_hist);

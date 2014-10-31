@@ -1,4 +1,5 @@
-# Do not include log files
+# Do not include temporary files
+*.asv
 *.log
 
 # Windows image file caches
