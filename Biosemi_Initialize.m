@@ -1,8 +1,7 @@
 
-
 S = biosemix; % run biosemi
 
-numEEG = 16; % number of EEG channels
+numEEG = 4; % number of EEG channels
 numAIB = 0;  % number of external channel
 
 % online function parameters

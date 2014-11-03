@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 31-Oct-2014 15:08:02
+% Last Modified by GUIDE v2.5 03-Nov-2014 10:30:41
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -43,8 +43,10 @@ else
 end
 
 global program_name;
-
 program_name = 'Online EOG GUI';
+
+global params;
+global buffer;
 
 % End initialization code - DO NOT EDIT
 
@@ -83,6 +85,85 @@ function varargout = online_gui_OutputFcn(hObject, eventdata, handles)
 % Get default command line output from handles structure
 varargout{1} = handles.output;
 
+
+% --- Executes on button press in initialize_button.
+function initialize_button_Callback(hObject, eventdata, handles)
+% hObject    handle to initialize_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global program_name;
+global params;
+global buffer;
+
+buffer.initialized = 1;
+
+%% Dump if exist
+try
+	dummy = biosemix([0 0]); %실행될때마다 버퍼에서 데이터 가져오기, 일단 한번 실행하는 것.
+catch me
+	if strfind(me.message,'BIOSEMI device')
+		clear biosemix
+	else
+		rethrow(me);
+	end
+end
+
+%% Initialize Biosemi
+% Biosemi_Initialize
+
+%% Basic Parameter Initialization
+
+%% Experiment Parameter Settings
+
+% modes 
+params.DummyMode = 1; % 0 : biosemi, 1 : Dummy (fs : 2048Hz, white noise)
+params.DownSample = 1; % 1 = downsample, 0 = 안해, Downsampleing according to Biosemi_Initialize
+
+params.SamplingFrequency2Use = 64;
+
+params.numEEG = 4;
+params.CompNum = 2; % Number of Components / Horizontal, Vertical
+
+params.DelayTime = 1; % in sec
+params.BufferTime = 10; % in sec
+
+% pre-processing parameters
+params.medianfilter_size = 10; % The number of samples to take median for denoising
+params.drift_filter_time = 10; % in seconds (should < BufferTime)    
+
+%% Preparing for signal acquisition
+
+% buffer setting for 
+params.BufferLength_Biosemi=params.SamplingFrequency2Use*params.DelayTime;
+params.signalBuffer=zeros(params.numEEG, params.BufferLength_Biosemi); %%%
+params.QueueLength = params.BufferTime * params.SamplingFrequency2Use;
+
+% *** recorded signal ***
+params.recordedSig = []; %%%
+
+% counters
+params.numBlocks = 0; %%%
+params.numSamples = 0; %%%
+
+% buffers
+buffer.buffer_4medianfilter = circlequeue(params.medianfilter_size, params.CompNum);
+
+buffer.dataqueue   = circlequeue(params.queuelength, params.CompNum);
+buffer.dataqueue.data(:,:) = NaN;
+
+buffer.raw_dataqueue   = circlequeue(params.queuelength, params.CompNum);
+buffer.raw_dataqueue.data(:,:) = NaN;
+
+%% Initialization has been done
+warndlg('Done.', program_name);
+
+% --- Executes on button press in calib_button.
+function calib_button_Callback(hObject, eventdata, handles)
+% hObject    handle to calib_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
 % hObject    handle to start_button (see GCBO)
@@ -92,25 +173,29 @@ function start_button_Callback(hObject, eventdata, handles)
 global program_name;
 global g_handles;
 global timer_id_data;
-global p;
+global params;
+global buffer;
 
 g_handles = handles;
 
-p.DelayTime = 1;
+% This function should be called only when it has been initialized
+if(buffer.initialized == 1)
+    timer_id_data= timer('TimerFcn','DataProcessing', ...
+            'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
-timer_id_data= timer('TimerFcn','DataProcessing', ...
-        'StartDelay', 0, 'Period', p.DelayTime, 'ExecutionMode', 'FixedRate');
+    choice = questdlg('Do you want to start data acquisition?', program_name, ...
+        'Yes', 'No', 'Yes');
 
-choice = questdlg('Do you want to start data gaining?', program_name, ...
-    'Yes', 'No', 'Yes');
-
-switch choice
-    case 'Yes'        
-        start(timer_id_data);
-    case 'No'
-        return;
+    switch choice
+        case 'Yes'        
+            start(timer_id_data);
+        case 'No'
+            return;
+    end
+else
+    errordlg('Initialize first before starting data acquisition.', program_name);
 end
-    
+
 
 % --- Executes on button press in stop_button.
 function stop_button_Callback(hObject, eventdata, handles)
@@ -120,13 +205,13 @@ function stop_button_Callback(hObject, eventdata, handles)
 global program_name;
 global timer_id_data;
 
-choice = questdlg('Do you want to stop data gaining?', program_name, ...
+choice = questdlg('Do you want to stop data acquisition?', program_name, ...
     'Yes', 'No', 'No');
 
 switch choice
     case 'Yes'
         stop(timer_id_data);
-        warndlg('Data gaining has been stopped.', program_name);
+        warndlg('Data acquisition has been stopped.', program_name);
 
     case 'No'
         return;
@@ -197,7 +282,6 @@ end
 set(hObject, 'String', {'plot(rand(5))', 'plot(sin(1:0.01:25))', 'bar(1:.5:10)', 'plot(membrane)', 'surf(peaks)'});
 
 
-
 function console_Callback(hObject, eventdata, handles)
 % hObject    handle to console (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -215,7 +299,16 @@ function console_CreateFcn(hObject, eventdata, handles)
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
+
+global buffer;
+
+% Add function path
+addpath([pwd, '\functions']);
+
+% Initialization
+buffer.initialized = 0;
+buffer.calibrated = 0;
+
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
-
