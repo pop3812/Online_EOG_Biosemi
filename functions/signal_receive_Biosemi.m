@@ -22,6 +22,13 @@ end
 % Data type recovery into double
 raw_signal = double(sig)';
 
+%% EOG Component Calculation
+
+EOG_x = raw_signal(:, 1) - raw_signal(:, 2);
+EOG_y = raw_signal(:, 3) - raw_signal(:, 4);
+
+raw_signal = [EOG_x EOG_y];
+
 % nSigD=size(sig,2);	
 % signalBuffer=[signalBuffer(:,size(sigD,2)+1:nBufferLength),sigD ];
 % recordedSig = [recordedSig sigD];
