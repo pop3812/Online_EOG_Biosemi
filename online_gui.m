@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 03-Nov-2014 10:30:41
+% Last Modified by GUIDE v2.5 04-Nov-2014 13:57:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -113,7 +113,7 @@ end
 
 %% Initialize Biosemi
 if(params.DummyMode~=1)
-    Biosemi_Initialize
+    signal_initialize_Biosemi;
 end
 
 %% Basic Parameter Initialization
@@ -220,16 +220,21 @@ function FileMenu_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
 % --------------------------------------------------------------------
-function OpenMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to OpenMenuItem (see GCBO)
+function SaveMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to SaveMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-file = uigetfile('*.fig');
-if ~isequal(file, 0)
-    open(file);
-end
+
+% [file, path] = uiputfile('*.png', 'Save Current Data As');
+% save_path = fullfile(path, file);
+% 
+% if ~isequal(file, 0)
+% %     saveas(handles, save_path, 'fig');
+%     axes(handles.current_signal);
+%     img  = getframe(gca);
+%     imwrite(img.cdata,save_path, 'png');
+% end
 
 % --------------------------------------------------------------------
 function PrintMenuItem_Callback(hObject, eventdata, handles)
