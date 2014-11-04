@@ -103,10 +103,13 @@ try
 catch me
 	if strfind(me.message,'BIOSEMI device')
         params.DummyMode = 1; % 0 : biosemi, 1 : Dummy
-        errordlg([me.message 'The program will be run in dummy mode.'], program_name);
+        warndlg([me.message 'The program will be run in dummy mode.'], program_name);
+        set(handles.console, 'String', 'Dummy Mode');
         clear biosemix;
     else
         params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
+        warndlg('Biosemi has been detected and the program has been initiated successfully.', program_name);
+        set(handles.console, 'String', 'Biosemi Mode');
 		rethrow(me);
 	end
 end
@@ -225,16 +228,21 @@ function SaveMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to SaveMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global program_name;
 
-% [file, path] = uiputfile('*.png', 'Save Current Data As');
-% save_path = fullfile(path, file);
-% 
-% if ~isequal(file, 0)
-% %     saveas(handles, save_path, 'fig');
-%     axes(handles.current_signal);
-%     img  = getframe(gca);
-%     imwrite(img.cdata,save_path, 'png');
-% end
+[file, path] = uiputfile('*.png', 'Save Current Signal Image As');
+save_path = fullfile(path, file);
+
+if ~isequal(file, 0)
+%     saveas(handles, save_path, 'fig');
+    axes(handles.current_signal);
+    img  = getframe(gca);
+    try
+        imwrite(img.cdata,save_path, 'png');
+    catch me
+        errordlg(me.message, program_name);
+    end
+end
 
 % --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles)
