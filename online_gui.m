@@ -102,60 +102,56 @@ try
 	dummy = biosemix([0 0]); %실행될때마다 버퍼에서 데이터 가져오기, 일단 한번 실행하는 것.
 catch me
 	if strfind(me.message,'BIOSEMI device')
-		clear biosemix
-	else
+        params.DummyMode = 1; % 0 : biosemi, 1 : Dummy
+        errordlg([me.message 'The program will be run in dummy mode.'], program_name);
+        clear biosemix;
+    else
+        params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
 		rethrow(me);
 	end
 end
 
 %% Initialize Biosemi
-% Biosemi_Initialize
+if(params.DummyMode~=1)
+    Biosemi_Initialize
+end
 
 %% Basic Parameter Initialization
 
-%% Experiment Parameter Settings
-
-% modes 
-params.DummyMode = 1; % 0 : biosemi, 1 : Dummy (fs : 2048Hz, white noise)
-params.DownSample = 1; % 1 = downsample, 0 = 안해, Downsampleing according to Biosemi_Initialize
-
-params.SamplingFrequency2Use = 64;
-
-params.numEEG = 4;
-params.CompNum = 2; % Number of Components / Horizontal, Vertical
-
-params.DelayTime = 1; % in sec
-params.BufferTime = 10; % in sec
-
-% pre-processing parameters
-params.medianfilter_size = 10; % The number of samples to take median for denoising
-params.drift_filter_time = 10; % in seconds (should < BufferTime)    
+% Experiment Parameter Settings
+set_experiment_parameters();
 
 %% Preparing for signal acquisition
 
-% buffer setting for 
-params.BufferLength_Biosemi=params.SamplingFrequency2Use*params.DelayTime;
-params.signalBuffer=zeros(params.numEEG, params.BufferLength_Biosemi); %%%
-params.QueueLength = params.BufferTime * params.SamplingFrequency2Use;
+% downsampling setting for online data acquisition
+params.DecimateFactor = 12 - fix(log2(params.SamplingFrequency2Use));
+% decimation factor (sampling rate) ,1 = 2048, 2 = 1024, ...., 8 = 256 etc.
+if(params.DecimateFactor==1)
+    params.DownSample = 0;
+    % 1 = downsample, 0 = none, Downsampleing according to Biosemi_Initialize
+elseif(params.DecimateFactor>1)
+    params.DownSample = 1;
+end
 
-% *** recorded signal ***
-params.recordedSig = []; %%%
-
-% counters
-params.numBlocks = 0; %%%
-params.numSamples = 0; %%%
+% buffer setting for online data acquisition
+params.BufferLength_Biosemi = params.SamplingFrequency2Use * params.DelayTime;
+params.QueueLength = params.SamplingFrequency2Use * params.BufferTime;
 
 % buffers
+buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
 buffer.buffer_4medianfilter = circlequeue(params.medianfilter_size, params.CompNum);
 
-buffer.dataqueue   = circlequeue(params.queuelength, params.CompNum);
+buffer.dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.dataqueue.data(:,:) = NaN;
 
-buffer.raw_dataqueue   = circlequeue(params.queuelength, params.CompNum);
+buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.raw_dataqueue.data(:,:) = NaN;
 
 %% Initialization has been done
-warndlg('Done.', program_name);
+if(params.DummyMode~=1)
+    warndlg('Initializatioin has been done.', program_name);
+end
+
 
 % --- Executes on button press in calib_button.
 function calib_button_Callback(hObject, eventdata, handles)
@@ -180,7 +176,7 @@ g_handles = handles;
 
 % This function should be called only when it has been initialized
 if(buffer.initialized == 1)
-    timer_id_data= timer('TimerFcn','DataProcessing', ...
+    timer_id_data= timer('TimerFcn','data_processing', ...
             'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
     choice = questdlg('Do you want to start data acquisition?', program_name, ...

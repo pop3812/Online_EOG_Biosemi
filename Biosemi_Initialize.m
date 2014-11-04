@@ -1,8 +1,9 @@
+global params;
 
 S = biosemix; % run biosemi
 
-numEEG = 4; % number of EEG channels
-numAIB = 0;  % number of external channel
+numEEG = params.numEEG; % number of EEG channels
+numAIB = params.numAIB;  % number of external channel
 
 % online function parameters
 cfg.ftOutput = 'buffer://localhost:1972'; % output port

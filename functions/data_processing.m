@@ -7,17 +7,28 @@ global params;
 global buffer;
 
 %% EOG components calculation
-c=clock;
-c=c(6);
-EOG = 3 * sin(repmat(linspace(c, c+2*pi, params.BufferLength_Biosemi)',1,2)) ...
-      + 2 * sin(repmat(linspace(c, c+5*pi, params.BufferLength_Biosemi)',1,2)) ...
-      + randn(params.BufferLength_Biosemi,2) + 10;
+if (params.DummyMode)
+    % Make dummy signal to show
+    c=clock; c=c(6);
+    EOG = 3 * sin(repmat(linspace(c, c+2*pi, params.BufferLength_Biosemi)',1,2)) ...
+          + 2 * sin(repmat(linspace(c, c+5*pi, params.BufferLength_Biosemi)',1,2)) ...
+          + randn(params.BufferLength_Biosemi,2) ...
+          + 10;
+          % for the case of linearly decreasing baseline drift 
+          % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
+else
+    EOG = signal_receive_Biosemi();
+end
 
 %% EOG denoising
+if(params.denosing)
 EOG = signal_denoising(EOG, buffer.buffer_4medianfilter, params.medianfilter_size);
+end
 
 %% EOG baseline drift removal
+if(params.drift_removing)
 EOG = signal_baseline_removal(EOG);
+end
 
 %% Data registration to buffer queue
 for i=1:params.BufferLength_Biosemi
@@ -41,6 +52,7 @@ global g_handles;
 global params;
 global buffer;
 
+y_range = params.y_range;
 EOG = circshift(buffer.dataqueue.data, -buffer.dataqueue.index_start);
 
 % Current Signal Plot
@@ -48,11 +60,11 @@ cla(g_handles.current_signal);
 plot(g_handles.current_signal, EOG(:,1));
 hold(g_handles.current_signal, 'on');
 
-plot(g_handles.current_signal, EOG(:,2)+10, '-r');
+plot(g_handles.current_signal, EOG(:,2)+y_range, '-r');
 plot(g_handles.current_signal, [0 params.QueueLength], [0 0], 'color', 'black');
-plot(g_handles.current_signal, [0 params.QueueLength], [10 10], 'color', 'black');
+plot(g_handles.current_signal, [0 params.QueueLength], [y_range y_range], 'color', 'black');
 xlim(g_handles.current_signal, [0 params.QueueLength]);
-ylim(g_handles.current_signal, [-10 20]);
+ylim(g_handles.current_signal, [-y_range 2*y_range]);
 h_legend = legend(g_handles.current_signal, 'EOG_x', 'EOG_y', 'Orientation', 'horizontal');
 set(h_legend,'FontSize',8);
 

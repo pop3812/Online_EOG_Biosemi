@@ -1,4 +1,4 @@
-function out = scatplot(x,y,method,radius,N,n,po,ms)
+function out = plot_scatplot(x,y,method,radius,N,n,po,ms)
 % Scatter plot with color indicating data density
 %
 % USAGE:
@@ -162,7 +162,7 @@ ms = 5;
 x = randn(1000,1);
 y = randn(1000,1);
 
-out = scatplot(x,y,method,radius,N,n,po,ms)
+out = plot_scatplot(x,y,method,radius,N,n,po,ms)
 
 return
 %~~~~~~~~~~ Data Density ~~~~~~~~~~~~~~
