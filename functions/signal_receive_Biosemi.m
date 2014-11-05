@@ -29,9 +29,5 @@ EOG_y = raw_signal(:, 3) - raw_signal(:, 4);
 
 raw_signal = [EOG_x EOG_y];
 
-% nSigD=size(sig,2);	
-% signalBuffer=[signalBuffer(:,size(sigD,2)+1:nBufferLength),sigD ];
-% recordedSig = [recordedSig sigD];
-
 end
 

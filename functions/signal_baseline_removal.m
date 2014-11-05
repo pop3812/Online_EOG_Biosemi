@@ -11,12 +11,13 @@ function [ baseline_removed_EOG ] = signal_baseline_removal(denoised_EOG)
 global buffer;
 global params;
 
-% baseline_removed_EOG = zeros(params.BufferLength_Biosemi, params.CompNum);
+% baseline_removed_EOG = zeros(n_data, params.CompNum);
 median_window_size = params.drift_filter_time * params.SamplingFrequency2Use;
+n_data = size(denoised_EOG, 1);
 
 if(buffer.raw_dataqueue.datasize < median_window_size)
     % Data Add to raw data queue
-    for i=1:params.BufferLength_Biosemi
+    for i=1:n_data
         buffer.raw_dataqueue.add(denoised_EOG(i,:));
     end
     
@@ -25,10 +26,10 @@ else
     % Baseline Drift of previous buffer data
     baseline_drift_cur = median(buffer.raw_dataqueue.data);
     baseline_drift_cur = repmat(baseline_drift_cur, ...
-        params.BufferLength_Biosemi, 1);
+        n_data, 1);
 
     % Data Add to raw data queue
-    for i=1:params.BufferLength_Biosemi
+    for i=1:n_data
         buffer.raw_dataqueue.add(denoised_EOG(i,:));
     end
 

@@ -16,8 +16,10 @@ if (params.DummyMode)
           + 10;
           % for the case of linearly decreasing baseline drift 
           % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
+    n_data = params.BufferLength_Biosemi;
 else
     EOG = signal_receive_Biosemi();
+    n_data = size(EOG, 1);
 end
 
 %% EOG denoising
@@ -31,7 +33,7 @@ EOG = signal_baseline_removal(EOG);
 end
 
 %% Data registration to buffer queue
-for i=1:params.BufferLength_Biosemi
+for i=1:n_data
     buffer.dataqueue.add(EOG(i,:));
     % idx_cur = buffer.dataqueue.datasize; % current index calculation
 end

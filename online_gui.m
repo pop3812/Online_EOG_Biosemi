@@ -92,10 +92,10 @@ global buffer;
 global GDF_Header;
 
 buffer.initialized = 1;
-
+params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
 %% Dump if exist
 try
-	dummy = biosemix([0 0]); %실행될때마다 버퍼에서 데이터 가져오기, 일단 한번 실행하는 것.
+	dummy = biosemix([1 0]); %실행될때마다 버퍼에서 데이터 가져오기, 일단 한번 실행하는 것.
 catch me
 	if strfind(me.message,'BIOSEMI device')
         params.DummyMode = 1; % 0 : biosemi, 1 : Dummy
@@ -103,11 +103,13 @@ catch me
         set(handles.console, 'String', 'Dummy Mode');
         clear biosemix;
     else
-        params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
-        warndlg('Biosemi has been detected and the program has been initiated successfully.', program_name);
-        set(handles.console, 'String', 'Biosemi Mode');
-		rethrow(me);
+        rethrow(me);
 	end
+end
+
+if (params.DummyMode ==0)
+    params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
+    set(handles.console, 'String', 'Biosemi Mode');
 end
 
 %% Basic Parameter Initialization
@@ -118,7 +120,7 @@ set_experiment_parameters();
 %% Preparing for signal acquisition
 
 % downsampling setting for online data acquisition
-params.DecimateFactor = 12 - fix(log2(params.SamplingFrequency2Use));
+params.DecimateFactor = 2048/params.SamplingFrequency2Use;
 % decimation factor (sampling rate) ,1 = 2048, 2 = 1024, ...., 8 = 256 etc.
 if(params.DecimateFactor==1)
     params.DownSample = 0;
@@ -143,9 +145,11 @@ buffer.raw_dataqueue.data(:,:) = NaN;
 
 %% Initialize Biosemi
 if(params.DummyMode~=1)
-    GDF_Header = signal_initialize_Biosemi();
-    warndlg('Initializatioin has been done.', program_name);
+    warndlg(['Biosemi has been detected.' char(10) ...
+        'The program has been initiated successfully.'], program_name);
 end
+
+GDF_Header = signal_initialize_Biosemi();
 
 
 % --- Executes on button press in calib_button.
@@ -201,6 +205,7 @@ choice = questdlg('Do you want to stop data acquisition?', program_name, ...
 
 switch choice
     case 'Yes'
+        clear biosemix;
         stop(timer_id_data);
         warndlg('Data acquisition has been stopped.', program_name);
 
@@ -221,19 +226,25 @@ function SaveMenuItem_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global program_name;
+global GDF_Header;
 
-[file, path] = uiputfile('*.mat', 'Save Current Experiment Parameters As');
+[file, path] = uiputfile('*.mat', 'Save Current Experiment Parameters and Results As');
 save_path = fullfile(path, file);
 
 if ~isequal(file, 0)
-%     saveas(handles, save_path, 'fig');
-    axes(handles.current_signal);
-    img  = getframe(gca);
     try
-        imwrite(img.cdata,save_path, 'png');
+        save(save_path, 'GDF_Header');
     catch me
         errordlg(me.message, program_name);
     end
+    
+%     axes(handles.current_signal);
+%     img  = getframe(gca);
+%     try
+%         imwrite(img.cdata,save_path, 'png');
+%     catch me
+%         errordlg(me.message, program_name);
+%     end
 end
 
 % --------------------------------------------------------------------
@@ -293,6 +304,7 @@ function console_CreateFcn(hObject, eventdata, handles)
 
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
+clear biosemix;
 
 global program_name;
 program_name = 'Online EOG GUI';
