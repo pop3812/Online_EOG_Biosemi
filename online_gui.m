@@ -42,11 +42,6 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 
-global program_name;
-program_name = 'Online EOG GUI';
-
-global params;
-global buffer;
 
 % End initialization code - DO NOT EDIT
 
@@ -94,6 +89,7 @@ function initialize_button_Callback(hObject, eventdata, handles)
 global program_name;
 global params;
 global buffer;
+global GDF_Header;
 
 buffer.initialized = 1;
 
@@ -112,11 +108,6 @@ catch me
         set(handles.console, 'String', 'Biosemi Mode');
 		rethrow(me);
 	end
-end
-
-%% Initialize Biosemi
-if(params.DummyMode~=1)
-    signal_initialize_Biosemi;
 end
 
 %% Basic Parameter Initialization
@@ -150,8 +141,9 @@ buffer.dataqueue.data(:,:) = NaN;
 buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.raw_dataqueue.data(:,:) = NaN;
 
-%% Initialization has been done
+%% Initialize Biosemi
 if(params.DummyMode~=1)
+    GDF_Header = signal_initialize_Biosemi();
     warndlg('Initializatioin has been done.', program_name);
 end
 
@@ -230,7 +222,7 @@ function SaveMenuItem_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global program_name;
 
-[file, path] = uiputfile('*.png', 'Save Current Signal Image As');
+[file, path] = uiputfile('*.mat', 'Save Current Experiment Parameters As');
 save_path = fullfile(path, file);
 
 if ~isequal(file, 0)
@@ -302,7 +294,12 @@ function console_CreateFcn(hObject, eventdata, handles)
 % Hint: edit controls usually have a white background on Windows.
 %       See ISPC and COMPUTER.
 
+global program_name;
+program_name = 'Online EOG GUI';
+
+global params;
 global buffer;
+global GDF_Header;
 
 % Add function path
 addpath([pwd, '\functions']);
