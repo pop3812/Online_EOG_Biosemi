@@ -145,8 +145,7 @@ buffer.raw_dataqueue.data(:,:) = NaN;
 
 %% Initialize Biosemi
 if(params.DummyMode~=1)
-    warndlg(['Biosemi has been detected.' char(10) ...
-        'The program has been initiated successfully.'], program_name);
+    warndlg('Biosemi detected. Successfully done.', program_name);
 end
 
 GDF_Header = signal_initialize_Biosemi();

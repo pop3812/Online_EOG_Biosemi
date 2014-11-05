@@ -74,7 +74,8 @@ plot(g_handles.current_signal, [0 params.QueueLength], [y_range y_range], 'color
 
 % X, Y Range Setting
 xlim(g_handles.current_signal, [0 params.QueueLength]);
-ylim(g_handles.current_signal, [-y_range 2*y_range]);
+% ylim(g_handles.current_signal, [-y_range 2*y_range]);
+set(g_handles.current_signal, 'YTickLabel', '');
 h_legend = legend(g_handles.current_signal, 'EOG_x', 'EOG_y', ...
     'Orientation', 'horizontal', 'Location', 'southwest');
 set(h_legend,'FontSize',8);
