@@ -22,7 +22,7 @@ params.medianfilter_size = 10; % The number of samples to take median for denois
 params.drift_filter_time = 10; % in seconds (should < BufferTime)    
 
 % plot parameters
-params.y_range = 10;
+params.y_range = 10^-2; % 10^-2 is optimal for Biosemi EOG
 
 end
 

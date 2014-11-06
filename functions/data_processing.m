@@ -62,7 +62,8 @@ cla(g_handles.current_signal);
 
 plot(g_handles.current_signal, EOG(:,1));
 hold(g_handles.current_signal, 'on');
-plot(g_handles.current_signal, EOG(:,2)+y_range, '-r');
+plot(g_handles.current_signal, EOG(:,2), '-r');
+% plot(g_handles.current_signal, EOG(:,2)+y_range, '-r');
 
 % Draw Grids
 tickValues = 0:2 * params.BufferLength_Biosemi:params.QueueLength;
@@ -70,7 +71,7 @@ set(g_handles.current_signal,'XTick', tickValues);
 grid(g_handles.current_signal, 'on');
 
 plot(g_handles.current_signal, [0 params.QueueLength], [0 0], 'color', 'black');
-plot(g_handles.current_signal, [0 params.QueueLength], [y_range y_range], 'color', 'black');
+% plot(g_handles.current_signal, [0 params.QueueLength], [y_range y_range], 'color', 'black');
 
 % X, Y Range Setting
 xlim(g_handles.current_signal, [0 params.QueueLength]);
