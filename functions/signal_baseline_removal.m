@@ -28,7 +28,6 @@ else
     if(params.drift_removing == 1)
         % Baseline Drift Value
         baseline_drift_cur = repmat(params.DriftValues, n_data, 1);
-        disp(params.DriftValues)
         
     % Online drift removal
     elseif(params.drift_removing == 2)
