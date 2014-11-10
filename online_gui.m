@@ -177,8 +177,11 @@ set(handles.initialize_button, 'Enable', 'on');
 set(handles.calib_button, 'Enable', 'on');
 set(handles.start_button, 'Enable', 'on');
 set(handles.stop_button, 'Enable', 'off');
+
 warndlg('Calibration has been successfully done.', program_name);
 
+%% Initialize the screen
+screen_initialization();
 
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
