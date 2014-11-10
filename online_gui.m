@@ -148,8 +148,11 @@ if(params.DummyMode~=1)
 end
 
 GDF_Header = signal_initialize_Biosemi();
-buffer.initialized = 1;
 
+%% GUI Control
+set(handles.calib_button, 'Enable', 'on');
+set(handles.start_button, 'Enable', 'off');
+set(handles.stop_button, 'Enable', 'off');
 
 % --- Executes on button press in calib_button.
 function calib_button_Callback(hObject, eventdata, handles)
@@ -159,18 +162,23 @@ function calib_button_Callback(hObject, eventdata, handles)
 
 global program_name;
 global g_handles;
-global buffer;
 
 g_handles = handles;
 
-% This function should be called only when it has been initialized
-if(buffer.initialized == 1)
-    data_calibration();
-    buffer.calibrated = 1;
-    warndlg('Calibration has been successfully done.', program_name);
-else
-    errordlg('Initialize first before calibrating.', program_name);
-end
+% GUI Control
+set(handles.initialize_button, 'Enable', 'off');
+set(handles.start_button, 'Enable', 'off');
+set(handles.stop_button, 'Enable', 'off');
+
+data_calibration();
+
+% GUI Control
+set(handles.initialize_button, 'Enable', 'on');
+set(handles.calib_button, 'Enable', 'on');
+set(handles.start_button, 'Enable', 'on');
+set(handles.stop_button, 'Enable', 'off');
+warndlg('Calibration has been successfully done.', program_name);
+
 
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
@@ -182,29 +190,28 @@ global program_name;
 global g_handles;
 global timer_id_data;
 global params;
-global buffer;
 
 g_handles = handles;
 
-% This function should be called only when it has been initialized
-if(buffer.initialized == 1 && buffer.calibrated == 1)
-    timer_id_data= timer('TimerFcn','data_processing', ...
-            'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
+timer_id_data= timer('TimerFcn','data_processing', ...
+        'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
-    choice = questdlg('Do you want to start data acquisition?', program_name, ...
-        'Yes', 'No', 'Yes');
+choice = questdlg('Do you want to start data acquisition?', program_name, ...
+    'Yes', 'No', 'Yes');
 
-    switch choice
-        case 'Yes'        
-            start(timer_id_data);
-        case 'No'
-            return;
-    end
-elseif(buffer.initialized == 0)
-    errordlg('Initialize & calibrate first before starting data acquisition.', program_name);
-else
-    errordlg('Calibrate first before starting data acquisition.', program_name);
+switch choice
+    case 'Yes'        
+        start(timer_id_data);
+        
+        % GUI Control
+        set(handles.start_button, 'Enable', 'off');
+        set(handles.stop_button, 'Enable', 'on');
+        set(handles.initialize_button, 'Enable', 'off');
+        set(handles.calib_button, 'Enable', 'off');
+    case 'No'
+        return;
 end
+
 
 
 % --- Executes on button press in stop_button.
@@ -222,6 +229,10 @@ switch choice
     case 'Yes'
         clear biosemix;
         stop(timer_id_data);
+        set(handles.start_button, 'Enable', 'on');
+        set(handles.stop_button, 'Enable', 'off');
+        set(handles.initialize_button, 'Enable', 'on');
+        set(handles.calib_button, 'Enable', 'on');
         warndlg('Data acquisition has been stopped.', program_name);
 
     case 'No'
@@ -267,8 +278,10 @@ function CloseMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+global program_name;
+
 selection = questdlg(['Do you want to exit?'],...
-                     ['Online EOG GUI'],...
+                     program_name,...
                      'Yes','No','Yes');
 if strcmp(selection,'No')
     return;
@@ -330,10 +343,6 @@ global GDF_Header;
 
 % Add function path
 addpath([pwd, '\functions']);
-
-% Initialization
-buffer.initialized = 0;
-buffer.calibrated = 0;
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
