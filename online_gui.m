@@ -91,7 +91,6 @@ global params;
 global buffer;
 global GDF_Header;
 
-buffer.initialized = 1;
 params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
 %% Dump if exist
 try
@@ -149,6 +148,7 @@ if(params.DummyMode~=1)
 end
 
 GDF_Header = signal_initialize_Biosemi();
+buffer.initialized = 1;
 
 
 % --- Executes on button press in calib_button.
@@ -157,6 +157,20 @@ function calib_button_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+global program_name;
+global g_handles;
+global buffer;
+
+g_handles = handles;
+
+% This function should be called only when it has been initialized
+if(buffer.initialized == 1)
+    data_calibration();
+    buffer.calibrated = 1;
+    warndlg('Calibration has been successfully done.', program_name);
+else
+    errordlg('Initialize first before calibrating.', program_name);
+end
 
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
@@ -173,7 +187,7 @@ global buffer;
 g_handles = handles;
 
 % This function should be called only when it has been initialized
-if(buffer.initialized == 1)
+if(buffer.initialized == 1 && buffer.calibrated == 1)
     timer_id_data= timer('TimerFcn','data_processing', ...
             'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
@@ -186,8 +200,10 @@ if(buffer.initialized == 1)
         case 'No'
             return;
     end
+elseif(buffer.initialized == 0)
+    errordlg('Initialize & calibrate first before starting data acquisition.', program_name);
 else
-    errordlg('Initialize first before starting data acquisition.', program_name);
+    errordlg('Calibrate first before starting data acquisition.', program_name);
 end
 
 

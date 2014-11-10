@@ -1,4 +1,4 @@
-function DataProcessing()
+function data_processing()
 %DATAPROCESSING Summary of this function goes here
 %   Detailed explanation goes here
 tic;
@@ -16,6 +16,7 @@ if (params.DummyMode)
           + 10;
           % for the case of linearly decreasing baseline drift 
           % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
+    EOG = 10^-3 * EOG;
     n_data = params.BufferLength_Biosemi;
 else
     EOG = signal_receive_Biosemi();
@@ -28,7 +29,7 @@ EOG = signal_denoising(EOG, buffer.buffer_4medianfilter, params.medianfilter_siz
 end
 
 %% EOG baseline drift removal
-if(params.drift_removing)
+if(params.drift_removing~=0)
 EOG = signal_baseline_removal(EOG);
 end
 
@@ -100,7 +101,7 @@ mean_y = mean(EOG(:,2));
 
 compass(g_handles.current_position, mean_x,mean_y);
 
-set(g_handles.console, 'String', [num2str(fix(100*mean_x)/100), ...
-    ', ' num2str(fix(100*mean_y)/100)]);
+set(g_handles.console, 'String', [num2str(fix(10^5*mean_x)/100), ...
+    ', ' num2str(fix(10^5*mean_y)/100), ' mV']);
 
 end

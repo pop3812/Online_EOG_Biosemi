@@ -5,7 +5,9 @@ global params;
 
 % modes
 params.denosing = 1; % 1 = denoising, 0 = none
-params.drift_removing = 1; % 1 = drift_removing, 0 = none
+params.drift_removing = 1; % 1 = drift removing during calibration, ...
+                           % 2 = online drift removing, ...
+                           % 0 = none
 
 % signal acquisition parameters
 params.SamplingFrequency2Use = 128; % Default Sampling Frequency for Biosemi is 2024
