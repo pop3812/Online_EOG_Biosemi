@@ -154,6 +154,9 @@ set(handles.calib_button, 'Enable', 'on');
 set(handles.start_button, 'Enable', 'off');
 set(handles.stop_button, 'Enable', 'off');
 
+%% Initialize the Screen
+screen_init_psy();
+
 % --- Executes on button press in calib_button.
 function calib_button_Callback(hObject, eventdata, handles)
 % hObject    handle to calib_button (see GCBO)
@@ -170,6 +173,7 @@ set(handles.initialize_button, 'Enable', 'off');
 set(handles.start_button, 'Enable', 'off');
 set(handles.stop_button, 'Enable', 'off');
 
+% Data Calibration
 data_calibration();
 
 % GUI Control
@@ -179,9 +183,6 @@ set(handles.start_button, 'Enable', 'on');
 set(handles.stop_button, 'Enable', 'off');
 
 warndlg('Calibration has been successfully done.', program_name);
-
-%% Initialize the screen
-screen_initialization();
 
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
@@ -345,7 +346,7 @@ global buffer;
 global GDF_Header;
 
 % Add function path
-addpath([pwd, '\functions']);
+addpath(genpath([pwd, '\functions']));
 
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
