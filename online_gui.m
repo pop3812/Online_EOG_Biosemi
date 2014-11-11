@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 04-Nov-2014 13:57:06
+% Last Modified by GUIDE v2.5 11-Nov-2014 16:58:49
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -115,6 +115,7 @@ end
 
 % Experiment Parameter Settings
 set_experiment_parameters();
+set_blink_detection_parameters();
 
 %% Preparing for signal acquisition
 
