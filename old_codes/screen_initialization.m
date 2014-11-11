@@ -23,30 +23,9 @@ if(n_monitor > 1) % Double monitor
     
     scatter(stim_window.axes, 0, 0, 300, 'x', 'LineWidth', 3, ...
         'MarkerEdgeColor', 'w');
-    
 
-    
     params.DoubleMonitor = 1;
     
-    %     % Initial Preference Setup
-    %     Screen('Preference', 'SkipSyncTests', 2);
-    %     Screen('Preference', 'ConserveVRAM', 64);
-    %     
-    %     screenNum = max(screenNumbers); % Use the second monitor
-    %     [window, rect] = Screen('OpenWindow', screenNum, 1);
-    %     
-    %     % Make a fixation point
-    %     [X,Y] = RectCenter(rect);
-    %     FixCross = [X-1,Y-10,X+1,Y+10;X-10,Y-1,X+10,Y+1];
-    %     Screen('FillRect', window, [255, 255, 255], FixCross');
-    %     
-    %     % Select specific text font, style and size:
-    %     Screen('TextFont', window, 'Cambria');
-    %     Screen('TextSize', window, 20);
-    %     Screen('TextStyle', window, 1);
-    %      
-    %     DrawFormattedText(window, 'Initializing the screen', 'center', Y-150, [255, 255, 255]);
-    %     Screen('Flip', window);  
 else
     disp('No additional monitor has been found.')
     params.DoubleMonitor = 0;
