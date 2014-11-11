@@ -42,6 +42,8 @@ end
 %% Linear Fitting Calibration
 %%% should be implemented here
 
-    close(prog_bar);
+% linear_fitting_training();
+
+close(prog_bar);
 end
 
