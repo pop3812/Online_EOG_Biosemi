@@ -10,10 +10,13 @@ global buffer;
 if (params.DummyMode)
     % Make dummy signal to show
     c=clock; c=c(6); % use clock for generating dummy signal
- 
-    EOG = 3 * sin(0.5 * repmat(linspace(c, c+2*pi, params.BufferLength_Biosemi)',1,2)) ...
-          + randn(params.BufferLength_Biosemi,2) ...
-          + 10;
+    d = c:3:c+6;
+    t=repmat(linspace(c, c+6, 5.*params.BufferLength_Biosemi)',1,2);
+    t=t(1:params.BufferLength_Biosemi,:);
+    
+    EOG = 15 * pulstran(t, d, 'rectpuls', 1/3) ...
+           + randn(params.BufferLength_Biosemi,2) ...
+           + 10;
           % + 2 * ((randn(params.BufferLength_Biosemi,2))>0.1) ...
           % + 2 * sin(0.1 * repmat(linspace(c, c+5*pi, params.BufferLength_Biosemi)',1,2)) ...
           % for the case of linearly decreasing baseline drift 
@@ -75,7 +78,7 @@ for i=1:n_data_bk
         end
         % Add Blink Time Range
         if size(range,1) > 0
-            b.detectedRange_inQueue.add(range);
+            % b.detectedRange_inQueue.add(range);
         end
 end
 

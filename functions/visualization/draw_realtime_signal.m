@@ -13,7 +13,7 @@ EOG = circshift(buffer.dataqueue.data, -buffer.dataqueue.index_start);
 % Current Signal Plot
 cla(g_handles.current_signal);
 
-plot(g_handles.current_signal, EOG(:,1));
+plot(g_handles.current_signal, EOG(:,1), '-b');
 hold(g_handles.current_signal, 'on');
 plot(g_handles.current_signal, EOG(:,2), '-r');
 % plot(g_handles.current_signal, EOG(:,2)+y_range, '-r');
@@ -49,41 +49,50 @@ global g_handles;
 
 p = params.blink;
 b = buffer.blink;
-% alpha = 0.1;
-% color = [1 0 0];
 
+% Plot related Parameters
+mark_position = 0.9; % Relative Position of Blink Detection Mark : Bottom 0 to Top 1
+line_style = 'vertical'; % either horizon or vertical
+alpha = 0.1;
+color = [1 0 0];
+
+% The number of ranges
 nRange = b.detectedRange_inQueue.datasize;
 
 y = get(g_handles.current_signal,'YLim');
-y = (y(1) +y(2)) * 4/5;
-x = get(g_handles.current_signal,'XLim');
 
 if nRange > 0
     for i=1:nRange
         pos = mod(b.dataqueue.index_start + ...
                 b.detectedRange_inQueue.get(i) - 2, b.dataqueue.length) + 1;
-    
+        
         pos = pos * p.DecimateRate - buffer.dataqueue.index_start;
+        if pos <= 0
+            pos = pos + buffer.dataqueue.datasize;
+            % check if it is out of bound or not
+        end
+        
         if pos(1) > pos(2)
-            plot(g_handles.current_signal, [pos(1) x(2)] , [y, y], '--r', 'LineWidth', 2);
-            plot(g_handles.current_signal, [x(1) pos(2)] , [y, y], '--r', 'LineWidth', 2);
-%             H = area(g_handles.current_signal, [pos(1) x(2)], [y,y]);
-%             H2 = area(g_handles.current_signal, [x(1) pos(2)], [y,y]);
-%             
-%             % Set alpha value for the areas
-%             h=get(H,'children');
-%             set(h,'FaceAlpha', alpha, 'FaceColor', color);
-%             h2=get(H2,'children');
-%             set(h2,'FaceAlpha', alpha, 'FaceColor', color);
-        else
-            plot(g_handles.current_signal, pos, [y, y], '--r', 'LineWidth', 2);
-%             hold(g_handles.current_signal, 'on');
-%             H = area(g_handles.current_signal, pos, [y,y]);
-%             hold(g_handles.current_signal, 'off');
-%             
-%             % Set alpha value for the area
-%             h=get(H,'children');
-%             set(h,'FaceAlpha', alpha, 'FaceColor', color);
+            pos(2) = pos(2) + buffer.dataqueue.datasize;
+        end
+        
+        if strcmp(line_style, 'horizon')
+            y = ((1 - mark_position) * y(1) + mark_position * y(2));
+            plot(g_handles.current_signal, pos, [y, y], '-r', 'LineWidth', 2);
+        elseif strcmp(line_style, 'vertical')
+            hold(g_handles.current_signal, 'on');
+            H = area(g_handles.current_signal, pos, [y(2), y(2)]);
+            H2 = area(g_handles.current_signal, pos, [y(1), y(1)]);
+            hold(g_handles.current_signal, 'off');
+            
+            % Set alpha value for the area
+            h=get(H,'children');
+            set(h,'FaceAlpha', alpha, 'FaceColor', color, 'LineStyle', 'none');
+            h=get(H2,'children');
+            set(h,'FaceAlpha', alpha, 'FaceColor', color, 'LineStyle', 'none');
+            
+%             plot(g_handles.current_signal, [pos(1) pos(1)], [y(1), y(2)], '-k', 'LineWidth', 1);
+%             plot(g_handles.current_signal, [pos(2) pos(2)], [y(1), y(2)], '-k', 'LineWidth', 1);
         end
     end
 end

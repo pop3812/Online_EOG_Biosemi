@@ -10,7 +10,7 @@ params.drift_removing = 2; % 1 = offline drift removing, ...
                            % 0 = none
 
 % signal acquisition parameters
-params.SamplingFrequency2Use = 128; % default is 128.
+params.SamplingFrequency2Use = 128; % default is 128
                                     % Sampling frequency limit for Biosemi is 2024
 
 params.numEEG = 4; % number of EEG channels
@@ -22,7 +22,9 @@ params.BufferTime = 10; % in sec
 
 % pre-processing parameters
 params.medianfilter_size = 10; % The number of samples to take median for denoising
-params.drift_filter_time = 10; % in seconds (should < BufferTime)    
+                              % default is 10
+params.drift_filter_time = 10; % in seconds (should < BufferTime)
+                               % default is 10
 
 % screen parameters
 params.screen_width = 34; % the width of the screen (inner) [cm]
