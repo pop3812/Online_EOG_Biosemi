@@ -25,7 +25,7 @@ blink.nBin4Histogram = 50; % The number of bins to use for eye blink
                            % detection. default is 50
 blink.nMinimalData4HistogramCalculation = 5 * blink.SR;
 % default is 5 secs. It should be < than blink.queuelength
-% means the length of source data
+% means the length of source data for calibration of MSDW parameters
 
 blink.alpha = 0;
 blink.v = 0.1; % default is 0.1
