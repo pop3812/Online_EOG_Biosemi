@@ -12,7 +12,7 @@ blink.max_window_width = 14; % default is 14 = 14/64  = 448/2048 = about 220 ms
 blink.SR = 64; % Sampling Rate for eye detection
                % (should be < than SR of the raw data). default is 64
 
-blink.threshold  =-1; % default is -1
+blink.threshold  = -1; % default is -1
 blink.prev_threshold = -1; % default is -1
 blink.min_th_abs_ratio = 0.4; % default is 0.4
 

@@ -13,6 +13,9 @@ buffer.dataqueue.data(:,:) = NaN;
 buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.raw_dataqueue.data(:,:) = NaN;
 
+% Buffer Initiation for Blink Detection related Buffers
+set_blink_detection_parameters();
+
 %% Baseline Drift Removal Calibration
 % Calculate the baseline drift value by using first buffer time [sec] data
 prog_bar = waitbar(0, 'Calibrating : 0 %', 'Name', program_name);

@@ -135,6 +135,7 @@ params.QueueLength = params.SamplingFrequency2Use * params.BufferTime;
 
 % buffers
 buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
+buffer.DM_BK = online_downsample_init(params.blink.DecimateRate); % Online downsample buffer for Blink Detector
 buffer.buffer_4medianfilter = circlequeue(params.medianfilter_size, params.CompNum);
 
 buffer.dataqueue   = circlequeue(params.QueueLength, params.CompNum);
@@ -156,7 +157,7 @@ set(handles.start_button, 'Enable', 'off');
 set(handles.stop_button, 'Enable', 'off');
 
 %% Initialize the Screen
-screen_init_psy();
+% screen_init_psy();
 
 % --- Executes on button press in calib_button.
 function calib_button_Callback(hObject, eventdata, handles)
