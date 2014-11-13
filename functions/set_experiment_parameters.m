@@ -31,6 +31,12 @@ params.screen_width = 34; % the width of the screen (inner) [cm]
 params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
 
+% training parameters
+params.time_per_stimulus = 0.5; % the length of each training stimulus [sec]
+params.stimulus_onset_angle = 12; % the angle where stimuli would be shown [degree]
+                                  % should not exceed the maximum angle due
+                                  % to the screen size
+
 % plot parameters
 params.y_range = 10^-2; % 10^-2 is optimal for Biosemi EOG
 

@@ -19,11 +19,15 @@ set_blink_detection_parameters();
 %% Baseline Drift Removal Calibration
 % Calculate the baseline drift value by using first buffer time [sec] data
 prog_bar = waitbar(0, 'Calibrating : 0 %', 'Name', program_name);
+
+timer_id_data= timer('TimerFcn','data_processing', ...
+    'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
+start(timer_id_data);
+
 if(params.drift_removing ~= 0)
     median_window_size = params.drift_filter_time * params.SamplingFrequency2Use;
-
+    
     while(buffer.dataqueue.datasize < median_window_size)
-        data_processing();
         progress_percentage = buffer.dataqueue.datasize / params.QueueLength * 0.5;
         progress_percentage_val = fix(progress_percentage * 10^4)/100;
         waitbar(progress_percentage, prog_bar, ...
@@ -31,7 +35,7 @@ if(params.drift_removing ~= 0)
             'Name', 'Calibrating ...');
         pause(params.DelayTime);
     end
-
+    
     % Save the calculated drift values when user wants to use
     % off-line drift removal
     if(params.drift_removing == 1)
@@ -42,10 +46,13 @@ else
         'Name', 'Calibrating ...');
 end
 
+stop(timer_id_data);
+clear biosemix;
+
 %% Linear Fitting Calibration
 %%% should be implemented here
 
-% linear_fitting_training();
+linear_fitting_training();
 
 close(prog_bar);
 end

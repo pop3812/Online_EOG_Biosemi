@@ -26,7 +26,7 @@ if(length(screenNumbers) > 2) % Double monitor
     Screen('TextSize', window, 20);
     Screen('TextStyle', window, 1);
 
-    DrawFormattedText(window, 'Screen', 'center', Y-150, [255, 255, 255]);
+    DrawFormattedText(window, 'Look at the center.', 'center', Y-300, [255, 255, 255]);
     Screen('Flip', window);  
 
     WaitSecs(2);
