@@ -8,7 +8,7 @@ global params;
 global buffer;
 
 y_range = params.y_range;
-EOG = circshift(buffer.dataqueue.data, -buffer.dataqueue.index_start);
+EOG = circshift(buffer.dataqueue.data, -buffer.dataqueue.index_start+1);
 
 % Current Signal Plot
 cla(g_handles.current_signal);
@@ -66,7 +66,7 @@ if nRange > 0
         pos = mod(b.dataqueue.index_start + ...
                 b.detectedRange_inQueue.get(i) - 2, b.dataqueue.length) + 1;
         
-        pos = pos * p.DecimateRate - buffer.dataqueue.index_start;
+        pos = pos * p.DecimateRate - buffer.dataqueue.index_start + 1;
         if pos <= 0
             pos = pos + buffer.dataqueue.datasize;
             % check if it is out of bound or not
