@@ -19,7 +19,8 @@ classdef accHistogram <handle
         function obj = Init(obj,initial_data,nBin)
             obj.nBin = nBin;
             obj.data_min = min(initial_data);
-            obj.data_max = max(initial_data);
+%            obj.data_max = max(initial_data);
+            obj.data_max = std(initial_data)*6; %std *4 includes 99.99%
             obj.bin = zeros(1,nBin);
             obj.delta = (obj.data_max- obj.data_min)/(nBin-2);
             obj.x_border = obj.data_min:obj.delta:obj.data_max;
