@@ -30,9 +30,11 @@ if(params.drift_removing ~= 0)
     while(buffer.dataqueue.datasize < median_window_size)
         progress_percentage = buffer.dataqueue.datasize / params.QueueLength * 0.5;
         progress_percentage_val = fix(progress_percentage * 10^4)/100;
-        waitbar(progress_percentage, prog_bar, ...
-            ['Calibrating : ' num2str(progress_percentage_val) ' %'],...
-            'Name', 'Calibrating ...');
+        if (ishandle(prog_bar))
+            waitbar(progress_percentage, prog_bar, ...
+                ['Calibrating : ' num2str(progress_percentage_val) ' %'],...
+                'Name', 'Calibrating ...');
+        end
         pause(params.DelayTime);
     end
     
@@ -41,13 +43,15 @@ if(params.drift_removing ~= 0)
     if(params.drift_removing == 1)
         params.DriftValues = median(buffer.raw_dataqueue.data);
     end
-else
-    waitbar(0.5, prog_bar, ['Calibrating : ' num2str(50) ' %'],...
-        'Name', 'Calibrating ...');
 end
 
 stop(timer_id_data);
 clear biosemix;
+
+if (ishandle(prog_bar))
+waitbar(0.5, prog_bar, ['Calibrating : ' num2str(50) ' %'],...
+    'Name', 'Calibrating ...');
+end
 
 %% Linear Fitting Calibration
 %%% should be implemented here

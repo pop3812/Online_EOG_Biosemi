@@ -136,6 +136,7 @@ params.QueueLength = params.SamplingFrequency2Use * params.BufferTime;
 % buffers
 buffer.X = 0;
 buffer.Y = 0;
+
 buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
 buffer.DM_BK = online_downsample_init(params.blink.DecimateRate); % Online downsample buffer for Blink Detector
 buffer.buffer_4medianfilter = circlequeue(params.medianfilter_size, params.CompNum);

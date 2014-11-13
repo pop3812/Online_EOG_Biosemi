@@ -32,7 +32,8 @@ params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
 
 % training parameters
-params.time_per_stimulus = 0.5; % the length of each training stimulus [sec]
+params.time_per_stimulus = 1; % the length of each training stimulus [sec]
+                              % should be less than BufferTime - 2.
 params.stimulus_onset_angle = 12; % the angle where stimuli would be shown [degree]
                                   % should not exceed the maximum angle due
                                   % to the screen size

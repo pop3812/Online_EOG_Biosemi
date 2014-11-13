@@ -22,6 +22,10 @@ if (params.DummyMode)
           % for the case of linearly decreasing baseline drift 
           % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
           
+    % Each component value should be proportional to the eye position
+    EOG(:, 1) = EOG(:, 1) + buffer.X;
+    EOG(:, 2) = EOG(:, 2) + buffer.Y;
+    
     EOG = 10^-3 * EOG;
     n_data = params.BufferLength_Biosemi;
 else

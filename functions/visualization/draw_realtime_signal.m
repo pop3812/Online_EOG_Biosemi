@@ -57,24 +57,14 @@ alpha = 0.1;
 color = [1 0 0];
 
 % The number of ranges
-nRange = b.detectedRange_inQueue.datasize;
+ranges = blink_range_position_conversion();
+nRange = size(ranges, 1);
 
 y = get(g_handles.current_signal,'YLim');
 
 if nRange > 0
     for i=1:nRange
-        pos = mod(b.dataqueue.index_start + ...
-                b.detectedRange_inQueue.get(i) - 2, b.dataqueue.length) + 1;
-        
-        pos = pos * p.DecimateRate - buffer.dataqueue.index_start + 1;
-        if pos <= 0
-            pos = pos + buffer.dataqueue.datasize;
-            % check if it is out of bound or not
-        end
-        
-        if pos(1) > pos(2)
-            pos(2) = pos(2) + buffer.dataqueue.datasize;
-        end
+        pos = ranges(i, :);
         
         if strcmp(line_style, 'horizon')
             y = ((1 - mark_position) * y(1) + mark_position * y(2));
@@ -90,9 +80,6 @@ if nRange > 0
             set(h,'FaceAlpha', alpha, 'FaceColor', color, 'LineStyle', 'none');
             h=get(H2,'children');
             set(h,'FaceAlpha', alpha, 'FaceColor', color, 'LineStyle', 'none');
-            
-%             plot(g_handles.current_signal, [pos(1) pos(1)], [y(1), y(2)], '-k', 'LineWidth', 1);
-%             plot(g_handles.current_signal, [pos(2) pos(2)], [y(1), y(2)], '-k', 'LineWidth', 1);
         end
     end
 end
