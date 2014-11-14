@@ -8,13 +8,19 @@ window = params.window;
 pos = params.stimulus_onset_angle;
 
 %% Stimulus
-X_degree_training = [0 -pos 0 pos pos pos 0 -pos -pos];
-Y_degree_training = [0 pos pos pos 0 -pos -pos -pos 0];
+% 3 x 3 Grid Stimulus
+% X_degree_training = [0 -pos 0 pos pos pos 0 -pos -pos];
+% Y_degree_training = [0 pos pos pos 0 -pos -pos -pos 0];
+
+% X shape Stimulus
+X_degree_training = [0 -pos -pos/2 pos/2 pos pos pos/2 -pos/2 -pos];
+Y_degree_training = [0 pos pos/2 -pos/2 -pos pos pos/2 -pos/2 -pos];
 
 n_training = length(X_degree_training); % the number of training stimuli
 
 black = BlackIndex(window);
 Screen('FillRect', window, black);
+[beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
 
 %% Set Parameters
 
@@ -29,9 +35,21 @@ stimulus_for_training.data(:,:) = NaN;
 
 %% Get Training Data
 
+% Show the instruction for 2 seconds.
+Screen('TextFont', window, 'Cambria');
+Screen('TextSize', window, 15);
+Screen('TextStyle', window, 1);
+
+[X_center,Y_center] = RectCenter(params.rect);
+
+DrawFormattedText(window, 'Look at the cross after the beep.', 'center', ...
+    Y_center-100, [255, 255, 255]);
+Screen('Flip', window);  
+WaitSecs(2);
 
 for train_idx = 1:n_training
     
+    % Stimulus onset
     stimulus_onset_idx = buffer.dataqueue.index_start;
     
     buffer.X = X_degree_training(train_idx);
@@ -41,7 +59,7 @@ for train_idx = 1:n_training
     Y = screen_degree_to_pixel('Y', buffer.Y);
 
     screen_draw_fixation(window, X, Y);
-    [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
+
     sound(beep, Fs); % sound beep
     Screen('Flip', window);
     
@@ -68,10 +86,17 @@ for train_idx = 1:n_training
     
     % Blink range position calculation
     ranges = blink_range_position_conversion();
+    blink_detected = blink_range_to_logical_array(ranges);
+    blink_detected = circshift(blink_detected, buffer.dataqueue.index_start-stimulus_onset_idx);
     
     % Reconstruction of EOG during the stimulus
     EOG = circshift(buffer.dataqueue.data, -stimulus_onset_idx+1);
     EOG = EOG(1:stimulus_n_data, :);
+    blink_detected = blink_detected(1:stimulus_n_data, :);
+    
+    % Blink range removal and concatenation
+    EOG = EOG(logical(1-blink_detected), :);
+    stimulus_n_data = size(EOG, 1);
     
     for i=1:stimulus_n_data
         signal_for_training.add(EOG(i,:));
@@ -83,8 +108,31 @@ end
 buffer.X = 0;
 buffer.Y = 0;
 
-%% Blink Range Removal during the Training
+%% Linear fitting using training data
+
+if strcmp(params.fit_type, 'linear')
+    n_data = stimulus_for_training.datasize;
+    buffer.pol_x = polyfit(signal_for_training.data(1:n_data,1),...
+        stimulus_for_training.data(1:n_data,1), 1);
+    buffer.pol_y = polyfit(signal_for_training.data(1:n_data,2),...
+        stimulus_for_training.data(1:n_data,2), 1);
+    
+    % Visualize the fitting results
+    figure('name', 'Fitting Results', 'NumberTitle', 'off');
+    
+    subplot(1, 2, 1); scatter(signal_for_training.data(1:n_data,1),...
+        stimulus_for_training.data(1:n_data,1)); hold on;
+    x_x = [min(signal_for_training.data(:,1)), max(signal_for_training.data(:,1))];
+    plot(x_x, polyval(buffer.pol_x, x_x), '--r');
+    
+    subplot(1, 2, 2); scatter(signal_for_training.data(1:n_data,2),...
+        stimulus_for_training.data(1:n_data,2)); hold on;
+    x_y = [min(signal_for_training.data(:,2)), max(signal_for_training.data(:,2))];
+    plot(x_y, polyval(buffer.pol_y, x_y), '--r');
+else
+    throw(MException('TrainingDataFitting:InvalidFittingType',...
+    'Invalid fitting type has been requested.'));
+end
 
 sca
 end
-

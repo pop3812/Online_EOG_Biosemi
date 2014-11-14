@@ -8,6 +8,8 @@ params.denosing = 1; % 1 = denoising, 0 = none
 params.drift_removing = 2; % 1 = offline drift removing, ...
                            % 2 = online drift removing, ...
                            % 0 = none
+params.use_real_dummy = 1; % 1 = realistic EOG sample signal, ...
+                           % 0 = dummy signal with rectangular pulses
 
 % signal acquisition parameters
 params.SamplingFrequency2Use = 128; % default is 128
@@ -33,11 +35,12 @@ params.screen_distance = 50; % the viewer's distance from the screen's center [c
 
 % training parameters
 params.time_per_stimulus = 1; % the length of each training stimulus [sec]
-                              % should be less than BufferTime - 2.
+                              % should be > 1 and < BufferTime - 2.
 params.stimulus_onset_angle = 12; % the angle where stimuli would be shown [degree]
                                   % should not exceed the maximum angle due
                                   % to the screen size
-
+params.fit_type = 'linear';
+                                  
 % plot parameters
 params.y_range = 10^-2; % 10^-2 is optimal for Biosemi EOG
 

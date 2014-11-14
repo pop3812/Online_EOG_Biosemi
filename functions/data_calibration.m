@@ -49,15 +49,18 @@ stop(timer_id_data);
 clear biosemix;
 
 if (ishandle(prog_bar))
-waitbar(0.5, prog_bar, ['Calibrating : ' num2str(50) ' %'],...
+waitbar(0.60, prog_bar, ['Calibrating : ' num2str(60) ' %'],...
     'Name', 'Calibrating ...');
 end
 
 %% Linear Fitting Calibration
-%%% should be implemented here
 
 linear_fitting_training();
+if (ishandle(prog_bar))
+    waitbar(1.0, prog_bar, ['Calibrating : ' num2str(100) ' %'],...
+        'Name', 'Calibrating ...');
+    close(prog_bar);
+end
 
-close(prog_bar);
 end
 

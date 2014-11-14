@@ -23,10 +23,10 @@ if(length(screenNumbers) > 2) % Double monitor
 
     % Select specific text font, style and size:
     Screen('TextFont', window, 'Cambria');
-    Screen('TextSize', window, 20);
+    Screen('TextSize', window, 15);
     Screen('TextStyle', window, 1);
 
-    DrawFormattedText(window, 'Look at the center.', 'center', Y-300, [255, 255, 255]);
+    DrawFormattedText(window, 'Look at the cross.', 'center', Y-100, [255, 255, 255]);
     Screen('Flip', window);  
 
     WaitSecs(2);

@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 11-Nov-2014 16:58:49
+% Last Modified by GUIDE v2.5 14-Nov-2014 11:48:03
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -92,13 +92,18 @@ global buffer;
 global GDF_Header;
 
 params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
+[beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+
 %% Dump if exist
 try
 	dummy = biosemix([1 0]); %실행될때마다 버퍼에서 데이터 가져오기, 일단 한번 실행하는 것.
 catch me
 	if strfind(me.message,'BIOSEMI device')
         params.DummyMode = 1; % 0 : biosemi, 1 : Dummy
-        warndlg([me.message 'The program will be run in dummy mode.'], program_name);
+        
+        sound(beep, Fs); % sound beep
+        set(handles.system_message, 'String', ...
+            strrep([me.message 'The program will be run in dummy mode.'], sprintf('\n'),'. '));
         set(handles.console, 'String', 'Dummy Mode');
         clear biosemix;
     else
@@ -106,16 +111,25 @@ catch me
 	end
 end
 
-if (params.DummyMode ==0)
-    params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
-    set(handles.console, 'String', 'Biosemi Mode');
-end
-
 %% Basic Parameter Initialization
 
 % Experiment Parameter Settings
 set_experiment_parameters();
 set_blink_detection_parameters();
+
+if (params.DummyMode == 0)
+    sound(beep, Fs); % sound beep
+    set(handles.system_message, 'String', ...
+        'BIOSEMI has been detected. Initialization has been done successfully.');
+    set(handles.console, 'String', 'Biosemi Mode');
+elseif(params.DummyMode == 1)
+    if (params.use_real_dummy == 1)
+    % Get dummy sample data
+    load([pwd, '\resources\sample_signal\sample_128hz_90sec.mat']);
+    buffer.dummy_signal = data;
+    clear data data_header;
+    end
+end
 
 %% Preparing for signal acquisition
 
@@ -146,11 +160,8 @@ buffer.dataqueue.data(:,:) = NaN;
 
 buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.raw_dataqueue.data(:,:) = NaN;
-
+        
 %% Initialize Biosemi
-if(params.DummyMode~=1)
-    warndlg('Biosemi detected. Successfully done.', program_name);
-end
 
 GDF_Header = signal_initialize_Biosemi();
 
@@ -172,6 +183,9 @@ global program_name;
 global g_handles;
 
 g_handles = handles;
+[beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+
+set(handles.system_message, 'String', 'Calibration');
 
 % GUI Control
 set(handles.initialize_button, 'Enable', 'off');
@@ -187,7 +201,8 @@ set(handles.calib_button, 'Enable', 'on');
 set(handles.start_button, 'Enable', 'on');
 set(handles.stop_button, 'Enable', 'off');
 
-warndlg('Calibration has been successfully done.', program_name);
+sound(beep, Fs); % sound beep
+set(handles.system_message, 'String', 'Calibration has been done successfully.');
 
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
@@ -201,6 +216,7 @@ global timer_id_data;
 global params;
 
 g_handles = handles;
+[beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
 timer_id_data= timer('TimerFcn','data_processing', ...
         'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
@@ -211,6 +227,9 @@ choice = questdlg('Do you want to start data acquisition?', program_name, ...
 switch choice
     case 'Yes'        
         start(timer_id_data);
+        
+        sound(beep, Fs); % sound beep
+        set(handles.system_message, 'String', 'Data Acquisition');
         
         % GUI Control
         set(handles.start_button, 'Enable', 'off');
@@ -230,6 +249,7 @@ function stop_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global program_name;
 global timer_id_data;
+[beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
 choice = questdlg('Do you want to stop data acquisition?', program_name, ...
     'Yes', 'No', 'No');
@@ -242,7 +262,9 @@ switch choice
         set(handles.stop_button, 'Enable', 'off');
         set(handles.initialize_button, 'Enable', 'on');
         set(handles.calib_button, 'Enable', 'on');
-        warndlg('Data acquisition has been stopped.', program_name);
+        
+        sound(beep, Fs); % sound beep
+        set(handles.system_message, 'String', 'Data acquisition has been stopped.');
 
     case 'No'
         return;
@@ -272,14 +294,6 @@ if ~isequal(file, 0)
     catch me
         errordlg(me.message, program_name);
     end
-    
-%     axes(handles.current_signal);
-%     img  = getframe(gca);
-%     try
-%         imwrite(img.cdata,save_path, 'png');
-%     catch me
-%         errordlg(me.message, program_name);
-%     end
 end
 
 % --------------------------------------------------------------------
@@ -353,6 +367,29 @@ global GDF_Header;
 % Add function path
 addpath(genpath([pwd, '\functions']));
 
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+function system_message_Callback(hObject, eventdata, handles)
+% hObject    handle to system_message (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of system_message as text
+%        str2double(get(hObject,'String')) returns contents of system_message as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function system_message_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to system_message (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end

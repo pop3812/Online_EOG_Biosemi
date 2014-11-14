@@ -8,25 +8,30 @@ global buffer;
 
 %% EOG Components Calculation
 if (params.DummyMode)
-    % Make dummy signal to show
-    c=clock; c=c(6); % use clock for generating dummy signal
-    d = c:3:c+6;
-    t=repmat(linspace(c, c+6, 5.*params.BufferLength_Biosemi)',1,2);
-    t=t(1:params.BufferLength_Biosemi,:);
+    if(params.use_real_dummy == 1)
+        EOG = buffer.dummy_signal(1:params.BufferLength_Biosemi, :);
+        buffer.dummy_signal = circshift(buffer.dummy_signal, -params.BufferLength_Biosemi);
+    else
+        % Make dummy signal to show
+        c=clock; c=c(6); % use clock for generating dummy signal
+        d = c:3:c+6;
+        t=repmat(linspace(c, c+6, 5.*params.BufferLength_Biosemi)',1,2);
+        t=t(1:params.BufferLength_Biosemi,:);
+
+        EOG = 15 * pulstran(t, d, 'rectpuls', 1/3) ...
+               + randn(params.BufferLength_Biosemi,2) ...
+               + 10;
+              % + 2 * ((randn(params.BufferLength_Biosemi,2))>0.1) ...
+              % + 2 * sin(0.1 * repmat(linspace(c, c+5*pi, params.BufferLength_Biosemi)',1,2)) ...
+              % for the case of linearly decreasing baseline drift 
+              % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
+
+        % Each component value should be proportional to the eye position
+        EOG(:, 1) = EOG(:, 1) + buffer.X;
+        EOG(:, 2) = EOG(:, 2) + buffer.Y;    
+    end
     
-    EOG = 15 * pulstran(t, d, 'rectpuls', 1/3) ...
-           + randn(params.BufferLength_Biosemi,2) ...
-           + 10;
-          % + 2 * ((randn(params.BufferLength_Biosemi,2))>0.1) ...
-          % + 2 * sin(0.1 * repmat(linspace(c, c+5*pi, params.BufferLength_Biosemi)',1,2)) ...
-          % for the case of linearly decreasing baseline drift 
-          % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
-          
-    % Each component value should be proportional to the eye position
-    EOG(:, 1) = EOG(:, 1) + buffer.X;
-    EOG(:, 2) = EOG(:, 2) + buffer.Y;
-    
-    EOG = 10^-3 * EOG;
+    EOG = 10^-3 * EOG; % conversion into [mV]
     n_data = params.BufferLength_Biosemi;
 else
     EOG = signal_receive_Biosemi();
