@@ -20,7 +20,7 @@ set_blink_detection_parameters();
 % Calculate the baseline drift value by using first buffer time [sec] data
 prog_bar = waitbar(0, 'Calibrating : 0 %', 'Name', program_name);
 
-timer_id_data= timer('TimerFcn','data_processing', ...
+timer_id_data= timer('TimerFcn','data_processing_for_calibration', ...
     'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 start(timer_id_data);
 

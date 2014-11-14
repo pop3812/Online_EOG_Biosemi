@@ -160,6 +160,9 @@ buffer.dataqueue.data(:,:) = NaN;
 
 buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.raw_dataqueue.data(:,:) = NaN;
+
+buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
+buffer.eye_position_queue.data(:,:) = NaN;
         
 %% Initialize Biosemi
 

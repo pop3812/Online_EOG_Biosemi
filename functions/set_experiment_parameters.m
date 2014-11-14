@@ -5,10 +5,10 @@ global params;
 
 % modes
 params.denosing = 1; % 1 = denoising, 0 = none
-params.drift_removing = 2; % 1 = offline drift removing, ...
+params.drift_removing = 1; % 1 = offline drift removing, ...
                            % 2 = online drift removing, ...
                            % 0 = none
-params.use_real_dummy = 1; % 1 = realistic EOG sample signal, ...
+params.use_real_dummy = 0; % 1 = realistic EOG sample signal, ...
                            % 0 = dummy signal with rectangular pulses
 
 % signal acquisition parameters
@@ -38,7 +38,7 @@ params.time_per_stimulus = 1; % the length of each training stimulus [sec]
                               % should be > 1 and < BufferTime - 2.
 params.stimulus_onset_angle = 12; % the angle where stimuli would be shown [degree]
                                   % should not exceed the maximum angle due
-                                  % to the screen size
+                                  % to the screen size and should be > 0
 params.fit_type = 'linear';
                                   
 % plot parameters

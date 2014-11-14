@@ -67,7 +67,7 @@ for train_idx = 1:n_training
     
     % Data acquisition for this training stimulus
     for j = 1:params.time_per_stimulus * (1.0/params.DelayTime)
-        data_processing();
+        data_processing_for_calibration();
         pause(params.DelayTime);
     end
     clear biosemix;
@@ -105,8 +105,11 @@ for train_idx = 1:n_training
     
 end
 
-buffer.X = 0;
-buffer.Y = 0;
+% Pseudo eye movement for dummy mode
+buffer.X = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
+buffer.Y = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
+buffer.X = buffer.X';
+buffer.Y = buffer.Y';
 
 %% Linear fitting using training data
 
@@ -118,21 +121,21 @@ if strcmp(params.fit_type, 'linear')
         stimulus_for_training.data(1:n_data,2), 1);
     
     % Visualize the fitting results
-    figure('name', 'Fitting Results', 'NumberTitle', 'off');
-    
-    subplot(1, 2, 1); scatter(signal_for_training.data(1:n_data,1),...
-        stimulus_for_training.data(1:n_data,1)); hold on;
-    x_x = [min(signal_for_training.data(:,1)), max(signal_for_training.data(:,1))];
-    plot(x_x, polyval(buffer.pol_x, x_x), '--r');
-    
-    subplot(1, 2, 2); scatter(signal_for_training.data(1:n_data,2),...
-        stimulus_for_training.data(1:n_data,2)); hold on;
-    x_y = [min(signal_for_training.data(:,2)), max(signal_for_training.data(:,2))];
-    plot(x_y, polyval(buffer.pol_y, x_y), '--r');
+    draw_fitting_plot(signal_for_training, stimulus_for_training);
+%     figure('name', 'Fitting Results', 'NumberTitle', 'off');
+%     
+%     subplot(1, 2, 1); scatter(signal_for_training.data(1:n_data,1),...
+%         stimulus_for_training.data(1:n_data,1)); hold on;
+%     x_x = [min(signal_for_training.data(:,1)), max(signal_for_training.data(:,1))];
+%     plot(x_x, polyval(buffer.pol_x, x_x), '--r');
+%     
+%     subplot(1, 2, 2); scatter(signal_for_training.data(1:n_data,2),...
+%         stimulus_for_training.data(1:n_data,2)); hold on;
+%     x_y = [min(signal_for_training.data(:,2)), max(signal_for_training.data(:,2))];
+%     plot(x_y, polyval(buffer.pol_y, x_y), '--r');
 else
     throw(MException('TrainingDataFitting:InvalidFittingType',...
     'Invalid fitting type has been requested.'));
 end
 
-sca
 end
