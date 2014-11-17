@@ -25,17 +25,19 @@ n_data_valid = size(EOG_concatenated, 1);
 
 %% Reconstructing Eye Positions from EOG signal
 
-X_eye_pos = polyval(buffer.pol_x, EOG(:, 1)); % position of eye in [degree]
-Y_eye_pos = polyval(buffer.pol_y, EOG(:, 2)); % position of eye in [degree]
+if params.window ~= -1
+    X_eye_pos = polyval(buffer.pol_x, EOG(:, 1)); % position of eye in [degree]
+    Y_eye_pos = polyval(buffer.pol_y, EOG(:, 2)); % position of eye in [degree]
 
-eye_pos = [X_eye_pos, Y_eye_pos];
+    eye_pos = [X_eye_pos, Y_eye_pos];
 
-% Registration to the queue
-for i=1:n_data
-    buffer.eye_position_queue.add(eye_pos(i,:));
+    % Registration to the queue
+    for i=1:n_data
+        buffer.eye_position_queue.add(eye_pos(i,:));
+    end
+
+    median_eye_pos = nanmedian(eye_pos);
 end
-
-median_eye_pos = nanmedian(eye_pos);
 
 %% Visualization
 draw_realtime_signal();
@@ -43,9 +45,9 @@ draw_realtime_signal();
 
 % Real-time Tracking
 if params.window ~= -1
-screen_draw_fixation(params.window, median_eye_pos(1), median_eye_pos(2), ...
-    25, [255 255 0]);
-Screen('Flip', params.window); 
+    screen_draw_fixation(params.window, median_eye_pos(1), ...
+        median_eye_pos(2), 25, [255 255 0]);
+    Screen('Flip', params.window); 
 end
 
 toc;
