@@ -28,12 +28,12 @@ end
 % deg to rad conversion
 degree_rad = degree * pi / 180;
 
-if (max_degree_rad < degree_rad)
-    degree_rad = max_degree_rad;
-%     throw(MException('Screen:DegreeToPixel', 'Degree is out of range.'));
-elseif (degree_rad < -max_degree_rad)
-    degree_rad = -max_degree_rad;
-end
+% if (max_degree_rad < degree_rad)
+%     degree_rad = max_degree_rad;
+% %     throw(MException('Screen:DegreeToPixel', 'Degree is out of range.'));
+% elseif (degree_rad < -max_degree_rad)
+%     degree_rad = -max_degree_rad;
+% end
 
 % calculate deviation length in cm by using trigonomial function
 dist = params.screen_distance * tan(degree_rad); % [cm]

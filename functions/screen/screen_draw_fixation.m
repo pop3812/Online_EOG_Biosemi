@@ -9,6 +9,7 @@ function screen_draw_fixation(window, X, Y, size, color)
 % X, Y          : X, Y position of the fixation point on the screen [degree]
 % size          : size of the fixation point (default is 15)
 % color         : R, G, B value of the color > e.g. [255, 255, 255] = white
+global params;
 
 if(nargin < 3) % not enough arguments
     throw(MException('Screen_Draw_Fixation:NotEnoughArguments',...
@@ -23,20 +24,43 @@ elseif(nargin > 5) % too many arguments
         'There are too many arguments.'));
 end
 
-X = screen_degree_to_pixel('X', X);
-Y = screen_degree_to_pixel('Y', Y);
+rect = params.rect;
 
 width = 5;
 
+X = screen_degree_to_pixel('X', X);
+Y = screen_degree_to_pixel('Y', Y);
+
+x_min = X<rect(1)+size; y_min = Y<rect(2)+size;
+x_max = X>rect(3)-size; y_max = Y>rect(4)-size;
+
+if x_min
+    X = rect(1);
+elseif x_max
+    X = rect(3);
+end
+
+if y_min
+    Y = rect(2);
+elseif y_max
+    Y = rect(4);
+end
+
+% Color becomes red if the gaze is out of monitor bound
+if(x_min || x_max || y_min || y_max)
+   color = [255 0 0];
+end
+
 % Make a fixation point
-
-% 'X' pointer
-Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);
-Screen('DrawLine', window, color, X-size, Y+size, X+size, Y-size, width);
-
-% '+' pointer
-% FixCross = [vertical_edge; horizontal_edge];
-% Screen('FillRect', window, color, FixCross');
+if (x_min&&y_min || x_min&&y_max || x_max&&y_min || x_max&&y_max)
+    % '+' pointer
+    Screen('DrawLine', window, color, X-size, Y, X+size, Y, width);
+    Screen('DrawLine', window, color, X, Y-size, X, Y+size, width);
+else
+    % 'X' pointer
+    Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);
+    Screen('DrawLine', window, color, X-size, Y+size, X+size, Y-size, width);
+end
 
 end
 
