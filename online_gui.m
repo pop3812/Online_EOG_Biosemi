@@ -288,15 +288,22 @@ function SaveMenuItem_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global program_name;
 global GDF_Header;
+global buffer;
+global params;
 
 [file, path] = uiputfile('*.mat', 'Save Current Experiment Parameters and Results As');
 save_path = fullfile(path, file);
 
 if ~isequal(file, 0)
     try
+        GDF_Header.ExperimentParameters = params;
+        GDF_Header.ExperimentBuffers = buffer;
         save(save_path, 'GDF_Header');
+        set(handles.system_message, 'String', 'Data has been saved successfully.');
     catch me
-        errordlg(me.message, program_name);
+        set(handles.system_message, 'String', me.message);
+
+%         errordlg(me.message, program_name);
     end
 end
 
