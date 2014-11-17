@@ -19,7 +19,7 @@ if(length(screenNumbers) > 2) % Double monitor
     
     % Make a default fixation point (center)
     [X,Y] = RectCenter(rect);
-    screen_draw_fixation(window, X, Y);
+    screen_draw_fixation(window, 0, 0);
 
     % Select specific text font, style and size:
     Screen('TextFont', window, 'Cambria');
@@ -30,6 +30,9 @@ if(length(screenNumbers) > 2) % Double monitor
     Screen('Flip', window);  
 
     WaitSecs(2);
+else
+    params.rect = [0 0 0 0];
+    params.window = -1;
 end
 
 end

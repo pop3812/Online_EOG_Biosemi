@@ -55,11 +55,13 @@ end
 
 %% Linear Fitting Calibration
 
-linear_fitting_training();
-if (ishandle(prog_bar))
-    waitbar(1.0, prog_bar, ['Calibrating : ' num2str(100) ' %'],...
-        'Name', 'Calibrating ...');
-    close(prog_bar);
+if params.window ~= -1 % if there is another monitor
+    linear_fitting_training();
+    if (ishandle(prog_bar))
+        waitbar(1.0, prog_bar, ['Calibrating : ' num2str(100) ' %'],...
+            'Name', 'Calibrating ...');
+        close(prog_bar);
+    end
 end
 
 end

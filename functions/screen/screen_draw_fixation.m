@@ -6,7 +6,7 @@ function screen_draw_fixation(window, X, Y, size, color)
 % Input arguments
 % window        : window object of Psychtoolbox kit that the fixation point
 %                 would be shown
-% X, Y          : X, Y position of the fixation point on the screen [pixel]
+% X, Y          : X, Y position of the fixation point on the screen [degree]
 % size          : size of the fixation point (default is 15)
 % color         : R, G, B value of the color > e.g. [255, 255, 255] = white
 
@@ -23,9 +23,20 @@ elseif(nargin > 5) % too many arguments
         'There are too many arguments.'));
 end
 
+X = screen_degree_to_pixel('X', X);
+Y = screen_degree_to_pixel('Y', Y);
+
+width = 5;
+
 % Make a fixation point
-FixCross = [X-2,Y-size,X+2,Y+size;X-size,Y-2,X+size,Y+2];
-Screen('FillRect', window, color, FixCross');
+
+% 'X' pointer
+Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);
+Screen('DrawLine', window, color, X-size, Y+size, X+size, Y-size, width);
+
+% '+' pointer
+% FixCross = [vertical_edge; horizontal_edge];
+% Screen('FillRect', window, color, FixCross');
 
 end
 

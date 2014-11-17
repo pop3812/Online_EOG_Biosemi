@@ -55,10 +55,7 @@ for train_idx = 1:n_training
     buffer.X = X_degree_training(train_idx);
     buffer.Y = Y_degree_training(train_idx);
     
-    X = screen_degree_to_pixel('X', buffer.X);
-    Y = screen_degree_to_pixel('Y', buffer.Y);
-
-    screen_draw_fixation(window, X, Y);
+    screen_draw_fixation(window, buffer.X, buffer.Y);
 
     sound(beep, Fs); % sound beep
     Screen('Flip', window);
@@ -108,6 +105,9 @@ end
 % Pseudo eye movement for dummy mode
 buffer.X = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 buffer.Y = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
+buffer.X = -21 : 3 : 21;
+buffer.Y = -21 : 3 : 21;
+
 buffer.X = buffer.X';
 buffer.Y = buffer.Y';
 
@@ -122,17 +122,7 @@ if strcmp(params.fit_type, 'linear')
     
     % Visualize the fitting results
     draw_fitting_plot(signal_for_training, stimulus_for_training);
-%     figure('name', 'Fitting Results', 'NumberTitle', 'off');
-%     
-%     subplot(1, 2, 1); scatter(signal_for_training.data(1:n_data,1),...
-%         stimulus_for_training.data(1:n_data,1)); hold on;
-%     x_x = [min(signal_for_training.data(:,1)), max(signal_for_training.data(:,1))];
-%     plot(x_x, polyval(buffer.pol_x, x_x), '--r');
-%     
-%     subplot(1, 2, 2); scatter(signal_for_training.data(1:n_data,2),...
-%         stimulus_for_training.data(1:n_data,2)); hold on;
-%     x_y = [min(signal_for_training.data(:,2)), max(signal_for_training.data(:,2))];
-%     plot(x_y, polyval(buffer.pol_y, x_y), '--r');
+
 else
     throw(MException('TrainingDataFitting:InvalidFittingType',...
     'Invalid fitting type has been requested.'));

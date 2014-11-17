@@ -29,22 +29,24 @@ end
 degree_rad = degree * pi / 180;
 
 if (max_degree_rad < degree_rad)
-    throw(MException('Screen:DegreeToPixel', 'Degree is out of range.'));
-else
-
-    % calculate deviation length in cm by using trigonomial function
-    dist = params.screen_distance * tan(degree_rad); % [cm]
-    dist_pixel = (PL/2) * (dist/L);
-    
-    if(comp=='Y')
-        pos = center - dist_pixel;
-    elseif(comp=='X')
-        pos = center + dist_pixel;
-    end
-    
-    pos=fix(pos);
-    
+    degree_rad = max_degree_rad;
+%     throw(MException('Screen:DegreeToPixel', 'Degree is out of range.'));
+elseif (degree_rad < -max_degree_rad)
+    degree_rad = -max_degree_rad;
 end
+
+% calculate deviation length in cm by using trigonomial function
+dist = params.screen_distance * tan(degree_rad); % [cm]
+dist_pixel = (PL/2) * (dist/L);
+
+if(comp=='Y')
+    pos = center - dist_pixel;
+elseif(comp=='X')
+    pos = center + dist_pixel;
+end
+
+pos=fix(pos);
+    
 
 end
 

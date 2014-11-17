@@ -42,10 +42,11 @@ draw_realtime_signal();
 % draw_graphs(EOG_concatenated);
 
 % Real-time Tracking
-X = screen_degree_to_pixel('X', median_eye_pos(1));
-Y = screen_degree_to_pixel('Y', median_eye_pos(2));
-screen_draw_fixation(params.window, X, Y, 30, [255 255 0]);
+if params.window ~= -1
+screen_draw_fixation(params.window, median_eye_pos(1), median_eye_pos(2), ...
+    25, [255 255 0]);
 Screen('Flip', params.window); 
+end
 
 toc;
 end
