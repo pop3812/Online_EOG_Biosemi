@@ -196,6 +196,7 @@ set(handles.start_button, 'Enable', 'off');
 set(handles.stop_button, 'Enable', 'off');
 
 % Data Calibration
+clear biosemix;
 data_calibration();
 
 % GUI Control

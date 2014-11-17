@@ -70,7 +70,7 @@ for train_idx = 1:n_training
         data_processing_for_calibration();
         pause(params.DelayTime);
     end
-    clear biosemix;
+%     clear biosemix;
     
     % Stimulus range calculation
     stimulus_off_idx = buffer.dataqueue.index_end;
