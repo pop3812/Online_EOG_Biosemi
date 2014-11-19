@@ -4,8 +4,23 @@ function [ raw_signal ] = signal_receive_Biosemi()
 
 global params;
 global buffer;
+global g_handles;
 
-raw_signal = biosemix([params.numEEG params.numAIB]);
+try
+    raw_signal = biosemix([params.numEEG params.numAIB]);
+catch me
+	if strfind(me.message,'BIOSEMI device')
+        [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+        sound(beep, Fs); % sound beep
+        set(g_handles.system_message, 'String', ...
+            strrep([me.message 'Recalling the BIOSEMI device again.'], sprintf('\n'),'. '));
+        
+        clear biosemix;
+        raw_signal = biosemix([params.numEEG params.numAIB]);
+    else
+        rethrow(me);
+	end
+end
 
 %% Translate [from bit to voltage value]
 n_data = size(raw_signal,2);

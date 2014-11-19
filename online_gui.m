@@ -146,10 +146,12 @@ end
 % buffer setting for online data acquisition
 params.BufferLength_Biosemi = params.SamplingFrequency2Use * params.DelayTime;
 params.QueueLength = params.SamplingFrequency2Use * params.BufferTime;
+params.DriftRemovalLength = params.SamplingFrequency2Use * params.CalibrationTime;
 
 % buffers
 buffer.X = 0;
 buffer.Y = 0;
+buffer.Calib_or_Acquisition = [zeros(1, params.DataAcquisitionTime), ones(1, params.CalibrationTime)];
 
 buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
 buffer.DM_BK = online_downsample_init(params.blink.DecimateRate); % Online downsample buffer for Blink Detector
@@ -160,6 +162,9 @@ buffer.dataqueue.data(:,:) = NaN;
 
 buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
 buffer.raw_dataqueue.data(:,:) = NaN;
+
+buffer.drift_removal_queue = circlequeue(params.DriftRemovalLength, params.CompNum);
+buffer.drift_removal_queue.data(:,:) = NaN;
 
 buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
 buffer.eye_position_queue.data(:,:) = NaN;
@@ -197,7 +202,7 @@ set(handles.stop_button, 'Enable', 'off');
 
 % Data Calibration
 clear biosemix;
-data_calibration();
+initial_calibration();
 
 % GUI Control
 set(handles.initialize_button, 'Enable', 'on');
@@ -222,7 +227,7 @@ global params;
 g_handles = handles;
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
-timer_id_data= timer('TimerFcn','data_processing', ...
+timer_id_data= timer('TimerFcn','data_processing_main', ...
         'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
 choice = questdlg('Do you want to start data acquisition?', program_name, ...
@@ -233,7 +238,6 @@ switch choice
         start(timer_id_data);
         
         sound(beep, Fs); % sound beep
-        set(handles.system_message, 'String', 'Data Acquisition');
         
         % GUI Control
         set(handles.start_button, 'Enable', 'off');

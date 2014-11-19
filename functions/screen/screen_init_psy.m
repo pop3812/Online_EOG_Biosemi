@@ -6,28 +6,34 @@ global params;
 screenNumbers=Screen('Screens');
 
 if(length(screenNumbers) > 2) % Double monitor
-    % Initial Preference Setup
-    Screen('Preference', 'SkipSyncTests', 2);
-    Screen('Preference', 'ConserveVRAM', 64);
-
-    params.screen_number = max(screenNumbers); % Use the second monitor
     
-    [window, rect] = Screen('OpenWindow', params.screen_number, 1);
+    % Check if the window is open
+    windowPtrs=Screen('Windows');
+    if isempty(windowPtrs)
+        % New Window Open
+        % Initial Preference Setup
+        Screen('Preference', 'SkipSyncTests', 2);
+        Screen('Preference', 'ConserveVRAM', 64);
 
-    params.rect = rect;
-    params.window = window;
+        params.screen_number = max(screenNumbers); % Use the second monitor
+
+        [window, rect] = Screen('OpenWindow', params.screen_number, 1);
+
+        params.rect = rect;
+        params.window = window;
+    end
     
     % Make a default fixation point (center)
-    [X,Y] = RectCenter(rect);
-    screen_draw_fixation(window, 0, 0);
+    [X,Y] = RectCenter(params.rect);
+    screen_draw_fixation(params.window, 0, 0);
 
     % Select specific text font, style and size:
-    Screen('TextFont', window, 'Cambria');
-    Screen('TextSize', window, 15);
-    Screen('TextStyle', window, 1);
-
-    DrawFormattedText(window, 'Look at the cross.', 'center', Y-100, [255, 255, 255]);
-    Screen('Flip', window);  
+    Screen('TextFont', params.window, 'Cambria');
+    Screen('TextSize', params.window, 15);
+    Screen('TextStyle', params.window, 1);
+    
+    DrawFormattedText(params.window, 'Look at the point.', 'center', Y-100, [255, 255, 255]);
+    Screen('Flip', params.window);  
 
     WaitSecs(2);
 else

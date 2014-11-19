@@ -1,6 +1,7 @@
 # Do not include temporary files
 *.asv
 *.log
+data/
 
 # Windows image file caches
 Thumbs.db

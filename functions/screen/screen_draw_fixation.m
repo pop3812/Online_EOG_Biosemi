@@ -1,4 +1,4 @@
-function screen_draw_fixation(window, X, Y, size, color)
+function screen_draw_fixation(window, X, Y, size, width, color, type)
 %SCREEN_DRAW_FIXATION
 % shows the fixation point (cross) on the designated point (X, Y) of 
 % the screen
@@ -7,26 +7,35 @@ function screen_draw_fixation(window, X, Y, size, color)
 % window        : window object of Psychtoolbox kit that the fixation point
 %                 would be shown
 % X, Y          : X, Y position of the fixation point on the screen [degree]
-% size          : size of the fixation point (default is 15)
+% size          : size of the fixation point (default is 10)
+% width         : width of the fixation point (in case of 'X' shape point)
 % color         : R, G, B value of the color > e.g. [255, 255, 255] = white
+% type          : type of fixation point. either 'X' or '.' (dot)
 global params;
 
 if(nargin < 3) % not enough arguments
     throw(MException('Screen_Draw_Fixation:NotEnoughArguments',...
         'There are not enough arguments.'));
 elseif(nargin == 3) % arguments except size and color
-    size = 15;
+    size = 10;
+    width = 2;
     color = [255, 255, 255]; % default color is white
+    type = '.';
 elseif(nargin == 4) % arguments except color
-    color = [255, 255, 255]; % default color is white    
-elseif(nargin > 5) % too many arguments
+    width = 2;
+    color = [255, 255, 255]; % default color is white
+    type = '.';
+elseif(nargin == 5) % arguments except color
+    color = [255, 255, 255]; % default color is white
+    type = '.';
+elseif(nargin == 6) % arguments except color
+    type = '.';
+elseif(nargin > 7) % too many arguments
     throw(MException('Screen_Draw_Fixation:TooManyArguments',...
         'There are too many arguments.'));
 end
 
 rect = params.rect;
-
-width = 5;
 
 X = screen_degree_to_pixel('X', X);
 Y = screen_degree_to_pixel('Y', Y);
@@ -54,12 +63,18 @@ end
 % Make a fixation point
 if (x_min&&y_min || x_min&&y_max || x_max&&y_min || x_max&&y_max)
     % '+' pointer
+    size = size + 10;
     Screen('DrawLine', window, color, X-size, Y, X+size, Y, width);
     Screen('DrawLine', window, color, X, Y-size, X, Y+size, width);
 else
-    % 'X' pointer
-    Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);
-    Screen('DrawLine', window, color, X-size, Y+size, X+size, Y-size, width);
+    if strcmp(type, '.')
+        % 'Dot' pointer
+        Screen('DrawDots', window, [X, Y], size, color, [0, 0], 2);
+    else
+        % 'X' pointer
+        Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);
+        Screen('DrawLine', window, color, X-size, Y+size, X+size, Y-size, width);
+    end
 end
 
 end

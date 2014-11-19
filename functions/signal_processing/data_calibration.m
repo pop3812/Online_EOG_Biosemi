@@ -1,69 +1,54 @@
-function data_calibration()
-%DATA_CALIBRATION : Calibrate the initial parameters for the experiment
+function data_calibration(isFirstSec, isLastSec)
+%DATA_CALIBRATION Summary of this function goes here
 %   Detailed explanation goes here
+
+tic;
 
 global params;
 global buffer;
-global program_name;
 
-%% Buffer Initiation
-buffer.dataqueue   = circlequeue(params.QueueLength, params.CompNum);
-buffer.dataqueue.data(:,:) = NaN;
+%% Screen Control
+if isFirstSec
+    screen_init_psy();
+end
 
-buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
-buffer.raw_dataqueue.data(:,:) = NaN;
+%% Signal Processing
+% - denoising, baseline removal, eye blink removal
+EOG = signal_processing_main();
+n_data = size(EOG, 1);
 
-% Buffer Initiation for Blink Detection related Buffers
-set_blink_detection_parameters();
+%% Removal of Eye Blink Detected Range
 
-%% Baseline Drift Removal Calibration
-% Calculate the baseline drift value by using first buffer time [sec] data
-prog_bar = waitbar(0, 'Calibrating : 0 %', 'Name', program_name);
+ranges = blink_range_position_conversion();
+blink_detected = blink_range_to_logical_array(ranges);
+blink_detected = circshift(blink_detected, -buffer.dataqueue.index_start+1);
+blink_detected = blink_detected(end-n_data+1:end);
 
-timer_id_data= timer('TimerFcn','data_processing_for_calibration', ...
-    'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
-start(timer_id_data);
+% Blink range removed EOG
+EOG(logical(blink_detected), :) = NaN;
+EOG_concatenated = EOG(logical(1-blink_detected), :);
+n_data_valid = size(EOG_concatenated, 1);
 
-if(params.drift_removing ~= 0)
-    median_window_size = params.drift_filter_time * params.SamplingFrequency2Use;
+%% Registration
+for i=1:n_data_valid
+    buffer.drift_removal_queue.add(EOG_concatenated(i,:));
+end
+
+%% Visualization
+draw_realtime_signal();
+
+%% Parameter Re-assignment
+
+if(params.drift_removing ~= 0) && isLastSec
+    % Reset Drift Value
+    params.DriftValues = params.DriftValues + nanmedian(buffer.drift_removal_queue.data);
     
-    while(buffer.dataqueue.datasize < median_window_size)
-        progress_percentage = buffer.dataqueue.datasize / params.QueueLength * 0.75;
-        progress_percentage_val = fix(progress_percentage * 10^4)/100;
-        if (ishandle(prog_bar))
-            waitbar(progress_percentage, prog_bar, ...
-                ['Calibrating : ' num2str(progress_percentage_val) ' %'],...
-                'Name', 'Calibrating ...');
-        end
-        pause(params.DelayTime);
-    end
-    
-    % Save the calculated drift values when user wants to use
-    % off-line drift removal
-    if(params.drift_removing == 1)
-        params.DriftValues = median(buffer.raw_dataqueue.data);
-    end
+    % Reset Linear Function's y-intercept
+    buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);
+    buffer.pol_y(2) = 0; % - buffer.pol_y(1) * params.DriftValues(2);
 end
 
-stop(timer_id_data);
-clear biosemix;
-
-if (ishandle(prog_bar))
-waitbar(0.75, prog_bar, ['Calibrating : ' num2str(75) ' %'],...
-    'Name', 'Calibrating ...');
-end
-
-%% Linear Fitting Calibration
-
-if params.window ~= -1 % if there is another monitor
-    linear_fitting_training();
-end
-
-if (ishandle(prog_bar))
-        waitbar(1.0, prog_bar, ['Calibrating : ' num2str(100) ' %'],...
-            'Name', 'Calibrating ...');
-        close(prog_bar);
-end
+toc;
 
 end
 

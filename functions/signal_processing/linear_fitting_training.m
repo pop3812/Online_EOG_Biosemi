@@ -42,7 +42,7 @@ Screen('TextStyle', window, 1);
 
 [X_center,Y_center] = RectCenter(params.rect);
 
-DrawFormattedText(window, 'Look at the cross after the beep.', 'center', ...
+DrawFormattedText(window, 'Look at the point after the beep.', 'center', ...
     Y_center-100, [255, 255, 255]);
 Screen('Flip', window);  
 WaitSecs(2);
@@ -105,11 +105,10 @@ end
 % Pseudo eye movement for dummy mode
 buffer.X = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 buffer.Y = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
-buffer.X = -21 : 3 : 21;
-buffer.Y = -21 : 3 : 21;
+buffer.X = [linspace(-21,21,params.DataAcquisitionTime),  linspace(0, 0, params.CalibrationTime)];
 
 buffer.X = buffer.X';
-buffer.Y = buffer.Y';
+buffer.Y = buffer.X;
 
 %% Linear fitting using training data
 
@@ -119,6 +118,8 @@ if strcmp(params.fit_type, 'linear')
         stimulus_for_training.data(1:n_data,1), 1);
     buffer.pol_y = polyfit(signal_for_training.data(1:n_data,2),...
         stimulus_for_training.data(1:n_data,2), 1);
+    
+    buffer.pol_y(1) = buffer.pol_y(1) .* 2.0; %%%
     
     % Visualize the fitting results
     draw_fitting_plot(signal_for_training, stimulus_for_training);
