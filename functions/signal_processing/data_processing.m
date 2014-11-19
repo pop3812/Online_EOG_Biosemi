@@ -1,7 +1,7 @@
 function data_processing()
 %DATAPROCESSING Summary of this function goes here
 %   Detailed explanation goes here
-tic;
+% tic;
 
 global params;
 global buffer;
@@ -23,6 +23,9 @@ EOG(logical(blink_detected), :) = NaN;
 EOG_concatenated = EOG(logical(1-blink_detected), :);
 n_data_valid = size(EOG_concatenated, 1);
 
+buffer.recent_n_data = n_data;
+buffer.recent_n_data_valid = n_data_valid;
+
 %% Reconstructing Eye Positions from EOG signal
 
 if params.window ~= -1
@@ -41,15 +44,6 @@ end
 
 %% Visualization
 draw_realtime_signal();
-% draw_graphs(EOG_concatenated);
 
-% Real-time Tracking
-
-if params.window ~= -1
-    screen_draw_fixation(params.window, median_eye_pos(1), ...
-        median_eye_pos(2), 25, 5, [255 255 0], 'X');
-    Screen('Flip', params.window); 
-end
-
-toc;
+% toc;
 end

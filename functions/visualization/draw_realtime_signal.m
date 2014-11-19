@@ -69,7 +69,12 @@ if nRange > 0
         if strcmp(line_style, 'horizon')
             y = ((1 - mark_position) * y(1) + mark_position * y(2));
             plot(g_handles.current_signal, pos, [y, y], '-r', 'LineWidth', 2);
+        
         elseif strcmp(line_style, 'vertical')
+            plot(g_handles.current_signal, [pos(1), pos(1)], y, ':r', 'LineWidth', 1);
+            plot(g_handles.current_signal, [pos(2), pos(2)], y, ':r', 'LineWidth', 1);
+        
+        elseif strcmp(line_style, 'box')
             hold(g_handles.current_signal, 'on');
             H = area(g_handles.current_signal, pos, [y(2), y(2)]);
             H2 = area(g_handles.current_signal, pos, [y(1), y(1)]);

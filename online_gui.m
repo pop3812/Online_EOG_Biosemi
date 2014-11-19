@@ -151,7 +151,7 @@ params.DriftRemovalLength = params.SamplingFrequency2Use * params.CalibrationTim
 % buffers
 buffer.X = 0;
 buffer.Y = 0;
-buffer.Calib_or_Acquisition = [zeros(1, params.DataAcquisitionTime), ones(1, params.CalibrationTime)];
+buffer.Calib_or_Acquisition = [ones(1, params.CalibrationTime), zeros(1, params.DataAcquisitionTime)];
 
 buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
 buffer.DM_BK = online_downsample_init(params.blink.DecimateRate); % Online downsample buffer for Blink Detector
@@ -168,7 +168,7 @@ buffer.drift_removal_queue.data(:,:) = NaN;
 
 buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
 buffer.eye_position_queue.data(:,:) = NaN;
-        
+
 %% Initialize Biosemi
 
 GDF_Header = signal_initialize_Biosemi();
@@ -223,6 +223,7 @@ global program_name;
 global g_handles;
 global timer_id_data;
 global params;
+global buffer;
 
 g_handles = handles;
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
@@ -230,13 +231,15 @@ g_handles = handles;
 timer_id_data= timer('TimerFcn','data_processing_main', ...
         'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
+buffer.timer_id_displaying = timer('TimerFcn','screen_draw_trail()', ...
+        'StartDelay', 0, 'Period', 1.0 / params.screen_refresh_frequency, 'ExecutionMode', 'FixedRate');
+
 choice = questdlg('Do you want to start data acquisition?', program_name, ...
     'Yes', 'No', 'Yes');
 
 switch choice
     case 'Yes'        
         start(timer_id_data);
-        
         sound(beep, Fs); % sound beep
         
         % GUI Control
@@ -257,6 +260,7 @@ function stop_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global program_name;
 global timer_id_data;
+global buffer;
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
 choice = questdlg('Do you want to stop data acquisition?', program_name, ...
@@ -266,6 +270,12 @@ switch choice
     case 'Yes'
         clear biosemix;
         stop(timer_id_data);
+        delete(timer_id_data);
+        if strcmp(buffer.timer_id_displaying.Running, 'on')
+            stop(buffer.timer_id_displaying);
+        end
+        delete(buffer.timer_id_displaying);
+
         set(handles.start_button, 'Enable', 'on');
         set(handles.stop_button, 'Enable', 'off');
         set(handles.initialize_button, 'Enable', 'on');

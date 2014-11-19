@@ -45,7 +45,7 @@ Screen('TextStyle', window, 1);
 DrawFormattedText(window, 'Look at the point after the beep.', 'center', ...
     Y_center-100, [255, 255, 255]);
 Screen('Flip', window);  
-WaitSecs(2);
+WaitSecs(3.0);
 
 for train_idx = 1:n_training
     
@@ -60,7 +60,7 @@ for train_idx = 1:n_training
     sound(beep, Fs); % sound beep
     Screen('Flip', window);
     
-    pause(1.0); % wait 1 sec for settling down the eye position
+    WaitSecs(1.0); % wait 1 sec for settling down the eye position
     
     % Data acquisition for this training stimulus
     for j = 1:params.time_per_stimulus * (1.0/params.DelayTime)
@@ -105,7 +105,7 @@ end
 % Pseudo eye movement for dummy mode
 buffer.X = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 buffer.Y = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
-buffer.X = [linspace(-21,21,params.DataAcquisitionTime),  linspace(0, 0, params.CalibrationTime)];
+buffer.X = [linspace(0, 0, params.CalibrationTime), linspace(-21,21,params.DataAcquisitionTime)];
 
 buffer.X = buffer.X';
 buffer.Y = buffer.X;
@@ -119,7 +119,9 @@ if strcmp(params.fit_type, 'linear')
     buffer.pol_y = polyfit(signal_for_training.data(1:n_data,2),...
         stimulus_for_training.data(1:n_data,2), 1);
     
-    buffer.pol_y(1) = buffer.pol_y(1) .* 2.0; %%%
+    if (~params.DummyMode)
+        buffer.pol_y(1) = buffer.pol_y(1) .* 2.0; %%%
+    end
     
     % Visualize the fitting results
     draw_fitting_plot(signal_for_training, stimulus_for_training);

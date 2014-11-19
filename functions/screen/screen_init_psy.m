@@ -35,7 +35,7 @@ if(length(screenNumbers) > 2) % Double monitor
     DrawFormattedText(params.window, 'Look at the point.', 'center', Y-100, [255, 255, 255]);
     Screen('Flip', params.window);  
 
-    WaitSecs(2);
+%     WaitSecs(2);
 else
     params.rect = [0 0 0 0];
     params.window = -1;
