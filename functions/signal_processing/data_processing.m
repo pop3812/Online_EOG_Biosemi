@@ -15,7 +15,6 @@ n_data = size(EOG, 1);
 
 ranges = blink_range_position_conversion();
 blink_detected = blink_range_to_logical_array(ranges);
-blink_detected = circshift(blink_detected, -buffer.dataqueue.index_start+1);
 blink_detected = blink_detected(end-n_data+1:end);
 
 % Blink range removed EOG

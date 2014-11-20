@@ -1,7 +1,11 @@
-function screen_init_psy()
+function screen_init_psy(text)
 %SCREEN_CALIBRATION Summary of this function goes here
 %   Detailed explanation goes here
 global params;
+
+if nargin < 1
+text = 'Look at the point.';
+end
 
 screenNumbers=Screen('Screens');
 
@@ -32,7 +36,7 @@ if(length(screenNumbers) > 2) % Double monitor
     Screen('TextSize', params.window, 15);
     Screen('TextStyle', params.window, 1);
     
-    DrawFormattedText(params.window, 'Look at the point.', 'center', Y-100, [255, 255, 255]);
+    DrawFormattedText(params.window, text, 'center', Y-100, [255, 255, 255]);
     Screen('Flip', params.window);  
 
 %     WaitSecs(2);

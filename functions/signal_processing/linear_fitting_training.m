@@ -50,7 +50,7 @@ WaitSecs(3.0);
 for train_idx = 1:n_training
     
     % Stimulus onset
-    stimulus_onset_idx = buffer.dataqueue.index_start;
+    stimulus_onset_idx = buffer.dataqueue.index_end;
     
     buffer.X = X_degree_training(train_idx);
     buffer.Y = Y_degree_training(train_idx);
@@ -103,12 +103,14 @@ for train_idx = 1:n_training
 end
 
 % Pseudo eye movement for dummy mode
-buffer.X = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
-buffer.Y = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
-buffer.X = [linspace(0, 0, params.CalibrationTime), linspace(-21,21,params.DataAcquisitionTime)];
+% buffer.X_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
+% buffer.Y_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
+buffer.X = 0;
+buffer.Y = 0;
+buffer.X_train = [linspace(0, 0, params.CalibrationTime), linspace(-21,21,params.DataAcquisitionTime)];
 
-buffer.X = buffer.X';
-buffer.Y = buffer.X;
+buffer.X_train = buffer.X_train';
+buffer.Y_train = buffer.X_train;
 
 %% Linear fitting using training data
 

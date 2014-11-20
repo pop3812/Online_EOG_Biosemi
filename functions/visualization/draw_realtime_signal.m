@@ -52,7 +52,7 @@ b = buffer.blink;
 
 % Plot related Parameters
 mark_position = 0.9; % Relative Position of Blink Detection Mark : Bottom 0 to Top 1
-line_style = 'vertical'; % either horizon or vertical
+line_style = 'box'; % either horizon or vertical
 alpha = 0.1;
 color = [1 0 0];
 

@@ -17,11 +17,17 @@ end
 EOG = signal_processing_main();
 n_data = size(EOG, 1);
 
+% Registration to the queue
+if params.window ~= -1
+    for i=1:n_data
+        buffer.eye_position_queue.add([NaN NaN]);
+    end
+end
+
 %% Removal of Eye Blink Detected Range
 
 ranges = blink_range_position_conversion();
 blink_detected = blink_range_to_logical_array(ranges);
-blink_detected = circshift(blink_detected, -buffer.dataqueue.index_start+1);
 blink_detected = blink_detected(end-n_data+1:end);
 
 % Blink range removed EOG

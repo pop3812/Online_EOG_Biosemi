@@ -26,15 +26,15 @@ if (params.DummyMode)
               % - 2 * repmat(linspace(c, c+1, params.BufferLength_Biosemi)',1,2);
 
         % Each component value should be proportional to the eye position
-        if (length(buffer.X) == 1)
+        if (length(buffer.X_train) == 1)
             EOG(:, 1) = EOG(:, 1) + buffer.X;
             EOG(:, 2) = EOG(:, 2) + buffer.Y;
         else
-            EOG(:, 1) = EOG(:, 1) + buffer.X(1);
-            EOG(:, 2) = EOG(:, 2) + buffer.Y(1);
+            EOG(:, 1) = EOG(:, 1) + buffer.X_train(1);
+            EOG(:, 2) = EOG(:, 2) + buffer.Y_train(1);
 
-            buffer.X = circshift(buffer.X, -1);
-            buffer.Y = circshift(buffer.Y, -1);
+            buffer.X_train = circshift(buffer.X_train, -1);
+            buffer.Y_train = circshift(buffer.Y_train, -1);
         end
     end
     

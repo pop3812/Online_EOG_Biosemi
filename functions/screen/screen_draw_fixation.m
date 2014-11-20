@@ -70,6 +70,21 @@ else
     if strcmp(type, '.')
         % 'Dot' pointer
         Screen('DrawDots', window, [X, Y], size, color, [0, 0], 2);
+    elseif strcmp(type, '-')
+        if (x_min || x_max || y_min || y_max)
+            % 'X' pointer
+            Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);
+            Screen('DrawLine', window, color, X-size, Y+size, X+size, Y-size, width);
+        else
+            % '-' pointer
+            Screen('DrawLine', window, color, fix(X-1.5*size), ...
+                Y, fix(X+1.5*size), Y, width);
+            Screen('FrameArc', params.window, color, ...
+                [fix(X-1.5*size) Y fix(X+1.5*size) Y+size], 120, 120, fix(1.5*width));
+%             Screen('TextFont', params.window, 'Cambria');
+%             Screen('TextSize', params.window, 10);
+%             DrawFormattedText(params.window, 'BLINK', X-15, Y-30, [255, 255, 255]);
+        end
     else
         % 'X' pointer
         Screen('DrawLine', window, color, X-size, Y-size, X+size, Y+size, width);

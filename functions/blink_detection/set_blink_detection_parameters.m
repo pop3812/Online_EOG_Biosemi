@@ -23,7 +23,7 @@ blink.DecimateRate = params.SamplingFrequency2Use / blink.SR;
 % bHistogramAvailable = 0;
 blink.nBin4Histogram = 50; % The number of bins to use for eye blink
                            % detection. default is 50
-blink.nMinimalData4HistogramCalculation = 5 * blink.SR;
+blink.nMinimalData4HistogramCalculation = params.blink_calibration_time * blink.SR;
 % default is 5 secs. It should be < than blink.queuelength
 % means the length of source data for calibration of MSDW parameters
 

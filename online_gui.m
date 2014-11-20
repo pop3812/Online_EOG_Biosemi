@@ -149,8 +149,8 @@ params.QueueLength = params.SamplingFrequency2Use * params.BufferTime;
 params.DriftRemovalLength = params.SamplingFrequency2Use * params.CalibrationTime;
 
 % buffers
-buffer.X = 0;
-buffer.Y = 0;
+buffer.X = 0; buffer.X_train = 0;
+buffer.Y = 0; buffer.Y_train = 0;
 buffer.Calib_or_Acquisition = [ones(1, params.CalibrationTime), zeros(1, params.DataAcquisitionTime)];
 
 buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
@@ -168,6 +168,9 @@ buffer.drift_removal_queue.data(:,:) = NaN;
 
 buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
 buffer.eye_position_queue.data(:,:) = NaN;
+
+buffer.screen_refresh_idx = 1:params.screen_refresh_frequency;
+buffer.current_buffer_end_idx = 1;
 
 %% Initialize Biosemi
 
@@ -231,8 +234,9 @@ g_handles = handles;
 timer_id_data= timer('TimerFcn','data_processing_main', ...
         'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
+screen_refresh_period = fix(1.0 / params.screen_refresh_frequency * 10^3)/10^3;
 buffer.timer_id_displaying = timer('TimerFcn','screen_draw_trail()', ...
-        'StartDelay', 0, 'Period', 1.0 / params.screen_refresh_frequency, 'ExecutionMode', 'FixedRate');
+        'StartDelay', 0, 'Period', screen_refresh_period, 'ExecutionMode', 'FixedRate');
 
 choice = questdlg('Do you want to start data acquisition?', program_name, ...
     'Yes', 'No', 'Yes');
