@@ -2,7 +2,7 @@ function data_calibration(isFirstSec, isLastSec)
 %DATA_CALIBRATION Summary of this function goes here
 %   Detailed explanation goes here
 
-tic;
+% tic;
 
 global params;
 global buffer;
@@ -54,7 +54,7 @@ if(params.drift_removing ~= 0) && isLastSec
     buffer.pol_y(2) = 0; % - buffer.pol_y(1) * params.DriftValues(2);
 end
 
-toc;
+% toc;
 
 end
 

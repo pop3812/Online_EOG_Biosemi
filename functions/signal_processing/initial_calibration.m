@@ -9,24 +9,7 @@ global program_name;
 screen_init_psy();
 
 %% Buffer Initiation
-buffer.X = 0; buffer.X_train = 0;
-buffer.Y = 0; buffer.Y_train = 0;
-buffer.Calib_or_Acquisition = [ones(1, params.CalibrationTime), zeros(1, params.DataAcquisitionTime)];
-
-buffer.dataqueue   = circlequeue(params.QueueLength, params.CompNum);
-buffer.dataqueue.data(:,:) = NaN;
-
-buffer.raw_dataqueue   = circlequeue(params.QueueLength, params.CompNum);
-buffer.raw_dataqueue.data(:,:) = NaN;
-
-buffer.drift_removal_queue = circlequeue(params.DriftRemovalLength, params.CompNum);
-buffer.drift_removal_queue.data(:,:) = NaN;
-
-buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
-buffer.eye_position_queue.data(:,:) = NaN;
-
-buffer.screen_refresh_idx = 1:params.screen_refresh_frequency;
-buffer.current_buffer_end_idx = 1;
+initial_buffer_initiation()
 
 % Buffer Initiation for Blink Detection related Buffers
 set_blink_detection_parameters();

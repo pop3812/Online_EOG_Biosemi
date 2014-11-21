@@ -92,5 +92,29 @@ else
     end
 end
 
+%%%
+if ~strcmp(type, '.')
+    screen_draw_keyboard();
 end
 
+end
+
+function screen_draw_keyboard()
+global params;
+
+    size = 50;
+
+    % Draw Number Recognition Keyboard on the Screen
+    % 'Circle' Keyboard
+    for X = [-10 10]
+        for Y = [-10 0 10]
+            X_p = screen_degree_to_pixel('X', X);
+            Y_p = screen_degree_to_pixel('Y', Y);
+            Screen('FillOval', params.window, [255 255 255 60], ...
+                [X_p-size Y_p-size X_p+size Y_p+size]);
+            size_a = size - 15;
+            Screen('FillOval', params.window, [255 255 255 100], ...
+                [X_p-size_a Y_p-size_a X_p+size_a Y_p+size_a]);
+        end
+    end
+end

@@ -21,8 +21,8 @@ params.CompNum = 2; % Number of Components / Horizontal, Vertical
 
 params.DelayTime = 1; % in sec
 params.BufferTime = 15; % in sec
-params.CalibrationTime = 3; % in sec
-params.DataAcquisitionTime = 15; % in sec
+params.CalibrationTime = 2; % in sec
+params.DataAcquisitionTime = 6; % in sec
 
 % pre-processing parameters
 params.blink_calibration_time = 5; % in sec

@@ -5,7 +5,7 @@ function screen_draw_trail()
 global params;
 global buffer;
 
-n_data = buffer.recent_n_data;
+n_data = buffer.recent_n_data(end);
 eye_pos = circshift(buffer.eye_position_queue.data, -buffer.eye_position_queue.index_start+1);
 
 end_idx = buffer.eye_position_queue.datasize;

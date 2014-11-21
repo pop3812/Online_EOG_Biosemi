@@ -112,6 +112,10 @@ buffer.X_train = [linspace(0, 0, params.CalibrationTime), linspace(-21,21,params
 buffer.X_train = buffer.X_train';
 buffer.Y_train = buffer.X_train;
 
+ex_num = '0';
+number_examples_for_dummy_mode(ex_num);
+
+
 %% Linear fitting using training data
 
 if strcmp(params.fit_type, 'linear')

@@ -22,8 +22,11 @@ EOG(logical(blink_detected), :) = NaN;
 EOG_concatenated = EOG(logical(1-blink_detected), :);
 n_data_valid = size(EOG_concatenated, 1);
 
-buffer.recent_n_data = n_data;
-buffer.recent_n_data_valid = n_data_valid;
+buffer.recent_n_data(1) = n_data;
+buffer.recent_n_data_valid(1) = n_data_valid;
+
+buffer.recent_n_data = circshift(buffer.recent_n_data, -1);
+buffer.recent_n_data_valid = circshift(buffer.recent_n_data_valid, -1);
 
 %% Reconstructing Eye Positions from EOG signal
 

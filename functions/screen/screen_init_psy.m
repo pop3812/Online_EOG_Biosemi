@@ -22,7 +22,8 @@ if(length(screenNumbers) > 2) % Double monitor
         params.screen_number = max(screenNumbers); % Use the second monitor
 
         [window, rect] = Screen('OpenWindow', params.screen_number, 1);
-
+        Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
         params.rect = rect;
         params.window = window;
     end
