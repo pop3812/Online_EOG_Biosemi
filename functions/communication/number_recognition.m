@@ -12,7 +12,7 @@ global params;
 
 %% Parameter for the Recognition
 threshold_value = 5;
-VR_threshold_value = 5;
+VR_threshold_value = 3;
 
 num_char = '';
 

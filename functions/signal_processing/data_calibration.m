@@ -9,7 +9,7 @@ global buffer;
 
 %% Screen Control
 if isFirstSec
-    screen_init_psy();
+    screen_init_psy('');
 end
 
 %% Signal Processing

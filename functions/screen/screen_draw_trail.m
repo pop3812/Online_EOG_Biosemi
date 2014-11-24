@@ -34,12 +34,12 @@ if params.window ~= -1
         % Normal eye gaze
         params.X = X;
         params.Y = Y;
-        screen_draw_fixation(params.window, params.X, params.Y, 25, 5,...
+        screen_draw_fixation(params.window, params.X, params.Y, 35, 5,...
             [255 255 0], 'X');
         Screen('Flip', params.window);
     else
         % Eye blink detected
-        screen_draw_fixation(params.window, params.X, params.Y, 25, 5,...
+        screen_draw_fixation(params.window, params.X, params.Y, 35, 5,...
             [255 0 0], '-');
         Screen('Flip', params.window);
     end
