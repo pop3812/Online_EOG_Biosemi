@@ -184,8 +184,13 @@ for z=1:n_character_per_session
             % in case of 4
             num_char = '4';
         elseif(VR_test_slope{1,z}(2,1)==0 && VR_test_slope{1,z}(2,2)==2)
-            % in case of 7
-            num_char = '7';         
+            if (find_test_state{1,z}(1,1)==2)
+            % in case of 7 % which starts from 'L'
+            num_char = '7';
+            elseif (find_test_state{1,z}(1,1)==1)
+            % in case of Backspace % which starts from 'R'
+            num_char = '!';
+            end
         end
     elseif (length(find_test_state{1,z}(1,:))==3) % if the length is 3
         if(find_test_state{1,z}(1,1)==2)
@@ -210,13 +215,24 @@ for z=1:n_character_per_session
         end
        
     elseif (length(find_test_state{1,z}(1,:))==5)
-        % in case of 3
+        if (find_test_state{1,z}(1,1)==2)
+        % in case of 3 % which starts from 'L'
         num_char = '3';
+        elseif (find_test_state{1,z}(1,1)==1)
+        % in case of Enter % which starts from 'R'
+        num_char = '~';
+        end
     end
         
 end
 
-disp(['Recognized number : ', num_char]);
+if strcmp(num_char, '~')
+    disp('Recognized number : ENTER');
+elseif strcmp(num_char, '!')
+    disp('Recognized number : BACKSPACE');
+else
+    disp(['Recognized number : ', num_char]);
+end
 
 end
 

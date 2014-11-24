@@ -16,10 +16,10 @@ if status == 1 % Calibration Mode
         stop(buffer.timer_id_displaying)
     end
     set(g_handles.system_message, 'String', 'Calibration Mode');
-    if isFirstSec
+    if isFirstSec && params.DummyMode
        %%%
-%        number_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
-%        buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
+       number_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
+       buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
        %%%
     end
     data_calibration(isFirstSec, isLastSec);
