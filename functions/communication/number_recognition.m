@@ -12,6 +12,8 @@ global params;
 
 %% Parameter for the Recognition
 threshold_value = 5;
+VR_threshold_value = 5;
+
 num_char = '';
 
 %% Data Allocation from the Buffer
@@ -19,7 +21,6 @@ num_char = '';
 n_character_per_session = 1; % get this number of characters per each data acquisition session
 eye_position_queue = circshift(buffer.eye_position_queue.data, -buffer.eye_position_queue.index_start+1);
 
-recent_n_data = buffer.recent_n_data;
 n_data_sum = nansum(buffer.recent_n_data);
 n_data_per_character = floor(n_data_sum / n_character_per_session);
 
@@ -125,12 +126,13 @@ end
       end
   end
   
-%% 경향성 판단
-  
+%% Vertical Component Movement Recognition 
+% 0 - Not changed 1 - Upward 2 - Downward
+
   % length가 홀수 인 경우 보정하는 부분
   for i=1:n_character_per_session
       if(mod(length(find_test_hor_point{i}(1,:)),2)==1)
-          find_test_hor_point{i}(1,length(find_test_hor_point{i}(1,:))+1)=length(test_Hor_Data{i}(1,:))-300;
+          find_test_hor_point{i}(1,length(find_test_hor_point{i}(1,:))+1)=length(test_Hor_Data{i}(1,:));
       end
   end
           
@@ -138,18 +140,31 @@ end
   for i=1:n_character_per_session
       k=1;
       for j=1:2:length(find_test_hor_point{i}(1,:))
-          VR_test_slope{i}(1,k)=test_VR_Data{i}(find_test_hor_point{i}(1,j+1))-test_VR_Data{i}(find_test_hor_point{i}(1,j));
+          if j == length(find_test_hor_point{i}(1,:))-1
+              VR_test_slope{i}(1,k) = ...
+                  test_VR_Data{i}(find_test_hor_point{i}(1,j+1)) - ...
+                  test_VR_Data{i}(find_test_hor_point{i}(1,j));
+          else
+              VR_test_slope{i}(1,k) = ...
+                  test_VR_Data{i}(find_test_hor_point{i}(1,j+2)) - ...
+                  test_VR_Data{i}(find_test_hor_point{i}(1,j));
+          end
           k=k+1;
       end
   end
                
-   % +, - 구분 하는부분 1은 양수, 2는 음수
+   % VR Slope Categorization
+   % 0 - Not changed 1 - Upward 2 - Downward
+   % is categorized as 'not changed' if the disposition is smaller than threshold
+   
    for i=1:n_character_per_session
        for j=1:length(VR_test_slope{i}(1,:))
-           if(VR_test_slope{i}(1,j)>=0)
+           if(VR_test_slope{i}(1,j)>=VR_threshold_value) % Upward
                VR_test_slope{i}(2,j)=1;
-           elseif(VR_test_slope{i}(1,j)<0)
+           elseif(VR_test_slope{i}(1,j)<=-VR_threshold_value) % Downward
                VR_test_slope{i}(2,j)=2;
+           else % Non-changing
+               VR_test_slope{i}(2,j)=0;
            end
        end
    end
@@ -168,7 +183,7 @@ for z=1:n_character_per_session
         elseif(VR_test_slope{1,z}(2,1)==2 && VR_test_slope{1,z}(2,2)==2)
             % in case of 4
             num_char = '4';
-        elseif(VR_test_slope{1,z}(2,1)==1 && VR_test_slope{1,z}(2,2)==2)
+        elseif(VR_test_slope{1,z}(2,1)==0 && VR_test_slope{1,z}(2,2)==2)
             % in case of 7
             num_char = '7';         
         end
@@ -188,7 +203,7 @@ for z=1:n_character_per_session
             if(VR_test_slope{1,z}(2,1)==2)
                 % in case of 8 % which starts from 'L'
                 num_char = '8';
-            elseif (VR_test_slope{1,z}(2,1)==1)
+            elseif (VR_test_slope{1,z}(2,1)==0)
                 % in case of 2
                 num_char = '2';
             end

@@ -115,7 +115,6 @@ buffer.Y_train = buffer.X_train;
 ex_num = '0';
 number_examples_for_dummy_mode(ex_num);
 
-
 %% Linear fitting using training data
 
 if strcmp(params.fit_type, 'linear')

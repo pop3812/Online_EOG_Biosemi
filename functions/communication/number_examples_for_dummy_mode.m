@@ -34,12 +34,14 @@ elseif strcmp(num_char, '7')
     buffer.X_train = [linspace(0, 0, params.CalibrationTime) -10 10 10 10 10 10]';
     buffer.Y_train = [linspace(0, 0, params.CalibrationTime) 10 10 0 -10 -10 -10]';
 elseif strcmp(num_char, '8') 
-    buffer.X_train = [linspace(0, 0, params.CalibrationTime) -10 10 10 -10 -10 10]';
-    buffer.Y_train = [linspace(0, 0, params.CalibrationTime) 10 -10 -10 -10 -10 10]';
+    buffer.X_train = [linspace(0, 0, params.CalibrationTime) -10 10 -10 10 10 10]';
+    buffer.Y_train = [linspace(0, 0, params.CalibrationTime) 10 -10 -10 10 10 10]';
 elseif strcmp(num_char, '9') 
     buffer.X_train = [linspace(0, 0, params.CalibrationTime) 10 10 -10 10 10 10]';
     buffer.Y_train = [linspace(0, 0, params.CalibrationTime) 0 0 10 10 0 -10]';
 end
+
+disp(['Stimulus Example for Dummy Mode : ', num_char]);
 
 end
 

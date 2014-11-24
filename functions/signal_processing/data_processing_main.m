@@ -6,9 +6,10 @@ global g_handles;
 
 status = buffer.Calib_or_Acquisition(1);
 isLastSec = status > buffer.Calib_or_Acquisition(2);
-isFirstSec = status > buffer.Calib_or_Acquisition(end);
+isFirstSec = status > buffer.Calib_or_Acquisition(end) ...
+    || buffer.Calib_or_Acquisition(end) == 2;
 
-isLastAcquisition = status < buffer.Calib_or_Acquisition(2);
+% isLastAcquisition = status < buffer.Calib_or_Acquisition(2);
 
 if status == 1 % Calibration Mode
     if strcmp(buffer.timer_id_displaying.Running, 'on')
@@ -17,9 +18,8 @@ if status == 1 % Calibration Mode
     set(g_handles.system_message, 'String', 'Calibration Mode');
     if isFirstSec
        %%%
-       number_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
-       disp(['Stimulus : ', num2str(buffer.dummy_idx(1))]);
-       buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
+%        number_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
+%        buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
        %%%
     end
     data_calibration(isFirstSec, isLastSec);
@@ -30,10 +30,9 @@ elseif status == 0 % Data Acquisition Mode
     end
     set(g_handles.system_message, 'String', 'Data Acquisition Mode');
     data_processing();
-    if (isLastAcquisition)
-       num_char = number_recognition();
-       string_to_keyboard_input(num_char);
-    end
+elseif status == 2 % Result Showing
+    num_char = number_recognition();
+    string_to_keyboard_input(num_char);
 end
 
 buffer.Calib_or_Acquisition = circshift(buffer.Calib_or_Acquisition', -1);

@@ -7,7 +7,7 @@ global params;
 
 buffer.X = 0; buffer.X_train = 0;
 buffer.Y = 0; buffer.Y_train = 0;
-buffer.Calib_or_Acquisition = [ones(1, params.CalibrationTime), zeros(1, params.DataAcquisitionTime)];
+buffer.Calib_or_Acquisition = [ones(1, params.CalibrationTime), zeros(1, params.DataAcquisitionTime), 2.* ones(1, params.ResultShowTime)];
 
 buffer.DM = online_downsample_init(params.DecimateFactor); % Online downsample buffer
 buffer.DM_BK = online_downsample_init(params.blink.DecimateRate); % Online downsample buffer for Blink Detector
