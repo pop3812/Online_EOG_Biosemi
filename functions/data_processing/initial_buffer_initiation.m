@@ -32,5 +32,7 @@ buffer.screen_refresh_idx = 1:params.screen_refresh_frequency;
 buffer.current_buffer_end_idx = 1;
 
 buffer.dummy_idx = [0:9]';
+buffer.selected_key = '';
+
 end
 

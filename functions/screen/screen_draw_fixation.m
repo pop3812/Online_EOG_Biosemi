@@ -149,6 +149,7 @@ global buffer;
     width_pixel = fix(x_max_pixel/size_x);
     height_pixel = fix(y_max_pixel/size_y);
     
+    key_buffer = '';
     for x_pos = 0:width_pixel:x_max_pixel-1
         for y_pos = 0:height_pixel:y_max_pixel-1
             x_idx = (x_pos)/width_pixel + 1;
@@ -162,15 +163,7 @@ global buffer;
                 % Focused
                 Screen('FillRect', params.window, [200 255 200 64], ...
                     key_rect);
-                
-                % Key Selection
-                if strcmp(key, 'ENTER')
-                    buffer.selected_key = '~';
-                elseif strcmp(key, 'BACKSPACE')
-                    buffer.selected_key = '!';
-                else
-                    buffer.selected_key = key;
-                end
+                key_buffer = key;
             else
                 % Normal
                 Screen('FillRect', params.window, [200 255 200 128], ...
@@ -187,6 +180,8 @@ global buffer;
 
         end
     end
+    
+    buffer.selected_key = key_buffer;
     
     end
 end
