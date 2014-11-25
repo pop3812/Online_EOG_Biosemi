@@ -18,7 +18,7 @@ if status == 1 % Calibration Mode
     set(g_handles.system_message, 'String', 'Calibration Mode');
     if isFirstSec && params.DummyMode
        %%%
-       number_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
+       keyboard_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
        buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
        %%%
     end
@@ -30,9 +30,14 @@ elseif status == 0 % Data Acquisition Mode
     end
     set(g_handles.system_message, 'String', 'Data Acquisition Mode');
     data_processing();
+    
 elseif status == 2 % Result Showing
-    num_char = number_recognition();
-    string_to_keyboard_input(num_char);
+    if strcmp(buffer.timer_id_displaying.Running, 'on')
+        stop(buffer.timer_id_displaying)
+    end
+    screen_init_psy(['Your input was : ', buffer.selected_key]);
+%     num_char = number_recognition();
+    string_to_keyboard_input(buffer.selected_key);
 end
 
 buffer.Calib_or_Acquisition = circshift(buffer.Calib_or_Acquisition', -1);
