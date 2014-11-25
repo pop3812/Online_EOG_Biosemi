@@ -28,7 +28,7 @@ else
 
         end
 
-%         SendKeys(key);
+        SendKeys(key);
 
     end
     

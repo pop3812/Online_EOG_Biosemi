@@ -94,27 +94,99 @@ end
 
 %%%
 if ~strcmp(type, '.')
-    screen_draw_keyboard();
+    screen_draw_keyboard(X, Y);
 end
 
 end
 
-function screen_draw_keyboard()
+function screen_draw_keyboard(X, Y)
 global params;
-
+global buffer;
+    
+    type = 'Rectangle'; % or 'Circle'
     size = 50;
+    boarder = 10;
 
-    % Draw Number Recognition Keyboard on the Screen
-    % 'Circle' Keyboard
-    for X = [-10 10]
-        for Y = [-10 0 10]
-            X_p = screen_degree_to_pixel('X', X);
-            Y_p = screen_degree_to_pixel('Y', Y);
-            Screen('FillOval', params.window, [255 255 255 60], ...
-                [X_p-size Y_p-size X_p+size Y_p+size]);
-            size_a = size - 15;
-            Screen('FillOval', params.window, [255 255 255 100], ...
-                [X_p-size_a Y_p-size_a X_p+size_a Y_p+size_a]);
+    if strcmp(type, 'Circle')
+        % Draw Number Recognition Keyboard on the Screen
+        % 'Circle' Keyboard
+        for X = [-10 10]
+            for Y = [-10 0 10]
+                X_p = screen_degree_to_pixel('X', X);
+                Y_p = screen_degree_to_pixel('Y', Y);
+                Screen('FillOval', params.window, [255 255 255 60], ...
+                    [X_p-size Y_p-size X_p+size Y_p+size]);
+                size_a = size - boarder;
+                Screen('FillOval', params.window, [255 255 255 100], ...
+                    [X_p-size_a Y_p-size_a X_p+size_a Y_p+size_a]);
+            end
         end
+    elseif strcmp(type, 'Rectangle')
+    % Draw Number Keyboard on the Screen
+    % '3 x 4 Rectangle' Keyboard
+    size_x = 4;
+    size_y = 3;
+    
+    number_matrix = 1:size_x*size_y;
+    number_matrix = reshape(number_matrix, size_y, size_x);
+    
+    %%%
+    number_matrix(:, 1:3) = number_matrix(:, 1:3)';
+    number_matrix = num2cell(number_matrix);
+    number_matrix{1, size_x} = 0;
+    number_matrix{2, size_x} = 'BACKSPACE'; % BACKSPACE
+    number_matrix{3, size_x} = 'ENTER'; % ENTER
+    %%%
+    
+    x_L = params.screen_width/2;
+    x_max_degree = atan(x_L/params.screen_distance) * 180 / pi;
+    y_L = params.screen_height/2;
+    y_max_degree = atan(y_L/params.screen_distance) * 180 / pi;
+
+    % width and height of each key
+    x_max_pixel = screen_degree_to_pixel('X', x_max_degree);
+    y_max_pixel = screen_degree_to_pixel('Y', -y_max_degree);
+    width_pixel = fix(x_max_pixel/size_x);
+    height_pixel = fix(y_max_pixel/size_y);
+    
+    for x_pos = 0:width_pixel:x_max_pixel-1
+        for y_pos = 0:height_pixel:y_max_pixel-1
+            x_idx = (x_pos)/width_pixel + 1;
+            y_idx = (y_pos)/height_pixel + 1;
+            key = num2str(number_matrix{y_idx, x_idx});
+            key_rect = [x_pos+boarder y_pos+boarder ...
+                x_pos+width_pixel-boarder y_pos+height_pixel-boarder];
+            
+            if (x_pos+boarder<=X && X<=x_pos+width_pixel-boarder && ...
+                    y_pos+boarder<=Y && Y<=y_pos+height_pixel-boarder)
+                % Focused
+                Screen('FillRect', params.window, [200 255 200 64], ...
+                    key_rect);
+                
+                % Key Selection
+                if strcmp(key, 'ENTER')
+                    buffer.selected_key = '~';
+                elseif strcmp(key, 'BACKSPACE')
+                    buffer.selected_key = '!';
+                else
+                    buffer.selected_key = key;
+                end
+            else
+                % Normal
+                Screen('FillRect', params.window, [200 255 200 128], ...
+                    key_rect);
+            end
+            
+            % Keys on keyboard
+            Screen('TextFont', params.window, 'Cambria');
+            Screen('TextSize', params.window, 35);
+            DrawFormattedText(params.window, key, ...
+                'center', 'center',...
+                [255, 255, 255], [], [], [], [], [], ...
+                key_rect);
+
+        end
+    end
+    
     end
 end

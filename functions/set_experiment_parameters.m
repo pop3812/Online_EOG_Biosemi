@@ -21,8 +21,8 @@ params.CompNum = 2; % Number of Components / Horizontal, Vertical
 
 params.DelayTime = 1; % in sec
 params.BufferTime = 15; % in sec
-params.CalibrationTime = 3; % in sec
-params.DataAcquisitionTime = 8; % in sec
+params.CalibrationTime = 2; % in sec
+params.DataAcquisitionTime = 3; % in sec
 params.ResultShowTime = 1; % in sec
 
 % pre-processing parameters
@@ -36,10 +36,10 @@ params.drift_filter_time = 10; % in seconds (should < BufferTime)
 params.screen_width = 48; % the width of the screen (inner) [cm]
 params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
-params.screen_refresh_frequency = 32; % should be 2^N.
+params.screen_refresh_frequency = 8; % should be 2^N.
 
 % training parameters
-params.time_per_stimulus = 2; % the length of each training stimulus [sec]
+params.time_per_stimulus = 1; % the length of each training stimulus [sec]
                               % should be > 1 and < BufferTime - 2.
 params.stimulus_onset_angle = 12; % the angle where stimuli would be shown [degree]
                                   % should not exceed the maximum angle due
