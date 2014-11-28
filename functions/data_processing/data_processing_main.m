@@ -9,18 +9,22 @@ isLastSec = status > buffer.Calib_or_Acquisition(2);
 isFirstSec = status > buffer.Calib_or_Acquisition(end) ...
     || buffer.Calib_or_Acquisition(end) == 2;
 
-% isLastAcquisition = status < buffer.Calib_or_Acquisition(2);
+isFirstResultShowing = (status - buffer.Calib_or_Acquisition(end) == 2);
 
 if status == 1 % Calibration Mode
     if strcmp(buffer.timer_id_displaying.Running, 'on')
         stop(buffer.timer_id_displaying)
     end
     set(g_handles.system_message, 'String', 'Calibration Mode');
-    if isFirstSec && params.DummyMode
-       %%%
-       keyboard_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
-       buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
-       %%%
+    if isFirstSec
+       buffer.n_session = buffer.n_session + 1;
+       set(g_handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
+       if params.DummyMode
+           %%%
+           number_examples_for_dummy_mode(num2str(buffer.dummy_idx(1)));
+           buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
+           %%%
+       end
     end
     data_calibration(isFirstSec, isLastSec);
     
@@ -32,12 +36,18 @@ elseif status == 0 % Data Acquisition Mode
     data_processing();
     
 elseif status == 2 % Result Showing
-    if strcmp(buffer.timer_id_displaying.Running, 'on')
-        stop(buffer.timer_id_displaying)
+    if isFirstResultShowing
+        if strcmp(buffer.timer_id_displaying.Running, 'on')
+            stop(buffer.timer_id_displaying)
+        end
+        screen_init_psy(['Your input was : ', buffer.selected_key]);
+        retrieve_session_data();
+        draw_touchscreen_trail();
+
+        buffer.recent_n_data = zeros(params.DataAcquisitionTime, 1);
     end
-    screen_init_psy(['Your input was : ', buffer.selected_key]);
 %     num_char = number_recognition();
-    string_to_keyboard_input(buffer.selected_key);
+%     string_to_keyboard_input(buffer.selected_key);
 end
 
 buffer.Calib_or_Acquisition = circshift(buffer.Calib_or_Acquisition', -1);

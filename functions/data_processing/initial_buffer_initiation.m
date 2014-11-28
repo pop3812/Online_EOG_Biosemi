@@ -31,8 +31,11 @@ buffer.recent_n_data_valid = zeros(params.DataAcquisitionTime, 1);
 buffer.screen_refresh_idx = 1:params.screen_refresh_frequency;
 buffer.current_buffer_end_idx = 1;
 
-buffer.dummy_idx = [0:9]';
+buffer.dummy_idx = (0:9)';
 buffer.selected_key = '';
+
+buffer.n_session = 0;
+buffer.session_data = cell(1, 1);
 
 end
 

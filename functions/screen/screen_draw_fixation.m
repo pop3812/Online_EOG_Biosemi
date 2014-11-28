@@ -55,6 +55,11 @@ elseif y_max
     Y = rect(4);
 end
 
+% Draw Keyboards
+if ~strcmp(type, '.')
+    screen_draw_keyboard(X, Y);
+end
+
 % Color becomes red if the gaze is out of monitor bound
 if(x_min || x_max || y_min || y_max)
    color = [255 0 0];
@@ -92,11 +97,6 @@ else
     end
 end
 
-%%%
-if ~strcmp(type, '.')
-    screen_draw_keyboard(X, Y);
-end
-
 end
 
 function screen_draw_keyboard(X, Y)
@@ -104,24 +104,9 @@ global params;
 global buffer;
     
     type = 'Rectangle'; % or 'Circle'
-    size = 50;
     boarder = 10;
 
-    if strcmp(type, 'Circle')
-        % Draw Number Recognition Keyboard on the Screen
-        % 'Circle' Keyboard
-        for X = [-10 10]
-            for Y = [-10 0 10]
-                X_p = screen_degree_to_pixel('X', X);
-                Y_p = screen_degree_to_pixel('Y', Y);
-                Screen('FillOval', params.window, [255 255 255 60], ...
-                    [X_p-size Y_p-size X_p+size Y_p+size]);
-                size_a = size - boarder;
-                Screen('FillOval', params.window, [255 255 255 100], ...
-                    [X_p-size_a Y_p-size_a X_p+size_a Y_p+size_a]);
-            end
-        end
-    elseif strcmp(type, 'Rectangle')
+    if strcmp(type, 'Rectangle')
     % Draw Number Keyboard on the Screen
     % '3 x 4 Rectangle' Keyboard
     size_x = 4;
@@ -133,7 +118,7 @@ global buffer;
     %%%
     number_matrix(:, 1:3) = number_matrix(:, 1:3)';
     number_matrix = num2cell(number_matrix);
-    number_matrix{1, size_x} = 0;
+    number_matrix{1, size_x} = 'SPACE';
     number_matrix{2, size_x} = 'BACKSPACE'; % BACKSPACE
     number_matrix{3, size_x} = 'ENTER'; % ENTER
     %%%
@@ -149,37 +134,42 @@ global buffer;
     width_pixel = fix(x_max_pixel/size_x);
     height_pixel = fix(y_max_pixel/size_y);
     
+    % Draw_Key boards
     key_buffer = '';
-    for x_pos = 0:width_pixel:x_max_pixel-1
-        for y_pos = 0:height_pixel:y_max_pixel-1
-            x_idx = (x_pos)/width_pixel + 1;
-            y_idx = (y_pos)/height_pixel + 1;
-            key = num2str(number_matrix{y_idx, x_idx});
-            key_rect = [x_pos+boarder y_pos+boarder ...
-                x_pos+width_pixel-boarder y_pos+height_pixel-boarder];
-            
-            if (x_pos+boarder<=X && X<=x_pos+width_pixel-boarder && ...
-                    y_pos+boarder<=Y && Y<=y_pos+height_pixel-boarder)
-                % Focused
-                Screen('FillRect', params.window, [200 255 200 64], ...
-                    key_rect);
-                key_buffer = key;
-            else
-                % Normal
-                Screen('FillRect', params.window, [200 255 200 128], ...
-                    key_rect);
-            end
-            
-            % Keys on keyboard
-            Screen('TextFont', params.window, 'Cambria');
-            Screen('TextSize', params.window, 35);
-            DrawFormattedText(params.window, key, ...
-                'center', 'center',...
-                [255, 255, 255], [], [], [], [], [], ...
-                key_rect);
+    x_pos = (size_x-1)*width_pixel;
+    for y_pos = 0:height_pixel:y_max_pixel-1
+        x_idx = size_x;
+        y_idx = (y_pos)/height_pixel + 1;
+        key = num2str(number_matrix{y_idx, x_idx});
+        key_rect = [x_pos+boarder y_pos+boarder ...
+            x_pos+width_pixel-boarder y_pos+height_pixel-boarder];
 
+        if (x_pos+boarder<=X && X<=x_pos+width_pixel-boarder && ...
+                y_pos+boarder<=Y && Y<=y_pos+height_pixel-boarder)
+            % Focused
+            Screen('FillRect', params.window, [200 255 200 64], ...
+                key_rect);
+            key_buffer = key;
+        else
+            % Normal
+            Screen('FillRect', params.window, [200 255 200 128], ...
+                key_rect);
         end
+
+        % Keys on keyboard
+        Screen('TextFont', params.window, 'Cambria');
+        Screen('TextSize', params.window, 35);
+        DrawFormattedText(params.window, key, ...
+            'center', 'center',...
+            [255, 255, 255], [], [], [], [], [], ...
+            key_rect);
     end
+    
+    % Draw Touch Screen
+    buffer.key_rect = [0+boarder 0+boarder ...
+            x_pos-boarder y_max_pixel-boarder];
+    Screen('FrameRect', params.window, 255, ...
+        buffer.key_rect, boarder);
     
     buffer.selected_key = key_buffer;
     

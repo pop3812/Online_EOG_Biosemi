@@ -89,7 +89,7 @@ function initialize_button_Callback(hObject, eventdata, handles)
 global program_name;
 global params;
 global buffer;
-global GDF_Header;
+global File_Header;
 
 params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
@@ -153,7 +153,7 @@ initial_buffer_initiation()
 
 %% Initialize Biosemi
 
-GDF_Header = signal_initialize_Biosemi();
+File_Header = file_initialize_Biosemi();
 
 %% GUI Control
 set(handles.calib_button, 'Enable', 'on');
@@ -284,18 +284,22 @@ function SaveMenuItem_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global program_name;
-global GDF_Header;
+global File_Header;
 global buffer;
 global params;
 
-[file, path] = uiputfile('*.mat', 'Save Current Experiment Parameters and Results As');
+verbose_time = strjoin(strsplit((mat2str(fix(clock))), ' '), '_');
+verbose_time = strrep(verbose_time, '[', '');
+verbose_time = strrep(verbose_time, ']', '');
+
+[file, path] = uiputfile('*.mat', 'Save Current Experiment Results As', ...
+                ['Online_EOG_', verbose_time]);
 save_path = fullfile(path, file);
 
 if ~isequal(file, 0)
     try
-        GDF_Header.ExperimentParameters = params;
-        GDF_Header.ExperimentBuffers = buffer;
-        save(save_path, 'GDF_Header');
+        File_Header = file_initialize_Biosemi();
+        save(save_path, 'File_Header');
         set(handles.system_message, 'String', 'Data has been saved successfully.');
     catch me
         set(handles.system_message, 'String', me.message);
@@ -370,7 +374,7 @@ program_name = 'Online EOG GUI';
 
 global params;
 global buffer;
-global GDF_Header;
+global File_Header;
 
 % Add function path
 addpath(genpath([pwd, '\functions']));
