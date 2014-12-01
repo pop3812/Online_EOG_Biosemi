@@ -40,7 +40,6 @@ elseif status == 2 % Result Showing
         if strcmp(buffer.timer_id_displaying.Running, 'on')
             stop(buffer.timer_id_displaying)
         end
-        screen_init_psy(['Your input was : ', buffer.selected_key]);
         retrieve_session_data();
         draw_touchscreen_trail();
 

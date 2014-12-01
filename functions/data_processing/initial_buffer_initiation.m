@@ -37,5 +37,7 @@ buffer.selected_key = '';
 buffer.n_session = 0;
 buffer.session_data = cell(1, 1);
 
+buffer.timer_id_displaying = struct;
+
 end
 

@@ -149,6 +149,10 @@ params.QueueLength = params.SamplingFrequency2Use * params.BufferTime;
 params.DriftRemovalLength = params.SamplingFrequency2Use * params.CalibrationTime;
 
 % buffers
+if ~isempty(timerfind)
+    stop(timerfind);
+    delete(timerfind);
+end
 initial_buffer_initiation()
 
 %% Initialize Biosemi
@@ -176,6 +180,14 @@ g_handles = handles;
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
 set(handles.system_message, 'String', 'Calibration');
+
+% Stop the current session
+clear biosemix;
+
+if ~isempty(timerfind)
+    stop(timerfind);
+    delete(timerfind);
+end
 
 % GUI Control
 set(handles.initialize_button, 'Enable', 'off');
@@ -252,12 +264,16 @@ choice = questdlg('Do you want to stop data acquisition?', program_name, ...
 switch choice
     case 'Yes'
         clear biosemix;
-        stop(timer_id_data);
-        delete(timer_id_data);
-        if strcmp(buffer.timer_id_displaying.Running, 'on')
-            stop(buffer.timer_id_displaying);
+        if ~isempty(timerfind)
+            stop(timerfind);
+            delete(timerfind);
         end
-        delete(buffer.timer_id_displaying);
+%         stop(timer_id_data);
+%         delete(timer_id_data);
+%         if strcmp(buffer.timer_id_displaying.Running, 'on')
+%             stop(buffer.timer_id_displaying);
+%         end
+%         delete(buffer.timer_id_displaying);
 
         set(handles.start_button, 'Enable', 'on');
         set(handles.stop_button, 'Enable', 'off');

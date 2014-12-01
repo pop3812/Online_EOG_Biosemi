@@ -1,5 +1,6 @@
 function draw_touchscreen_trail()
 global buffer;
+global params;
 global g_handles;
 
 %% Data Retrieve
@@ -21,11 +22,19 @@ pen_width = 4;
 D_Rate = 4;
 n_mark = 8;
 NormalizedPoints = [];
+[numPoints, two]=size(thePoints);
 
 %% Visualization on Psychtoolbox Screen
-% for i= 1:numPoints-1
-%                 Screen(params.window,'DrawLine', [255 128 128 192],thePoints(i,1),thePoints(i,2),thePoints(i+1,1),thePoints(i+1,2), pen_width);
-% end
+text = ['Your input was : ', buffer.selected_key];
+Screen('TextSize', params.window, 15);
+Screen('TextStyle', params.window, 1);
+
+DrawFormattedText(params.window, text, 'center', 150, [255, 255, 255]);
+
+for i= 1:numPoints-1
+                Screen(params.window,'DrawLine', [255 255 255 255],thePoints(i,1),thePoints(i,2),thePoints(i+1,1),thePoints(i+1,2), pen_width);
+end
+Screen('Flip', params.window);
 
 %% Eye Position Normailization
 
@@ -40,10 +49,14 @@ width = max([max(NormalizedPoints(:,1))-min(NormalizedPoints(:,1)), max(Normaliz
 NormalizedPoints(:,1) = NormalizedPoints(:, 1)./(width);
 NormalizedPoints(:,2) = NormalizedPoints(:, 2)./(width);
 
-%% Plot the contour in a Matlab figure
+%% Save Normalized Eye Position
+buffer.session_data{buffer.n_session}.normalized_eye_position = NormalizedPoints;
 
+%% Downsampling for Displaying
 DispPoints = [NormalizedPoints(1:D_Rate:end,1), NormalizedPoints(1:D_Rate:end,2)];
 [numPoints, two]=size(DispPoints);
+
+%% Plot the contour in a Matlab figure
 
 num = 1;
 cc = jet(n_mark);
