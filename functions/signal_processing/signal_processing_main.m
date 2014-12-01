@@ -13,11 +13,13 @@ if (params.DummyMode)
     else
         % Rectangular Pulse Train Signal
         c=clock; c=c(6); % use clock for generating dummy signal
+        ExtendFactor = 1/params.DelayTime;
         
         t=repmat(linspace(c, c+6, 5.*params.BufferLength_Biosemi)',1,2);
         t=t(1:params.BufferLength_Biosemi,:);
-
-        EOG = 15 * pulstran(t, c+0.5, 'rectpuls', 1/5) .* (rand>0.5) ...
+        
+        sigmoid = 1./(1+exp(1).^(-1.2*log2(ExtendFactor))) - 0.5;
+        EOG = 15 * pulstran(t, c+0.5, 'rectpuls', ExtendFactor*1/5) .* (rand>0.5+sigmoid) ...
                + randn(params.BufferLength_Biosemi,2) ...
                + 10;
               % + 2 * ((randn(params.BufferLength_Biosemi,2))>0.1) ...

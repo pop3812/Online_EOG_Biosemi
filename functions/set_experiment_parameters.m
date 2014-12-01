@@ -19,7 +19,7 @@ params.numEEG = 6; % number of EEG channels
 params.numAIB = 0; % number of external channel
 params.CompNum = 2; % Number of Components / Horizontal, Vertical
 
-params.DelayTime = 1; % in sec
+params.DelayTime = 0.5; % in sec
 params.BufferTime = 15; % in sec
 params.CalibrationTime = 2; % in sec
 params.DataAcquisitionTime = 6; % in sec

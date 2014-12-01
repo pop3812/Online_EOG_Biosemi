@@ -10,6 +10,7 @@ screen_init_psy();
 
 %% Buffer Initiation
 initial_buffer_initiation()
+params.DriftValues = zeros(1, params.CompNum);
 
 % Buffer Initiation for Blink Detection related Buffers
 set_blink_detection_parameters();

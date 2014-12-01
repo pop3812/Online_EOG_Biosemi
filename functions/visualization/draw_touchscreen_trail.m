@@ -20,10 +20,11 @@ thePoints(thePoints(:, 2)<=key_rect(2) | thePoints(:, 2)>=key_rect(4), :) = [];
 
 pen_width = 4;
 D_Rate = 4;
-n_mark = 8;
+n_mark = 16;
 NormalizedPoints = [];
 [numPoints, two]=size(thePoints);
 
+if numPoints ~=0
 %% Visualization on Psychtoolbox Screen
 text = ['Your input was : ', buffer.selected_key];
 Screen('TextSize', params.window, 15);
@@ -59,7 +60,7 @@ DispPoints = [NormalizedPoints(1:D_Rate:end,1), NormalizedPoints(1:D_Rate:end,2)
 %% Plot the contour in a Matlab figure
 
 num = 1;
-cc = jet(n_mark);
+cc = jet(ceil(numPoints/n_mark));
 cc = flipud(cc);
 hold(g_handles.current_position, 'off');
 
@@ -67,10 +68,10 @@ plot(g_handles.current_position, DispPoints(:, 1), DispPoints(:, 2), ...
     '-b', 'LineWidth', pen_width);
 hold(g_handles.current_position, 'on');
 for i = 1:numPoints
-    if mod(i, fix(numPoints/n_mark))==0
-    plot(g_handles.current_position, DispPoints(i, 1), DispPoints(i, 2), ...
+    if mod(i-1, n_mark)==0
+        plot(g_handles.current_position, DispPoints(i, 1), DispPoints(i, 2), ...
         '-ok', 'markersize', 15, 'markerfacecolor', cc(num, :), 'LineWidth', pen_width);
-    num = num+1;
+        num = num+1;
     end
 hold(g_handles.current_position, 'on');
 xlim(g_handles.current_position, [-0.5 0.5]);
@@ -78,5 +79,8 @@ ylim(g_handles.current_position, [-0.5 0.5]);
 end
 
 axis(g_handles.current_position, 'off');
-
+else
+    %% Save Normalized Eye Position
+    buffer.session_data{buffer.n_session}.normalized_eye_position = 'No Data';
+end
 end

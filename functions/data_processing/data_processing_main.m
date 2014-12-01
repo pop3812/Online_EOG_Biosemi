@@ -43,7 +43,7 @@ elseif status == 2 % Result Showing
         retrieve_session_data();
         draw_touchscreen_trail();
 
-        buffer.recent_n_data = zeros(params.DataAcquisitionTime, 1);
+        buffer.recent_n_data = zeros(fix(1/params.DelayTime)*params.DataAcquisitionTime, 1);
     end
 %     num_char = number_recognition();
 %     string_to_keyboard_input(buffer.selected_key);
