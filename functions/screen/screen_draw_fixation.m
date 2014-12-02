@@ -136,38 +136,38 @@ global buffer;
     
     % Draw_Key boards
     key_buffer = '';
-    x_pos = (size_x-1)*width_pixel;
-    for y_pos = 0:height_pixel:y_max_pixel-1
-        x_idx = size_x;
-        y_idx = (y_pos)/height_pixel + 1;
-        key = num2str(number_matrix{y_idx, x_idx});
-        key_rect = [x_pos+boarder y_pos+boarder ...
-            x_pos+width_pixel-boarder y_pos+height_pixel-boarder];
-
-        if (x_pos+boarder<=X && X<=x_pos+width_pixel-boarder && ...
-                y_pos+boarder<=Y && Y<=y_pos+height_pixel-boarder)
-            % Focused
-            Screen('FillRect', params.window, [200 255 200 64], ...
-                key_rect);
-            key_buffer = key;
-        else
-            % Normal
-            Screen('FillRect', params.window, [200 255 200 128], ...
-                key_rect);
-        end
-
-        % Keys on keyboard
-        Screen('TextFont', params.window, 'Cambria');
-        Screen('TextSize', params.window, 35);
-        DrawFormattedText(params.window, key, ...
-            'center', 'center',...
-            [255, 255, 255], [], [], [], [], [], ...
-            key_rect);
-    end
+%     x_pos = (size_x-1)*width_pixel;
+%     for y_pos = 0:height_pixel:y_max_pixel-1
+%         x_idx = size_x;
+%         y_idx = (y_pos)/height_pixel + 1;
+%         key = num2str(number_matrix{y_idx, x_idx});
+%         key_rect = [x_pos+boarder y_pos+boarder ...
+%             x_pos+width_pixel-boarder y_pos+height_pixel-boarder];
+% 
+%         if (x_pos+boarder<=X && X<=x_pos+width_pixel-boarder && ...
+%                 y_pos+boarder<=Y && Y<=y_pos+height_pixel-boarder)
+%             % Focused
+%             Screen('FillRect', params.window, [200 255 200 64], ...
+%                 key_rect);
+%             key_buffer = key;
+%         else
+%             % Normal
+%             Screen('FillRect', params.window, [200 255 200 128], ...
+%                 key_rect);
+%         end
+% 
+%         % Keys on keyboard
+%         Screen('TextFont', params.window, 'Cambria');
+%         Screen('TextSize', params.window, 35);
+%         DrawFormattedText(params.window, key, ...
+%             'center', 'center',...
+%             [255, 255, 255], [], [], [], [], [], ...
+%             key_rect);
+%     end
     
     % Draw Touch Screen
     buffer.key_rect = [0+boarder 0+boarder ...
-            x_pos-boarder y_max_pixel-boarder];
+            x_max_pixel-boarder y_max_pixel-boarder];
     Screen('FrameRect', params.window, 255, ...
         buffer.key_rect, boarder);
     

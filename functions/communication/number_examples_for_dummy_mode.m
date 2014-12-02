@@ -45,7 +45,7 @@ elseif strcmp(num_char, '9')
     buffer.Y_train = [calib_space 0 0 10 10 0 -10 packed_space]';
 end
 
-disp(['Stimulus Example for Dummy Mode : ', num_char]);
+% disp(['Stimulus Example for Dummy Mode : ', num_char]);
 
 end
 
