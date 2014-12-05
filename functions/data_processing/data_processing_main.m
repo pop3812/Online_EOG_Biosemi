@@ -26,6 +26,13 @@ if status == 1 % Calibration Mode
            %%%
        end
     end
+    
+    if isLastSec
+        % Sound Beep
+        [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
+        sound(beep, Fs); % sound beep
+        buffer.calibration_end_idx = buffer.dataqueue.index_end;
+    end
     data_calibration(isFirstSec, isLastSec);
     
 elseif status == 0 % Data Acquisition Mode
@@ -37,6 +44,11 @@ elseif status == 0 % Data Acquisition Mode
     
 elseif status == 2 % Result Showing
     if isFirstResultShowing
+        
+        % Sound Beep
+        [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+        sound(beep, Fs); % sound beep
+        
         if strcmp(buffer.timer_id_displaying.Running, 'on')
             stop(buffer.timer_id_displaying)
         end

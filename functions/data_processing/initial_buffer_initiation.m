@@ -22,6 +22,7 @@ buffer.raw_dataqueue.data(:,:) = NaN;
 
 buffer.drift_removal_queue = circlequeue(params.DriftRemovalLength, params.CompNum);
 buffer.drift_removal_queue.data(:,:) = NaN;
+buffer.drift_pol_y = [0, 0];
 
 buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
 buffer.eye_position_queue.data(:,:) = NaN;
@@ -37,6 +38,7 @@ buffer.selected_key = '';
 
 buffer.n_session = 0;
 buffer.session_data = cell(1, 1);
+buffer.calibration_end_idx = 1;
 
 buffer.timer_id_displaying = struct;
 

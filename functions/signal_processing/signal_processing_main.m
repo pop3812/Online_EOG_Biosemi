@@ -32,8 +32,10 @@ if (params.DummyMode)
             EOG(:, 1) = EOG(:, 1) + buffer.X;
             EOG(:, 2) = EOG(:, 2) + buffer.Y;
         else
-            EOG(:, 1) = EOG(:, 1) + buffer.X_train(1);
-            EOG(:, 2) = EOG(:, 2) + buffer.Y_train(1);
+            EOG(:, 1) = EOG(:, 1) + linspace(buffer.X_train(1), ...
+                buffer.X_train(2), params.BufferLength_Biosemi)';
+            EOG(:, 2) = EOG(:, 2) + linspace(buffer.Y_train(1), ...
+                buffer.Y_train(2), params.BufferLength_Biosemi)';
 
             buffer.X_train = circshift(buffer.X_train, -1);
             buffer.Y_train = circshift(buffer.Y_train, -1);

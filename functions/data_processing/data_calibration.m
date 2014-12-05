@@ -10,6 +10,8 @@ global buffer;
 %% Screen Control
 if isFirstSec
     screen_init_psy('');
+    buffer.drift_removal_queue = circlequeue(params.DriftRemovalLength, params.CompNum);
+    buffer.drift_removal_queue.data(:,:) = NaN;
 end
 
 %% Signal Processing
@@ -48,6 +50,19 @@ draw_realtime_signal();
 if(params.drift_removing ~= 0) && isLastSec
     % Reset Drift Value
     params.DriftValues = params.DriftValues + nanmedian(buffer.drift_removal_queue.data);
+    
+    % Linearly Increasing Drift Removal for Vertical Signal
+    y_data = buffer.drift_removal_queue.data(:,2);
+    n_data= length(y_data);
+    t = (1:n_data)';
+    threshold = 10^-7;
+    
+    buffer.drift_pol_y = polyfit(t, y_data, 1);
+    buffer.drift_pol_y(2) = 0;
+    
+    if abs(buffer.drift_pol_y(1)) > threshold
+        buffer.drift_pol_y(1) = 0;
+    end
     
     % Reset Linear Function's y-intercept
     buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);

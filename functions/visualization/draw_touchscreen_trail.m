@@ -21,11 +21,13 @@ end
 %% Concatenation of Out of Bound Data
 key_rect = buffer.key_rect;
 thePoints(isnan(thePoints(:, 1)) | isnan(thePoints(:, 2)), :) = [];
-thePoints(thePoints(:, 1)<=deg_bound_pix_x_neg | thePoints(:, 1)>=deg_bound_pix_x, :) = [];
-thePoints(thePoints(:, 2)>=deg_bound_pix_y_neg | thePoints(:, 2)<=deg_bound_pix_y, :) = [];
+% thePoints(thePoints(:, 1)<=deg_bound_pix_x_neg | thePoints(:, 1)>=deg_bound_pix_x, :) = [];
+% thePoints(thePoints(:, 2)>=deg_bound_pix_y_neg | thePoints(:, 2)<=deg_bound_pix_y, :) = [];
 
-% thePoints(thePoints(:, 1)<=key_rect(1) | thePoints(:, 1)>=key_rect(3), :) = [];
-% thePoints(thePoints(:, 2)<=key_rect(2) | thePoints(:, 2)>=key_rect(4), :) = [];
+thePoints(thePoints(:, 1)<=key_rect(1), 1) = key_rect(1);
+thePoints(thePoints(:, 1)>=key_rect(3), 1) = key_rect(3);
+thePoints(thePoints(:, 2)<=key_rect(2), 2) = key_rect(2);
+thePoints(thePoints(:, 2)>=key_rect(4), 2) = key_rect(4);
 
 pen_width = 4;
 D_Rate = 4;
@@ -64,8 +66,8 @@ NormalizedPoints(:,2) = AbsolutePoints(:,2) - ((max(AbsolutePoints(:,2))+min(Abs
 x_width = max(NormalizedPoints(:,1))-min(NormalizedPoints(:,1));
 y_width = max(NormalizedPoints(:,2))-min(NormalizedPoints(:,2));
 width = max([x_width, y_width]);
-NormalizedPoints(:,1) = NormalizedPoints(:, 1)./(x_width);
-NormalizedPoints(:,2) = NormalizedPoints(:, 2)./(y_width);
+NormalizedPoints(:,1) = NormalizedPoints(:, 1)./(width);
+NormalizedPoints(:,2) = NormalizedPoints(:, 2)./(width);
 
 %% Save Normalized Eye Position
 buffer.session_data{buffer.n_session}.normalized_eye_position = NormalizedPoints;

@@ -37,12 +37,12 @@ params.screen_width = 48; % the width of the screen (inner) [cm]
 params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
 params.screen_refresh_frequency = 16; % should be 2^N.
-params.screen_trail_point_per_sec = 8;
+params.screen_trail_point_per_sec = 32;
 
 % training parameters
 params.time_per_stimulus = 1; % the length of each training stimulus [sec]
                               % should be > 1 and < BufferTime - 2.
-params.stimulus_onset_angle = 12; % the angle where stimuli would be shown [degree]
+params.stimulus_onset_angle = 14; % the angle where stimuli would be shown [degree]
                                   % should not exceed the maximum angle due
                                   % to the screen size and should be > 0
 params.fit_type = 'linear';

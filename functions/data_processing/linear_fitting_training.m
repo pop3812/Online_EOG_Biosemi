@@ -16,6 +16,10 @@ pos = params.stimulus_onset_angle;
 X_degree_training = [0 -pos -pos/2 pos/2 pos pos pos/2 -pos/2 -pos];
 Y_degree_training = [0 pos pos/2 -pos/2 -pos pos pos/2 -pos/2 -pos];
 
+%%%
+X_degree_training = [0, linspace(-pos, pos, 5), linspace(pos, -pos, 5)];
+Y_degree_training = [0, linspace(-pos, pos, 5), linspace(pos, -pos, 5)];
+
 n_training = length(X_degree_training); % the number of training stimuli
 
 black = BlackIndex(window);
@@ -25,7 +29,8 @@ Screen('FillRect', window, black);
 %% Set Parameters
 
 % buffers for training
-training_data_length = 9 * params.time_per_stimulus * params.SamplingFrequency2Use;
+training_data_length = length(X_degree_training) * ...
+    params.time_per_stimulus * params.SamplingFrequency2Use;
 
 signal_for_training = circlequeue(training_data_length, params.CompNum);
 signal_for_training.data(:,:) = NaN;
@@ -87,12 +92,25 @@ for train_idx = 1:n_training
     blink_detected = circshift(blink_detected, buffer.dataqueue.index_start-stimulus_onset_idx);
     
     % Reconstruction of EOG during the stimulus
+    
     EOG = circshift(buffer.dataqueue.data, -stimulus_onset_idx+1);
-    EOG = EOG(1:stimulus_n_data, :);
-    blink_detected = blink_detected(1:stimulus_n_data, :);
+    supposed_data_n = params.time_per_stimulus * params.SamplingFrequency2Use;
+    if stimulus_n_data-supposed_data_n+1>0
+        EOG = EOG(stimulus_n_data-supposed_data_n+1:stimulus_n_data, :);
+        blink_detected = blink_detected(stimulus_n_data-supposed_data_n+1:stimulus_n_data, :);
+    else
+        EOG = EOG(1:stimulus_n_data, :);
+        blink_detected = blink_detected(1:stimulus_n_data, :);
+    end
     
     % Blink range removal and concatenation
     EOG = EOG(logical(1-blink_detected), :);
+    
+    % Outliar removal
+    threshold = 5*10^-3;
+    EOG(EOG(:,1)<-threshold | EOG(:,1)>threshold, :) = [];
+    EOG(EOG(:,2)<-threshold | EOG(:,2)>threshold, :) = [];
+    
     stimulus_n_data = size(EOG, 1);
     
     for i=1:stimulus_n_data
@@ -125,7 +143,7 @@ if strcmp(params.fit_type, 'linear')
         stimulus_for_training.data(1:n_data,2), 1);
     
     if (~params.DummyMode)
-        buffer.pol_y(1) = buffer.pol_y(1) .* 2.0; %%%
+%         buffer.pol_y(1) = buffer.pol_y(1) .* 2.0; %%%
     end
     
     % Visualize the fitting results

@@ -5,7 +5,7 @@ function screen_draw_trail()
 global params;
 global buffer;
 % tic;
-pen_width = 10;
+pen_width = 3.0;
 n_trail_point = fix(params.screen_trail_point_per_sec * params.DelayTime);
 n_skip = fix(params.SamplingFrequency2Use * params.DelayTime / n_trail_point);
 
@@ -56,6 +56,16 @@ if params.window ~= -1
     X = nanmedian(eye_pos(:,1));
     Y = nanmedian(eye_pos(:,2));
     
+    % Draw Trail
+    end_idx = numPoints - buffer.recent_n_data(end) + n_data*current_idx;
+    for i= 1:n_skip:end_idx% numPoints
+        if i<=end_idx-n_skip
+            Screen(params.window,'DrawLine', [255 128 128 128], ...
+                eye_pos_trail(i,1), eye_pos_trail(i,2), ...
+                eye_pos_trail(i+n_skip,1),eye_pos_trail(i+n_skip,2), pen_width);
+        end
+    end
+    
     % Draw Pointer
     if ~isnan(X) && ~isnan(Y)
         % Normal eye gaze
@@ -67,15 +77,6 @@ if params.window ~= -1
         % Eye blink detected
         screen_draw_fixation(params.window, params.X, params.Y, 20, 5,...
             [255 0 0], '-');
-    end
-    
-    % Draw Trail
-    for i= 1:n_skip:numPoints
-        if i<=numPoints-n_skip
-            Screen(params.window,'DrawLine', [128 255 128 128], ...
-                eye_pos_trail(i,1), eye_pos_trail(i,2), ...
-                eye_pos_trail(i+n_skip,1),eye_pos_trail(i+n_skip,2), pen_width);
-        end
     end
     
     Screen('Flip', params.window);

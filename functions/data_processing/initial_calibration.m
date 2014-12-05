@@ -61,6 +61,8 @@ end
 
 %% Linear Fitting Calibration
 
+buffer.calibration_end_idx = buffer.dataqueue.index_end;
+
 if params.window ~= -1 % if there is another monitor
     linear_fitting_training();
 end
