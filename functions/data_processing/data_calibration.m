@@ -52,8 +52,8 @@ if(params.drift_removing ~= 0) && isLastSec
     params.DriftValues = params.DriftValues + nanmedian(buffer.drift_removal_queue.data);
     
     % Linearly Increasing Drift Removal for Vertical Signal
-    y_data = buffer.drift_removal_queue.data(:,2);
-    n_data= length(y_data);
+    n_data= buffer.drift_removal_queue.datasize;
+    y_data = buffer.drift_removal_queue.data(1:n_data,2);
     t = (1:n_data)';
     threshold = 10^-7;
     

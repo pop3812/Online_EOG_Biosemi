@@ -49,7 +49,11 @@ else
             else
                 pol(2) = 0; %%% buffer.raw_dataqueue.data(start_idx+1, 2);
             end
-
+    
+%             if isnan(pol(1))
+%                 pol(1) = 0;
+%             end
+            
             fitted = polyval(pol, t+n_data_processed-1);
             fitted = fitted';
         else
