@@ -61,7 +61,11 @@ if(params.drift_removing ~= 0) && isLastSec
     buffer.drift_pol_y(2) = 0;
     
     if abs(buffer.drift_pol_y(1)) > threshold
-        buffer.drift_pol_y(1) = 0;
+        if buffer.drift_pol_y(1)>0
+        buffer.drift_pol_y(1) = threshold;
+        else
+        buffer.drift_pol_y(1) = -threshold;    
+        end
     end
     
     % Reset Linear Function's y-intercept
