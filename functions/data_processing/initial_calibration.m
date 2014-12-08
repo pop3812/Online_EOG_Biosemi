@@ -64,7 +64,11 @@ end
 buffer.calibration_end_idx = buffer.dataqueue.index_end;
 
 if params.window ~= -1 % if there is another monitor
-    linear_fitting_training();
+    if params.is_coupled
+        linear_fitting_training_uncoupling();
+    else
+        linear_fitting_training();
+    end
 end
 
 if (ishandle(prog_bar))

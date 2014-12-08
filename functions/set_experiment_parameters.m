@@ -46,6 +46,7 @@ params.stimulus_onset_angle = 14; % the angle where stimuli would be shown [degr
                                   % should not exceed the maximum angle due
                                   % to the screen size and should be > 0
 params.fit_type = 'linear';
+params.is_coupled = 1;
                                   
 % plot parameters
 params.y_range = 10^-2; % 10^-2 is optimal for Biosemi EOG

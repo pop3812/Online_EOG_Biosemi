@@ -31,10 +31,17 @@ buffer.recent_n_data_valid = circshift(buffer.recent_n_data_valid, -1);
 %% Reconstructing Eye Positions from EOG signal
 
 if params.window ~= -1
-    X_eye_pos = polyval(buffer.pol_x, EOG(:, 1)); % position of eye in [degree]
-    Y_eye_pos = polyval(buffer.pol_y, EOG(:, 2)); % position of eye in [degree]
-
-    eye_pos = [X_eye_pos, Y_eye_pos];
+    
+    if params.is_coupled
+        %%% Coupled
+        eye_pos = buffer.T_matrix * EOG';
+        eye_pos = eye_pos';
+    else
+        %%% Non-uncoupled
+        X_eye_pos = polyval(buffer.pol_x, EOG(:, 1)); % position of eye in [degree]
+        Y_eye_pos = polyval(buffer.pol_y, EOG(:, 2)); % position of eye in [degree]
+        eye_pos = [X_eye_pos, Y_eye_pos];
+    end
 
     % Registration to the queue
     for i=1:n_data
