@@ -27,6 +27,9 @@ buffer.drift_pol_y = [0, 0];
 buffer.eye_position_queue = circlequeue(params.QueueLength, params.CompNum);
 buffer.eye_position_queue.data(:,:) = NaN;
 
+buffer.eye_position_queue_px = circlequeue(params.QueueLength, params.CompNum);
+buffer.eye_position_queue_px.data(:,:) = NaN;
+
 buffer.recent_n_data = zeros(ExtendFactor*params.DataAcquisitionTime, 1);
 buffer.recent_n_data_valid = zeros(ExtendFactor*params.DataAcquisitionTime, 1);
 

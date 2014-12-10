@@ -10,13 +10,7 @@ deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
 deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
 
 %% Data Retrieve
-thePoints = buffer.session_data{buffer.n_session}.eye_position_queue;
-
-[numPoints, two]=size(thePoints);
-for i = 1:numPoints
-    thePoints(i, 1) = screen_degree_to_pixel('X', thePoints(i, 1));
-    thePoints(i, 2) = screen_degree_to_pixel('Y', thePoints(i, 2));
-end
+thePoints = buffer.session_data{buffer.n_session}.eye_position_queue_px;
 
 %% Concatenation of Out of Bound Data
 key_rect = buffer.key_rect;

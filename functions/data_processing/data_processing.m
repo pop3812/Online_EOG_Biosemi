@@ -46,6 +46,9 @@ if params.window ~= -1
     % Registration to the queue
     for i=1:n_data
         buffer.eye_position_queue.add(eye_pos(i,:));
+        px = [screen_degree_to_pixel('X', eye_pos(i,1)), ...
+            screen_degree_to_pixel('Y', eye_pos(i,2))];
+        buffer.eye_position_queue_px.add(px);
     end
 
     median_eye_pos = nanmedian(eye_pos);

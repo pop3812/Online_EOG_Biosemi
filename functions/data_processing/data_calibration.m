@@ -23,6 +23,7 @@ n_data = size(EOG, 1);
 if params.window ~= -1
     for i=1:n_data
         buffer.eye_position_queue.add([NaN NaN]);
+        buffer.eye_position_queue_px.add([NaN NaN]);
     end
 end
 
@@ -64,9 +65,11 @@ if(params.drift_removing ~= 0) && isLastSec
         if buffer.drift_pol_y(1)>0
         buffer.drift_pol_y(1) = threshold;
         else
-        buffer.drift_pol_y(1) = -threshold;    
+        buffer.drift_pol_y(1) = 0;    
         end
     end
+    
+%     disp(buffer.drift_pol_y(1));
     
     % Reset Linear Function's y-intercept
     buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);
