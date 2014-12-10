@@ -28,6 +28,32 @@ buffer.recent_n_data_valid(1) = n_data_valid;
 buffer.recent_n_data = circshift(buffer.recent_n_data, -1);
 buffer.recent_n_data_valid = circshift(buffer.recent_n_data_valid, -1);
 
+% Check if previous queue is correct
+% if incorrect due to new eye blink update, renew it
+blink_detected = blink_range_to_logical_array(ranges);
+if sum(blink_detected(end-n_data-1:end-n_data+2)) >= 1 % this range might contain previous data points
+    blink_detected = blink_detected(1:end-n_data);
+    
+%     blink_detected = logical(blink_detected);
+    df = diff([0 blink_detected' 0]);
+    s = struct('on',num2cell(find(df==1)), ...
+    'off',num2cell(find(df==-1)-1));
+    
+    if s(end).off == length(blink_detected)
+        n_contig = s(end).off - s(end).on + 1; % # of wrong data
+        for idx = 1:n_contig
+            % Remove wrong data
+            buffer.eye_position_queue.pop();
+            buffer.eye_position_queue_px.pop();
+        end
+        for idx = 1:n_contig
+            % Renew
+            buffer.eye_position_queue.add([NaN, NaN]);
+            buffer.eye_position_queue_px.add([NaN, NaN]);
+        end
+    end
+end
+    
 %% Reconstructing Eye Positions from EOG signal
 
 if params.window ~= -1
@@ -50,7 +76,7 @@ if params.window ~= -1
             screen_degree_to_pixel('Y', eye_pos(i,2))];
         buffer.eye_position_queue_px.add(px);
     end
-
+    
     median_eye_pos = nanmedian(eye_pos);
 end
 
