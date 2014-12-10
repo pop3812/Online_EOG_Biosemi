@@ -2,7 +2,7 @@
 % threshold가 -1인 경우에는 automatic thresholding 기법을 적용한다.
 % nDeletedPrevRange 는 이전에 record 된 artifact range 중 새롭게 detected 된 range와
 % 겹쳐져서 삭제된 구간의 수
-function [range, threshold, nDeletedPrevRange] = eogdetection_msdw_online(dataqueue, v_dataqueue, acc_dataqueue, idx_cur, min_windowwidth, max_windowwidth, threshold, prev_threshold, msdw, windowSize4msdw,indexes_localMin, indexes_localMax, detectedRange_inQueue, min_th_abs_ratio, nMinimalData4HistogramCalculation, msdw_minmaxdiff, histogram, nBin4Histogram,alpha, v, bEnableAdaption)
+function [range, threshold, nDeletedPrevRange] = eogdetection_msdw_online(dataqueue, v_dataqueue, acc_dataqueue, idx_cur, min_windowwidth, max_windowwidth, threshold, prev_threshold, msdw, windowSize4msdw,indexes_localMin, indexes_localMax, detectedRange_inQueue, min_th_abs_ratio, nMinimalData4HistogramCalculation, msdw_minmaxdiff, histogram, nBin4Histogram,alpha, v, bEnableAdaption, threshold_balance)
 %EOGDETECTION_MSDW_ONLINE Summary of this function goes here
 %   Detailed explanation goes here
     global bTmpUp;
@@ -17,6 +17,9 @@ function [range, threshold, nDeletedPrevRange] = eogdetection_msdw_online(dataqu
     end
     if nargin<21
         bEnableAdaption = 1;
+    end
+    if nargin<22
+        threshold_balance = 0;
     end
     
     %초기화
@@ -95,7 +98,7 @@ function [range, threshold, nDeletedPrevRange] = eogdetection_msdw_online(dataqu
         curmax_pos = indexes_localMax.getLast();
         r_start = -1;
 
-        bAccept = isCriteriaSatisfied(sum,threshold, min_th_abs_ratio, msdw.get(curmax_pos), msdw.get(id_min));
+        bAccept = isCriteriaSatisfied(sum,threshold, min_th_abs_ratio, msdw.get(curmax_pos), msdw.get(id_min), threshold_balance);
         if(bAccept==1)   %조건을 만족하는 경우
             %처음에 세팅된 범위가 이전 범위와 겹치는 경우 starting point를 수정한다.
             %이때 이 범위가 이전의 범위를 포함하는 것은 바람직하지 않다.
@@ -125,7 +128,7 @@ function [range, threshold, nDeletedPrevRange] = eogdetection_msdw_online(dataqu
 
             r_start_tmp = curmax_pos - windowSize4msdw.get(curmax_pos);            %range의 시작점
 
-            tmp_check_result = isCriteriaSatisfied(sum,threshold,min_th_abs_ratio, msdw.get(curmax_pos), msdw.get(id_min));%, id_min, curmax_pos,max_id_window_acc_v(id_min), nLocalMin-1-k, LRValues_Spike, LRWidths_Spike, bAccept);
+            tmp_check_result = isCriteriaSatisfied(sum,threshold,min_th_abs_ratio, msdw.get(curmax_pos), msdw.get(id_min),threshold_balance);%, id_min, curmax_pos,max_id_window_acc_v(id_min), nLocalMin-1-k, LRValues_Spike, LRWidths_Spike, bAccept);
             if(sum>tmp_max_sum  && tmp_check_result==1) %조건을 만족하는 경우
 
                 tmp_max_sum = sum;
@@ -159,8 +162,18 @@ function [range, threshold, nDeletedPrevRange] = eogdetection_msdw_online(dataqu
     end
 end
 
-function [bYes] = isCriteriaSatisfied(sum, threshold, min_th_abs_ratio, window_acc_v_max, window_acc_v_min)%, min_id,max_id,windowwidth_at_min, prev_minID,  LRValues_Spike, LRWidths_Spike, bAccept)
-    bYes = (sum>threshold && window_acc_v_max>threshold*min_th_abs_ratio && window_acc_v_min<-threshold*min_th_abs_ratio);% && min_id - windowwidth_at_min>=max_id);
+function [bYes] = isCriteriaSatisfied(sum, threshold, min_th_abs_ratio, window_acc_v_max, window_acc_v_min, threshold_balance)%, min_id,max_id,windowwidth_at_min, prev_minID,  LRValues_Spike, LRWidths_Spike, bAccept)
+   % bYes = (sum>threshold && window_acc_v_max>threshold*min_th_abs_ratio && window_acc_v_min<-threshold*min_th_abs_ratio);% && min_id - windowwidth_at_min>=max_id);
+   if window_acc_v_min >=0
+       slope_ratio = 0;
+   else
+       slope_ratio = -window_acc_v_max/window_acc_v_min;
+   end
+   if slope_ratio>1
+       slope_ratio = 1/slope_ratio;
+   end
+   
+    bYes = (sum>threshold && window_acc_v_max>threshold*min_th_abs_ratio && window_acc_v_min<-threshold*min_th_abs_ratio && slope_ratio>=threshold_balance);
 end
 
 

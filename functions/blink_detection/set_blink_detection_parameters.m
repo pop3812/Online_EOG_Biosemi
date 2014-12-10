@@ -30,6 +30,8 @@ blink.nMinimalData4HistogramCalculation = params.blink_calibration_time * blink.
 blink.alpha = 0;
 blink.v = 0.1; % default is 0.1
 
+blink.threshold_balance = 0.5; % default is 0. The value must be >=0, <=1.
+
 % Assign structure blink into global parameter
 params.blink = blink;
 clear blink;
