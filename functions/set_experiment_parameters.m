@@ -36,7 +36,7 @@ params.drift_filter_time = 10; % in seconds (should < BufferTime)
 params.screen_width = 48; % the width of the screen (inner) [cm]
 params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
-params.screen_refresh_frequency = 16; % should be 2^N.
+params.screen_refresh_frequency = 32; % should be 2^N.
 params.screen_trail_point_per_sec = 32;
 
 % training parameters

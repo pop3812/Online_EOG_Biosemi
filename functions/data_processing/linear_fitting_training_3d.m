@@ -148,13 +148,34 @@ b = -n_Vh(2)/n_Vh(3);
 c = -n_Vv(1)/n_Vv(3);
 d = -n_Vv(2)/n_Vv(3);
 
-% figure;
-% subplot(1,2,1);
-% colormap(hot(256));
-% surf(XGrid,YGrid,Vh_surf);
-% subplot(1,2,2);
-% colormap(hot(256));
-% surf(XGrid,YGrid,Vv_surf);
+% Draw
+
+figure;
+subplot(1,2,1);
+colormap(hot(256));
+L=surf(XGrid,YGrid,Vh_surf);
+
+hold on;
+
+set(get(get(L,'parent'),'XLabel'),'String','x','FontSize',14,'FontWeight','bold')
+set(get(get(L,'parent'),'YLabel'),'String','y','FontSize',14,'FontWeight','bold')
+set(get(get(L,'parent'),'ZLabel'),'String','V_h','FontSize',14,'FontWeight','bold')
+title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vh),'FontWeight','bold','FontSize',12)
+grid on;
+axis square;
+    
+subplot(1,2,2);
+colormap(hot(256));
+L=surf(XGrid,YGrid,Vv_surf);
+
+hold on;
+
+set(get(get(L,'parent'),'XLabel'),'String','x','FontSize',14,'FontWeight','bold')
+set(get(get(L,'parent'),'YLabel'),'String','y','FontSize',14,'FontWeight','bold')
+set(get(get(L,'parent'),'ZLabel'),'String','V_v','FontSize',14,'FontWeight','bold')
+title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vv),'FontWeight','bold','FontSize',12)
+grid on;
+axis square;
 
 else
     throw(MException('TrainingDataFitting:InvalidFittingType',...
@@ -172,6 +193,9 @@ buffer.X_train = buffer.X_train';
 buffer.Y_train = buffer.X_train;
 
 A = [a b; c d];
+if det(A)==0
+   disp('Warning : Transformation Matrix might not exist. It is an insoluable problem.');
+end
 disp('Transformation Matrix T ([x; y] = T x [V_h; V_v]) : ');
 disp(inv(A));
 
