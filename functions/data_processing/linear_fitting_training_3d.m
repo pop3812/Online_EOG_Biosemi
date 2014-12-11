@@ -13,12 +13,18 @@ Vh=[];
 Vv=[];
 
 %% Stimulus
-%%%
 
-X_degree_training = [0, linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5)];
-Y_degree_training = [0, linspace(pos, pos, 5), linspace(pos/2, pos/2, 5), linspace(-pos/2, -pos/2, 5), linspace(-pos, -pos, 5)];
+X_degree_training = [linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5)];
+Y_degree_training = [linspace(pos, pos, 5), linspace(pos/2, pos/2, 5), linspace(0, 0, 5), linspace(-pos/2, -pos/2, 5), linspace(-pos, -pos, 5)];
 
 n_training = length(X_degree_training); % the number of training stimuli
+
+% Random Permutation
+% R = 1:n_training; % When not using random permutation
+R = randperm(n_training);
+
+X_degree_training = [0, X_degree_training(R)];
+Y_degree_training = [0, Y_degree_training(R)];
 
 black = BlackIndex(window);
 Screen('FillRect', window, black);
@@ -51,7 +57,14 @@ Screen('Flip', window);
 WaitSecs(3.0);
 
 for train_idx = 1:n_training
-    
+    if mod(train_idx-1, 5) == 0
+        for calib_sec = 1:params.CalibrationTime
+           isFirst = (calib_sec == 1);
+           isLast = (calib_sec == params.CalibrationTime);
+           data_calibration(isFirst, isLast);
+           WaitSecs(1.0);
+        end
+    end
     % Stimulus onset
     stimulus_onset_idx = buffer.dataqueue.index_end;
     
@@ -148,6 +161,17 @@ b = -n_Vh(2)/n_Vh(3);
 c = -n_Vv(1)/n_Vv(3);
 d = -n_Vv(2)/n_Vv(3);
 
+Surf_struct.XGrid = XGrid;
+Surf_struct.YGrid = YGrid;
+Surf_struct.Vh_surf = Vh_surf;
+Surf_struct.Vv_surf = Vv_surf;
+Surf_struct.n_Vh = n_Vh;
+Surf_struct.n_Vv = n_Vv;
+Surf_struct.X = X;
+Surf_struct.Y = Y;
+Surf_struct.Vh = Vh;
+Surf_struct.Vv = Vv;
+
 % Draw
 
 figure;
@@ -199,6 +223,7 @@ end
 disp('Transformation Matrix T ([x; y] = T x [V_h; V_v]) : ');
 disp(inv(A));
 
+buffer.Surf_struct = Surf_struct;
 buffer.T_matrix=inv(A);
 
 end

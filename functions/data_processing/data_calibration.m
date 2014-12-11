@@ -69,7 +69,7 @@ if(params.drift_removing ~= 0) && isLastSec
         end
     end
     
-%     disp(buffer.drift_pol_y(1));
+    disp(buffer.drift_pol_y(1));
     
     % Reset Linear Function's y-intercept
     buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);

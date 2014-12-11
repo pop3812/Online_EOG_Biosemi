@@ -21,13 +21,13 @@ params.CompNum = 2; % Number of Components / Horizontal, Vertical
 
 params.DelayTime = 0.5; % in sec
 params.BufferTime = 15; % in sec
-params.CalibrationTime = 2; % in sec
+params.CalibrationTime = 3; % in sec
 params.DataAcquisitionTime = 8; % in sec
 params.ResultShowTime = 2; % in sec
 
 % pre-processing parameters
 params.blink_calibration_time = 5; % in sec
-params.medianfilter_size = 30; % The number of samples to take median for denoising
+params.medianfilter_size = 10; % The number of samples to take median for denoising
                                % default is 10
 params.drift_filter_time = 10; % in seconds (should < BufferTime)
                                % default is 10
