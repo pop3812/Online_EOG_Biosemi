@@ -49,7 +49,7 @@ else
     EOG_y = raw_signal(:, 3) - raw_signal(:, 4);
 end
 
-raw_signal = [EOG_x EOG_y];
+raw_signal = 10^6.*[EOG_x EOG_y]; % Conversion into [uV]
 
 end
 
