@@ -5,6 +5,7 @@ function initial_calibration()
 global params;
 global buffer;
 global program_name;
+global g_handles;
 
 screen_init_psy();
 
@@ -17,7 +18,12 @@ set_blink_detection_parameters();
 
 %% Baseline Drift Removal Calibration
 % Calculate the baseline drift value by using first buffer time [sec] data
-prog_bar = waitbar(0, 'Calibrating : 0 %', 'Name', program_name);
+g_handles.prog_bar = waitbar(0, '0 %');
+set(g_handles.prog_bar, 'Name', 'Calibration Progress');
+
+set(g_handles.console, 'String', 'Calibration');
+cla(g_handles.current_position);
+cla(g_handles.current_hist);
 
 screen_init_psy('Blink your eyes.');
 
@@ -33,12 +39,11 @@ if(params.drift_removing ~= 0)
         if (buffer.dataqueue.datasize > blink_window_size)
             screen_init_psy();
         end
-        progress_percentage = buffer.dataqueue.datasize / params.QueueLength * 0.75;
+        progress_percentage = buffer.dataqueue.datasize / params.QueueLength * 0.15;
         progress_percentage_val = fix(progress_percentage * 10^4)/100;
-        if (ishandle(prog_bar))
-            waitbar(progress_percentage, prog_bar, ...
-                ['Calibrating : ' num2str(progress_percentage_val) ' %'],...
-                'Name', 'Calibrating ...');
+        if (ishandle(g_handles.prog_bar))
+            waitbar(progress_percentage, g_handles.prog_bar, ...
+                [num2str(progress_percentage_val) ' % Done']);
         end
         pause(params.DelayTime);
     end
@@ -54,9 +59,9 @@ stop(timer_id_data);
 delete(timer_id_data);
 clear biosemix;
 
-if (ishandle(prog_bar))
-waitbar(0.75, prog_bar, ['Calibrating : ' num2str(75) ' %'],...
-    'Name', 'Calibrating ...');
+if (ishandle(g_handles.prog_bar))
+waitbar(0.15, g_handles.prog_bar, [num2str(15) ' % Done']);
+
 end
 
 %% Linear Fitting Calibration
@@ -71,11 +76,13 @@ if params.window ~= -1 % if there is another monitor
     end
 end
 
-if (ishandle(prog_bar))
-        waitbar(1.0, prog_bar, ['Calibrating : ' num2str(100) ' %'],...
-            'Name', 'Calibrating ...');
-        close(prog_bar);
+if (ishandle(g_handles.prog_bar))
+        waitbar(1.0, g_handles.prog_bar, [num2str(100) ' % Done']);
+        close(g_handles.prog_bar);
 end
+
+screen_init_psy('Calibration has been done. Take a rest.');
+set(g_handles.console, 'String', 'Resting');
 
 end
 

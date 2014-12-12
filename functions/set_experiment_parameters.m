@@ -38,6 +38,7 @@ params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
 params.screen_refresh_frequency = 32; % should be 2^N.
 params.screen_trail_point_per_sec = 32;
+params.default_fixation_y = 10; % in degree
 
 % training parameters
 params.time_per_stimulus = 1; % the length of each training stimulus [sec]

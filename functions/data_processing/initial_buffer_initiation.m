@@ -6,7 +6,7 @@ global buffer;
 global params;
 
 buffer.X = 0; buffer.X_train = 0;
-buffer.Y = 0; buffer.Y_train = 0;
+buffer.Y = params.default_fixation_y; buffer.Y_train = 0;
 ExtendFactor = fix(1/params.DelayTime);
 buffer.Calib_or_Acquisition = [ones(1, ExtendFactor*params.CalibrationTime), zeros(1, ExtendFactor*params.DataAcquisitionTime), 2.* ones(1, ExtendFactor*params.ResultShowTime)];
 

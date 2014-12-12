@@ -159,7 +159,7 @@ end
 % buffer.X_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 % buffer.Y_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 buffer.X = 0;
-buffer.Y = 0;
+buffer.Y = params.default_fixation_y;
 buffer.X_train = [linspace(0, 0, params.CalibrationTime), linspace(-21,21,params.DataAcquisitionTime)];
 
 buffer.X_train = buffer.X_train';

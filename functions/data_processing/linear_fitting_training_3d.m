@@ -3,6 +3,7 @@ function linear_fitting_training_3d()
 %   Detailed explanation goes here
 global params;
 global buffer;
+global g_handles;
 
 window = params.window;
 pos = params.stimulus_onset_angle;
@@ -29,6 +30,7 @@ Y_degree_training = [0, Y_degree_training(R)];
 black = BlackIndex(window);
 Screen('FillRect', window, black);
 [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
+[cdn_beep, cdn_Fs] = audioread([pwd, '\resources\sound\count_down.wav']);
 
 %% Set Parameters
 
@@ -44,7 +46,7 @@ stimulus_for_training.data(:,:) = NaN;
 
 %% Get Training Data
 
-% Show the instruction for 2 seconds.
+% Show the instruction for 3 seconds.
 Screen('TextFont', window, 'Cambria');
 Screen('TextSize', window, 15);
 Screen('TextStyle', window, 1);
@@ -52,19 +54,38 @@ Screen('TextStyle', window, 1);
 [X_center,Y_center] = RectCenter(params.rect);
 
 DrawFormattedText(window, 'Look at the point after the beep.', 'center', ...
-    Y_center-100, [255, 255, 255]);
+    Y_center-200, [255, 255, 255]);
 Screen('Flip', window);  
 WaitSecs(3.0);
 
 for train_idx = 1:n_training
+    % Rest for every 10 data point
+    if mod(train_idx-1, 10) == 0 && train_idx ~= 1
+        set(g_handles.console, 'String', 'Subject Resting');
+        DrawFormattedText(window, 'Take a rest for 10 secs.', 'center', ...
+            Y_center-200, [255, 255, 255]);
+        Screen('Flip', window);  
+        WaitSecs(10.0);
+        
+        sound(cdn_beep, cdn_Fs); % sound count down
+        for remain_sec = 4:-1:1
+            screen_init_psy(['Get Ready.' char(10) char(10) num2str(remain_sec) '.0 secs remaining.']);
+            WaitSecs(1.0);
+        end
+    end
+    
+    % Calibration for every 5 data point
     if mod(train_idx-1, 5) == 0
+        sound(beep, Fs); % sound beep
         for calib_sec = 1:params.CalibrationTime
            isFirst = (calib_sec == 1);
            isLast = (calib_sec == params.CalibrationTime);
+           
            data_calibration(isFirst, isLast);
            WaitSecs(1.0);
         end
     end
+    
     % Stimulus onset
     stimulus_onset_idx = buffer.dataqueue.index_end;
     
@@ -135,6 +156,14 @@ for train_idx = 1:n_training
     Vv = [Vv, nanmedian(EOG(:,2))];
     X = [X, buffer.X];
     Y = [Y, buffer.Y];
+     
+    % Update Progress Bar
+    if (ishandle(g_handles.prog_bar))
+    prog_ratio = 0.15 + 0.85 * train_idx/n_training;
+    prog_ratio_val = fix(prog_ratio * 10^4)/100;
+    waitbar(prog_ratio, g_handles.prog_bar, [num2str(prog_ratio_val) ' % Done']);
+    %['Stimulus : ' num2str(train_idx) ' / ' num2str(n_training)]);
+    end
 end
 
 %% Linear fitting using training data
@@ -174,7 +203,7 @@ Surf_struct.Vv = Vv;
 
 % Draw
 
-figure;
+figure('name', '3D Fitting Results', 'NumberTitle', 'off');
 subplot(1,2,1);
 colormap(hot(256));
 L=surf(XGrid,YGrid,Vh_surf);
@@ -184,7 +213,7 @@ hold on;
 set(get(get(L,'parent'),'XLabel'),'String','x','FontSize',14,'FontWeight','bold')
 set(get(get(L,'parent'),'YLabel'),'String','y','FontSize',14,'FontWeight','bold')
 set(get(get(L,'parent'),'ZLabel'),'String','V_h','FontSize',14,'FontWeight','bold')
-title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vh),'FontWeight','bold','FontSize',12)
+% title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vh),'FontWeight','bold','FontSize',12)
 grid on;
 axis square;
     
@@ -197,7 +226,7 @@ hold on;
 set(get(get(L,'parent'),'XLabel'),'String','x','FontSize',14,'FontWeight','bold')
 set(get(get(L,'parent'),'YLabel'),'String','y','FontSize',14,'FontWeight','bold')
 set(get(get(L,'parent'),'ZLabel'),'String','V_v','FontSize',14,'FontWeight','bold')
-title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vv),'FontWeight','bold','FontSize',12)
+% title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vv),'FontWeight','bold','FontSize',12)
 grid on;
 axis square;
 
@@ -210,20 +239,31 @@ end
 % buffer.X_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 % buffer.Y_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 buffer.X = 0;
-buffer.Y = 0;
-buffer.X_train = [linspace(0, 0, params.CalibrationTime), linspace(-21,21,params.DataAcquisitionTime)];
+buffer.Y = params.default_fixation_y;
+buffer.X_train = [linspace(0, 0, params.CalibrationTime), ...
+    linspace(-21,21,params.DataAcquisitionTime)];
+buffer.X_train = [linspace(params.default_fixation_y, ...
+    params.default_fixation_y, params.CalibrationTime), ...
+    linspace(-21,21,params.DataAcquisitionTime)];
 
 buffer.X_train = buffer.X_train';
-buffer.Y_train = buffer.X_train;
+buffer.Y_train = buffer.Y_train';
 
 A = [a b; c d];
+T_const = [0; nanmean(Vv)];
+
 if det(A)==0
    disp('Warning : Transformation Matrix might not exist. It is an insoluable problem.');
 end
-disp('Transformation Matrix T ([x; y] = T x [V_h; V_v]) : ');
+
+disp('Transformation Matrix T ([x; y] = T x ([V_h; V_v] - C)) : ');
 disp(inv(A));
 
+disp('Transformation Matrix C ([x; y] = T x ([V_h; V_v] - C)) : ');
+disp(T_const);
+
 buffer.Surf_struct = Surf_struct;
-buffer.T_matrix=inv(A);
+buffer.T_matrix= inv(A);
+buffer.T_const = T_const;
 
 end

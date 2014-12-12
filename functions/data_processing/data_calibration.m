@@ -10,6 +10,8 @@ global buffer;
 %% Screen Control
 if isFirstSec
     screen_init_psy('');
+    buffer.X = 0;
+    buffer.Y = params.default_fixation_y;
     buffer.drift_removal_queue = circlequeue(params.DriftRemovalLength, params.CompNum);
     buffer.drift_removal_queue.data(:,:) = NaN;
 end
@@ -56,7 +58,7 @@ if(params.drift_removing ~= 0) && isLastSec
     n_data= buffer.drift_removal_queue.datasize;
     y_data = buffer.drift_removal_queue.data(1:n_data,2);
     t = (1:n_data)';
-    threshold = 10^-7;
+    threshold = 10^-1;
     
     buffer.drift_pol_y = polyfit(t, y_data, 1);
     buffer.drift_pol_y(2) = 0;
@@ -69,11 +71,11 @@ if(params.drift_removing ~= 0) && isLastSec
         end
     end
     
-    disp(buffer.drift_pol_y(1));
+%     disp(buffer.drift_pol_y(1));
     
     % Reset Linear Function's y-intercept
-    buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);
-    buffer.pol_y(2) = 0; % - buffer.pol_y(1) * params.DriftValues(2);
+%     buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);
+%     buffer.pol_y(2) = 0; % - buffer.pol_y(1) * params.DriftValues(2);
 end
 
 % toc;

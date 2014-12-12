@@ -30,14 +30,14 @@ if(length(screenNumbers) > 2) % Double monitor
     
     % Make a default fixation point (center)
     [X,Y] = RectCenter(params.rect);
-    screen_draw_fixation(params.window, 0, 0);
+    screen_draw_fixation(params.window, 0, params.default_fixation_y);
 
     % Select specific text font, style and size:
     Screen('TextFont', params.window, 'Cambria');
     Screen('TextSize', params.window, 15);
     Screen('TextStyle', params.window, 1);
     
-    DrawFormattedText(params.window, text, 'center', Y-100, [255, 255, 255]);
+    DrawFormattedText(params.window, text, 'center', Y-200, [255, 255, 255]);
     Screen('Flip', params.window);  
 
 %     WaitSecs(2);

@@ -15,7 +15,7 @@ mean_y = mean(EOG(:,2));
 
 compass(g_handles.current_position, mean_x,mean_y);
 
-set(g_handles.console, 'String', [num2str(fix(10^5*mean_x)/100), ...
-    ', ' num2str(fix(10^5*mean_y)/100), ' mV']);
+set(g_handles.console, 'String', [num2str(fix(100*mean_x)/100), ...
+    ', ' num2str(fix(100*mean_y)/100), ' uV']);
 
 end

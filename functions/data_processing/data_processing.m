@@ -39,7 +39,7 @@ if sum(blink_detected(end-n_data-1:end-n_data+2)) >= 1 % this range might contai
     s = struct('on',num2cell(find(df==1)), ...
     'off',num2cell(find(df==-1)-1));
     
-    if s(end).off == length(blink_detected)
+    if length(s) > 0 && s(end).off == length(blink_detected)
         n_contig = s(end).off - s(end).on + 1; % # of wrong data
         for idx = 1:n_contig
             % Remove wrong data
@@ -60,7 +60,7 @@ if params.window ~= -1
     
     if params.is_coupled
         %%% Coupled
-        eye_pos = buffer.T_matrix * EOG';
+        eye_pos = buffer.T_matrix * (EOG' - repmat(buffer.T_const, 1, n_data));
         eye_pos = eye_pos';
     else
         %%% Non-uncoupled

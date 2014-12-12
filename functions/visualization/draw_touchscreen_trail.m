@@ -91,6 +91,7 @@ xlim(g_handles.current_position, [-0.5 0.5]);
 ylim(g_handles.current_position, [-0.5 0.5]);
 end
 
+hold(g_handles.current_position, 'off');
 axis(g_handles.current_position, 'on');
 else
     %% Save Normalized Eye Position

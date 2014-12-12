@@ -11,7 +11,7 @@ EOG = signal_processing_main();
 
 %% Visualization
 draw_realtime_signal();
-draw_graphs(EOG);
+% draw_graphs(EOG);
 
 toc;
 end
