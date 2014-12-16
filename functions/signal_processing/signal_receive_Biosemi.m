@@ -10,8 +10,8 @@ try
     raw_signal = biosemix([params.numEEG params.numAIB]);
 catch me
 	if strfind(me.message,'BIOSEMI device')
-        [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
-        sound(beep, Fs); % sound beep
+%         [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+%         sound(beep, Fs); % sound beep
         set(g_handles.system_message, 'String', ...
             strrep([me.message 'Recalling the BIOSEMI device again.'], sprintf('\n'),'. '));
         
@@ -23,7 +23,6 @@ catch me
 end
 
 %% Translate [from bit to voltage value]
-n_data = size(raw_signal,2);
 
 % Change the signal from bit to voltage value
 % data type is transformed into single for faster downsampling
@@ -36,20 +35,25 @@ end
 
 % Data type recovery into double
 raw_signal = double(sig)';
+n_data = size(raw_signal,1);
 
 %% EOG Component Calculation
 
-EOG_x = raw_signal(:, 1) - raw_signal(:, 2);
-
-if params.numEEG == 6 % Vertical Component is the sum of L, R eyes
-    EOG_y_L = raw_signal(:, 3) - raw_signal(:, 4);
-    EOG_y_R = raw_signal(:, 5) - raw_signal(:, 6);
-    EOG_y = EOG_y_L + EOG_y_R;
+if n_data <= 0
+    raw_signal = [0 0];
 else
-    EOG_y = raw_signal(:, 3) - raw_signal(:, 4);
-end
+    EOG_x = raw_signal(:, 1) - raw_signal(:, 2);
 
-raw_signal = 10^6.*[EOG_x EOG_y]; % Conversion into [uV]
+    if params.numEEG == 6 % Vertical Component is the sum of L, R eyes
+        EOG_y_L = raw_signal(:, 3) - raw_signal(:, 4);
+        EOG_y_R = raw_signal(:, 5) - raw_signal(:, 6);
+        EOG_y = EOG_y_L + EOG_y_R;
+    else
+        EOG_y = raw_signal(:, 3) - raw_signal(:, 4);
+    end
+
+    raw_signal = 10^6.*[EOG_x EOG_y]; % Conversion into [uV]
+end
 
 end
 

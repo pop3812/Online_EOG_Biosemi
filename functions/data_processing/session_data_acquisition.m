@@ -1,4 +1,4 @@
-function data_processing()
+function session_data_acquisition()
 %DATAPROCESSING Summary of this function goes here
 %   Detailed explanation goes here
 % tic;

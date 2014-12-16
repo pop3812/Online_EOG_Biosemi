@@ -23,7 +23,6 @@ set(g_handles.prog_bar, 'Name', 'Calibration Progress');
 
 set(g_handles.console, 'String', 'Calibration');
 cla(g_handles.current_position);
-cla(g_handles.current_hist);
 
 screen_init_psy('Blink your eyes.');
 

@@ -18,26 +18,30 @@ hold(g_handles.current_signal, 'on');
 plot(g_handles.current_signal, EOG(:,2), '-r');
 % plot(g_handles.current_signal, EOG(:,2)+y_range, '-r');
 
+% Legend
+% text(0.01, 0.05,'EOG_x', 'Parent', g_handles.current_signal, 'Units','normalized', 'Color', 'b', 'FontName', 'Cambria', 'FontSize', 8, 'FontWeight', 'bold');
+% text(0.01, 0.15,'EOG_y', 'Parent', g_handles.current_signal, 'Units','normalized', 'Color', 'r', 'FontName', 'Cambria', 'FontSize', 8, 'FontWeight', 'bold');
+legend(g_handles.current_signal, {'EOG_x', 'EOG_y'}, ...
+    'Orientation', 'horizontal', 'Location', 'southwest', 'FontSize',8);
+
 % Draw Grids
-tickValues = 0:2 * params.BufferLength_Biosemi:params.QueueLength;
+set(g_handles.current_signal,'TickLength', [0 0]);
+
+tickValues = 0:fix(1/params.DelayTime)*params.BufferLength_Biosemi:params.QueueLength;
 set(g_handles.current_signal,'XTick', tickValues);
+set(g_handles.current_signal,'YTick', []);
 grid(g_handles.current_signal, 'on');
+set(g_handles.current_signal, 'box', 'on');
 
 plot(g_handles.current_signal, [0 params.QueueLength], [0 0], 'color', 'black');
 % plot(g_handles.current_signal, [0 params.QueueLength], [y_range y_range], 'color', 'black');
 
 % X, Y Range Setting
 xlim(g_handles.current_signal, [0 params.QueueLength]);
-% ylim(g_handles.current_signal, [-y_range 2*y_range]);
-set(g_handles.current_signal, 'YTickLabel', '');
-
-% Legend
-h_legend = legend(g_handles.current_signal, 'EOG_x', 'EOG_y', ...
-    'Orientation', 'horizontal', 'Location', 'southwest');
-set(h_legend,'FontSize',8);
 
 % Draw Blink Detection Rage
 drawRange();
+
 hold(g_handles.current_signal, 'off');
 
 end
@@ -52,7 +56,7 @@ b = buffer.blink;
 
 % Plot related Parameters
 mark_position = 0.9; % Relative Position of Blink Detection Mark : Bottom 0 to Top 1
-line_style = 'vertical'; % either horizon or vertical
+line_style = 'box'; % either horizon or vertical
 alpha = 0.1;
 color = [1 0 0];
 
@@ -67,8 +71,8 @@ if nRange > 0
         pos = ranges(i, :);
         
         if strcmp(line_style, 'horizon')
-            y = ((1 - mark_position) * y(1) + mark_position * y(2));
-            plot(g_handles.current_signal, pos, [y, y], '-r', 'LineWidth', 2);
+            y_h = ((1 - mark_position) * y(1) + mark_position * y(2));
+            plot(g_handles.current_signal, pos, [y_h, y_h], '-r', 'LineWidth', 2);
         
         elseif strcmp(line_style, 'vertical')
             plot(g_handles.current_signal, [pos(1), pos(1)], y, ':r', 'LineWidth', 1);

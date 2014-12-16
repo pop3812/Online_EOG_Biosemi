@@ -1,6 +1,6 @@
 clc; clear;
-file_path = 'C:\Users\User\Documents\GitHub\';
-file_name = 'Eyepositions_real_trial_1.mat';
+file_path = 'C:\Users\User\Documents\GitHub\Data\';
+file_name = 'char_4.mat';
 
 global params;
 load([file_path file_name]);

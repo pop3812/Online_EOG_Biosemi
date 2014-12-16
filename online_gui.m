@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 14-Nov-2014 11:48:03
+% Last Modified by GUIDE v2.5 16-Dec-2014 14:09:58
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -64,6 +64,10 @@ guidata(hObject, handles);
 if strcmp(get(hObject,'Visible'),'off')
     axes(handles.current_signal);
     plot([0 10], [0 0], 'color', 'black');
+    
+    set(handles.current_position, 'XTick', []);
+    set(handles.current_position, 'YTick', []);
+    box(handles.current_position, 'on');
 end
 
 % UIWAIT makes online_gui wait for user response (see UIRESUME)
@@ -86,6 +90,8 @@ function initialize_button_Callback(hObject, eventdata, handles)
 % hObject    handle to initialize_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+clear params buffer File_Header;
+
 global program_name;
 global params;
 global buffer;
@@ -207,6 +213,12 @@ set(handles.stop_button, 'Enable', 'off');
 sound(beep, Fs); % sound beep
 set(handles.system_message, 'String', 'Calibration has been done successfully.');
 
+% --- Executes on button press in renew_button.
+function renew_button_Callback(hObject, eventdata, handles)
+% hObject    handle to renew_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
 % hObject    handle to start_button (see GCBO)
@@ -325,6 +337,30 @@ if ~isequal(file, 0)
 end
 
 % --------------------------------------------------------------------
+function EmergencySaveMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to EmergencySaveMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global File_Header;
+global params;
+
+verbose_time = strjoin(strsplit((mat2str(fix(clock))), ' '), '_');
+verbose_time = strrep(verbose_time, '[', '');
+verbose_time = strrep(verbose_time, ']', '');
+
+save_path = [params.emergency_save_path, 'Online_EOG_', verbose_time, '.mat'];
+
+try
+    File_Header = file_initialize_Biosemi();
+    save(save_path, 'File_Header');
+    set(handles.system_message, 'String', 'Data has been saved successfully.');
+catch me
+    set(handles.system_message, 'String', me.message);
+
+%         errordlg(me.message, program_name);
+end
+
+% --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -420,4 +456,68 @@ function system_message_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
+end
+
+
+% --------------------------------------------------------------------
+function ParameterMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to ParameterMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function SaveParameterMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to SaveParameterMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+global File_Header;
+
+verbose_time = strjoin(strsplit((mat2str(fix(clock))), ' '), '_');
+verbose_time = strrep(verbose_time, '[', '');
+verbose_time = strrep(verbose_time, ']', '');
+
+[file, path] = uiputfile('*.mat', 'Save Current Parameter Setting As', ...
+                ['EOG_Parameters_', verbose_time]);
+save_path = fullfile(path, file);
+
+if ~isequal(file, 0)
+    try
+        File_Header = file_save_parameters();
+        save(save_path, 'File_Header');
+        set(handles.system_message, 'String', 'Parameter Setting has been saved successfully.');
+    catch me
+        set(handles.system_message, 'String', me.message);
+
+%         errordlg(me.message, program_name);
+    end
+end
+
+% --------------------------------------------------------------------
+function OpenParameterMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to OpenParameterMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[file, path] = uigetfile('*.mat', 'Open Parameter Setting from a File');
+save_path = fullfile(path, file);
+
+if ~isequal(file, 0)
+    try
+        loaded_struct = load(save_path);
+        file_retrieve_parameters(loaded_struct.File_Header);
+        set(handles.system_message, 'String', ['Parameter Setting has been loaded successfully from ' file ' file.']);
+        clear loaded_struct;
+        
+        % GUI Control
+        set(handles.initialize_button, 'Enable', 'on');
+        set(handles.calib_button, 'Enable', 'on');
+        set(handles.start_button, 'Enable', 'on');
+        set(handles.stop_button, 'Enable', 'off');
+        
+    catch me
+        set(handles.system_message, 'String', me.message);
+
+%         errordlg(me.message, program_name);
+    end
 end

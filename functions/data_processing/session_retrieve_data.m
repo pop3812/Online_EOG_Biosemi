@@ -1,4 +1,4 @@
-function retrieve_session_data()
+function session_retrieve_data()
 % RETRIEVE_SESSION_DATA
 % retrieves data from the last data acquisition session,
 % and saves it in session_data of the buffer
@@ -15,6 +15,10 @@ buffer.session_data{buffer.n_session, 1} = struct();
 %% Data Retrieving
 % Get the number of data point of this session
 n_data_sum = nansum(buffer.recent_n_data);
+
+if n_data_sum >= params.QueueLength
+    n_data_sum = params.QueueLength;
+end
 
 % Get eye position queue
 eye_position_queue = circshift(buffer.eye_position_queue.data, ...
@@ -41,6 +45,9 @@ buffer.session_data{buffer.n_session, 1}.data_queue = data_queue;
 buffer.session_data{buffer.n_session, 1}.eye_position_queue = eye_position_queue;
 buffer.session_data{buffer.n_session, 1}.eye_position_queue_px = eye_position_queue_px;
 buffer.session_data{buffer.n_session, 1}.selected_keyboard = buffer.selected_key;
+
+%% Reset Session Buffer
+buffer.recent_n_data = zeros(fix(1/params.DelayTime)*params.DataAcquisitionTime, 1);
 
 end
 

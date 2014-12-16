@@ -15,14 +15,17 @@ Vv=[];
 
 %% Stimulus
 
-X_degree_training = [linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5), linspace(-pos, pos, 5)];
-Y_degree_training = [linspace(pos, pos, 5), linspace(pos/2, pos/2, 5), linspace(0, 0, 5), linspace(-pos/2, -pos/2, 5), linspace(-pos, -pos, 5)];
+X_degree_training = [linspace(-pos, pos, 3), linspace(-pos, pos, 3), linspace(-pos, pos, 3)];
+Y_degree_training = [linspace(pos, pos, 3), linspace(0, 0, 3), linspace(-pos, -pos, 3)];
+
+X_degree_training = [X_degree_training, fliplr(X_degree_training)];
+Y_degree_training = [Y_degree_training, fliplr(Y_degree_training)];
 
 n_training = length(X_degree_training); % the number of training stimuli
 
 % Random Permutation
-% R = 1:n_training; % When not using random permutation
-R = randperm(n_training);
+R = 1:n_training; % When not using random permutation
+% R = randperm(n_training);
 
 X_degree_training = [0, X_degree_training(R)];
 Y_degree_training = [0, Y_degree_training(R)];
@@ -30,7 +33,6 @@ Y_degree_training = [0, Y_degree_training(R)];
 black = BlackIndex(window);
 Screen('FillRect', window, black);
 [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
-[cdn_beep, cdn_Fs] = audioread([pwd, '\resources\sound\count_down.wav']);
 
 %% Set Parameters
 
@@ -53,25 +55,22 @@ Screen('TextStyle', window, 1);
 
 [X_center,Y_center] = RectCenter(params.rect);
 
+if params.default_fixation_y > 0
+    Y_center = screen_degree_to_pixel('Y', params.default_fixation_y-3);
+elseif params.default_fixation_y < 0
+    Y_center = screen_degree_to_pixel('Y', params.default_fixation_y+3);;
+end
+
 DrawFormattedText(window, 'Look at the point after the beep.', 'center', ...
-    Y_center-200, [255, 255, 255]);
+    Y_center, [255, 255, 255]);
 Screen('Flip', window);  
 WaitSecs(3.0);
 
 for train_idx = 1:n_training
-    % Rest for every 10 data point
-    if mod(train_idx-1, 10) == 0 && train_idx ~= 1
-        set(g_handles.console, 'String', 'Subject Resting');
-        DrawFormattedText(window, 'Take a rest for 10 secs.', 'center', ...
-            Y_center-200, [255, 255, 255]);
-        Screen('Flip', window);  
-        WaitSecs(10.0);
-        
-        sound(cdn_beep, cdn_Fs); % sound count down
-        for remain_sec = 4:-1:1
-            screen_init_psy(['Get Ready.' char(10) char(10) num2str(remain_sec) '.0 secs remaining.']);
-            WaitSecs(1.0);
-        end
+    % Rest for every 15 data point
+    if mod(train_idx-1, 15) == 0 && train_idx ~= 1
+        session_subject_rest();
+        set(g_handles.console, 'String', 'Calibration');
     end
     
     % Calibration for every 5 data point
@@ -81,7 +80,7 @@ for train_idx = 1:n_training
            isFirst = (calib_sec == 1);
            isLast = (calib_sec == params.CalibrationTime);
            
-           data_calibration(isFirst, isLast);
+           session_calibration(isFirst, isLast);
            WaitSecs(1.0);
         end
     end
@@ -140,7 +139,7 @@ for train_idx = 1:n_training
     
     % Outliar removal
     if ~params.DummyMode
-    threshold = 5*10^-3;
+    threshold = 5*10^3;
     EOG(EOG(:,1)<-threshold | EOG(:,1)>threshold, :) = [];
     EOG(EOG(:,2)<-threshold | EOG(:,2)>threshold, :) = [];
     end
@@ -235,7 +234,7 @@ else
     'Invalid fitting type has been requested.'));
 end
 
-% Pseudo eye movement for dummy mode
+%% Pseudo eye movement for dummy mode
 % buffer.X_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 % buffer.Y_train = -params.stimulus_onset_angle:3:params.stimulus_onset_angle;
 buffer.X = 0;
@@ -249,8 +248,17 @@ buffer.X_train = [linspace(params.default_fixation_y, ...
 buffer.X_train = buffer.X_train';
 buffer.Y_train = buffer.Y_train';
 
+%% Calculate Transformation Matrix
+
+b = 0;
+if c < 0
+    c = 0; %%%
+end
+
 A = [a b; c d];
-T_const = [0; nanmean(Vv)];
+T_const = polyfit(Y, Vv-c.*X, 1);
+T_const = [0; T_const(2)];
+% T_const = [0; nanmean(Vv)];
 
 if det(A)==0
    disp('Warning : Transformation Matrix might not exist. It is an insoluable problem.');

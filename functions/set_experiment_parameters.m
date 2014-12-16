@@ -24,6 +24,7 @@ params.BufferTime = 15; % in sec
 params.CalibrationTime = 3; % in sec
 params.DataAcquisitionTime = 8; % in sec
 params.ResultShowTime = 2; % in sec
+params.RestForEveryNSession = 15; % Subject would take a rest (10 sec) for every N session.
 
 % pre-processing parameters
 params.blink_calibration_time = 5; % in sec
@@ -38,7 +39,7 @@ params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
 params.screen_refresh_frequency = 32; % should be 2^N.
 params.screen_trail_point_per_sec = 32;
-params.default_fixation_y = 10; % in degree
+params.default_fixation_y = -10; % in degree
 
 % training parameters
 params.time_per_stimulus = 1; % the length of each training stimulus [sec]
@@ -50,7 +51,9 @@ params.fit_type = 'linear';
 params.is_coupled = 1;
                                   
 % plot parameters
-params.y_range = 10^-2; % 10^-2 is optimal for Biosemi EOG
+params.y_range = 10^3; % 10^3 is optimal for Biosemi EOG
 
+% result parametmers
+params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data';
 end
 

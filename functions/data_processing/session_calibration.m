@@ -1,4 +1,4 @@
-function data_calibration(isFirstSec, isLastSec)
+function session_calibration(isFirstSec, isLastSec)
 %DATA_CALIBRATION Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -58,7 +58,7 @@ if(params.drift_removing ~= 0) && isLastSec
     n_data= buffer.drift_removal_queue.datasize;
     y_data = buffer.drift_removal_queue.data(1:n_data,2);
     t = (1:n_data)';
-    threshold = 10^-1;
+    threshold = 10^-2;
     
     buffer.drift_pol_y = polyfit(t, y_data, 1);
     buffer.drift_pol_y(2) = 0;

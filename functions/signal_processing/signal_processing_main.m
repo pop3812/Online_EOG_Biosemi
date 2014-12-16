@@ -30,7 +30,7 @@ if (params.DummyMode)
         % Each component value should be proportional to the eye position
         if (length(buffer.X_train) == 1)
             y_sig = buffer.Y-params.default_fixation_y;
-            EOG(:, 1) = EOG(:, 1) + buffer.X + 0.1 * y_sig;
+            EOG(:, 1) = EOG(:, 1) + buffer.X;
             EOG(:, 2) = EOG(:, 2) + y_sig + 0.2 * buffer.X;
         else
             y_sig = linspace(buffer.Y_train(1)-params.default_fixation_y, ...
@@ -38,8 +38,7 @@ if (params.DummyMode)
                 params.BufferLength_Biosemi)';
             
             EOG(:, 1) = EOG(:, 1) + linspace(buffer.X_train(1), ...
-                buffer.X_train(2), params.BufferLength_Biosemi)' ...
-                + 0.1 * y_sig;
+                buffer.X_train(2), params.BufferLength_Biosemi)';
             
             EOG(:, 2) = EOG(:, 2) + y_sig ...
                 + 0.2 * linspace(buffer.X_train(1), ...
