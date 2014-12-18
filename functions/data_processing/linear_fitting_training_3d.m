@@ -251,9 +251,9 @@ buffer.Y_train = buffer.Y_train';
 %% Calculate Transformation Matrix
 
 b = 0;
-if c < 0
-    c = 0; %%%
-end
+% if c < 0
+%     c = 0; %%%
+% end
 
 A = [a b; c d];
 T_const = polyfit(Y, Vv-c.*X, 1);

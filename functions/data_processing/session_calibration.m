@@ -58,9 +58,13 @@ if(params.drift_removing ~= 0) && isLastSec
     n_data= buffer.drift_removal_queue.datasize;
     y_data = buffer.drift_removal_queue.data(1:n_data,2);
     t = (1:n_data)';
-    threshold = 10^-2;
+    threshold = 10^0;
+    err_threshold = 5*10^-12;
     
     buffer.drift_pol_y = polyfit(t, y_data, 1);
+    est = polyval(buffer.drift_pol_y, t);
+    err = nansum(y_data - est);
+    
     buffer.drift_pol_y(2) = 0;
     
     if abs(buffer.drift_pol_y(1)) > threshold
@@ -71,7 +75,11 @@ if(params.drift_removing ~= 0) && isLastSec
         end
     end
     
-%     disp(buffer.drift_pol_y(1));
+    disp(['y-drift estimation : ' num2str(buffer.drift_pol_y(1)) ', err : ' num2str(err)]);
+    
+%     if abs(err)>=err_threshold %%%
+%        figure; plot(t, y_data); hold on; plot(t, est, '-r'); 
+%     end
     
     % Reset Linear Function's y-intercept
 %     buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);

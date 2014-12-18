@@ -32,6 +32,7 @@ n_trail_point = fix(params.screen_trail_point_per_sec * params.DelayTime);
 n_skip = fix(params.SamplingFrequency2Use * params.DelayTime / n_trail_point);
 
 if numPoints > 1
+    
 %% Visualization on Psychtoolbox Screen
 text = ['Your input was : ', buffer.selected_key];
 Screen('TextSize', params.window, 15);
@@ -72,42 +73,59 @@ DispPoints = [NormalizedPoints(1:D_Rate:end,1), NormalizedPoints(1:D_Rate:end,2)
 
 %% Plot the contour in a Matlab figure
 
-n_color = 256;
+if numPoints > 1
+    n_color = 256;
 
-% Distance Calculation
-Disp_X = DispPoints(:, 1);
-Disp_Y = DispPoints(:, 2);
+    % Distance Calculation
+    Disp_X = DispPoints(:, 1);
+    Disp_Y = DispPoints(:, 2);
 
-d_X = diff(Disp_X);
-d_Y = diff(Disp_Y);
+    d_X = diff(Disp_X);
+    d_Y = diff(Disp_Y);
 
-trail_dist = sqrt(d_X.^2 + d_Y.^2);
-trail_dist = cumsum(trail_dist);
+    trail_dist = sqrt(d_X.^2 + d_Y.^2);
+    trail_dist = cumsum(trail_dist);
 
-trail_dist = n_color/trail_dist(end) * trail_dist;
+    trail_dist = n_color/trail_dist(end) * trail_dist;
 
-% Displaying Preparation
+    % Displaying Preparation
 
-cc = jet(n_color);
-cc = flipud(cc);
-hold(g_handles.current_position, 'off');
+    cc = jet(n_color);
+    cc = flipud(cc);
+    hold(g_handles.current_position, 'off');
 
-for i = 1:numPoints-1
-    color_idx = ceil(trail_dist(i));
-    plot(g_handles.current_position, [DispPoints(i, 1), DispPoints(i+1, 1)], ...
-        [DispPoints(i, 2), DispPoints(i+1, 2)], ...
-        '-', 'LineWidth', pen_width, 'Color', cc(color_idx, :));
+    for i = 1:numPoints-1
+        color_idx = ceil(trail_dist(i));
+        try
+        plot(g_handles.current_position, [DispPoints(i, 1), DispPoints(i+1, 1)], ...
+            [DispPoints(i, 2), DispPoints(i+1, 2)], ...
+            '-', 'LineWidth', pen_width, 'Color', cc(color_idx, :));
+        catch e
+            disp(e);
+        end
+        hold(g_handles.current_position, 'on');
+    end
+
+    xlim(g_handles.current_position, [-0.6 0.6]);
+    ylim(g_handles.current_position, [-0.6 0.6]);
+    hold(g_handles.current_position, 'off');
+
+    set(g_handles.current_position, 'XTick', []);
+    set(g_handles.current_position, 'YTick', []);
+    box(g_handles.current_position, 'on');
+
+else
     
-    hold(g_handles.current_position, 'on');
+    cla(g_handles.current_position);
+    xlim(g_handles.current_position, [-0.6 0.6]);
+    ylim(g_handles.current_position, [-0.6 0.6]);
+    hold(g_handles.current_position, 'off');
+
+    set(g_handles.current_position, 'XTick', []);
+    set(g_handles.current_position, 'YTick', []);
+    box(g_handles.current_position, 'on');
+    
 end
-
-xlim(g_handles.current_position, [-0.6 0.6]);
-ylim(g_handles.current_position, [-0.6 0.6]);
-hold(g_handles.current_position, 'off');
-
-set(g_handles.current_position, 'XTick', []);
-set(g_handles.current_position, 'YTick', []);
-box(g_handles.current_position, 'on');
 
 else
     %% Save Normalized Eye Position
