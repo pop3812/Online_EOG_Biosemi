@@ -19,10 +19,10 @@ plot(g_handles.current_signal, EOG(:,2), '-r');
 % plot(g_handles.current_signal, EOG(:,2)+y_range, '-r');
 
 % Legend
-% text(0.01, 0.05,'EOG_x', 'Parent', g_handles.current_signal, 'Units','normalized', 'Color', 'b', 'FontName', 'Cambria', 'FontSize', 8, 'FontWeight', 'bold');
-% text(0.01, 0.15,'EOG_y', 'Parent', g_handles.current_signal, 'Units','normalized', 'Color', 'r', 'FontName', 'Cambria', 'FontSize', 8, 'FontWeight', 'bold');
-legend(g_handles.current_signal, {'EOG_x', 'EOG_y'}, ...
-    'Orientation', 'horizontal', 'Location', 'southwest', 'FontSize',8);
+text(0.01, 0.10,'EOG_x', 'Parent', g_handles.current_signal, 'Units','normalized', 'Color', 'b', 'FontName', 'Cambria', 'FontSize', 8, 'FontWeight', 'bold');
+text(0.01, 0.20,'EOG_y', 'Parent', g_handles.current_signal, 'Units','normalized', 'Color', 'r', 'FontName', 'Cambria', 'FontSize', 8, 'FontWeight', 'bold');
+% legend(g_handles.current_signal, {'EOG_x', 'EOG_y'}, ...
+%     'Orientation', 'horizontal', 'Location', 'southwest', 'FontSize',8);
 
 % Draw Grids
 set(g_handles.current_signal,'TickLength', [0 0]);

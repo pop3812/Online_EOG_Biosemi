@@ -68,6 +68,10 @@ if strcmp(get(hObject,'Visible'),'off')
     set(handles.current_position, 'XTick', []);
     set(handles.current_position, 'YTick', []);
     box(handles.current_position, 'on');
+    
+    set(handles.current_calibration, 'XTick', []);
+    set(handles.current_calibration, 'YTick', []);
+    box(handles.current_calibration, 'on');
 end
 
 % UIWAIT makes online_gui wait for user response (see UIRESUME)

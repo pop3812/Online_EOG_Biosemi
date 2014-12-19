@@ -34,11 +34,20 @@ n_skip = fix(params.SamplingFrequency2Use * params.DelayTime / n_trail_point);
 if numPoints > 1
     
 %% Visualization on Psychtoolbox Screen
-text = ['Your input was : ', buffer.selected_key];
+text = ['Your input', buffer.selected_key];
 Screen('TextSize', params.window, 15);
 Screen('TextStyle', params.window, 1);
 
-DrawFormattedText(params.window, text, 'center', 150, [255, 255, 255]);
+% Make a default fixation point (center)
+[X,Y] = RectCenter(params.rect);
+
+if params.default_fixation_y > 0
+    Y = screen_degree_to_pixel('Y', params.default_fixation_y-3);
+elseif params.default_fixation_y < 0
+    Y = screen_degree_to_pixel('Y', params.default_fixation_y+3);
+end
+    
+DrawFormattedText(params.window, text, 'center', Y, [255, 255, 255]);
 
 for i= 1:n_skip:numPoints
     if i<=numPoints-n_skip

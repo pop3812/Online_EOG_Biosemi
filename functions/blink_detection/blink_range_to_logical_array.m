@@ -3,8 +3,9 @@ function [logical_array] = blink_range_to_logical_array(range)
 % changes blink range array into the logical array
 
 global params;
+global buffer;
 
-logical_array = zeros(params.QueueLength, 1);
+logical_array = zeros(buffer.dataqueue.datasize, 1);
 n_range = size(range, 1);
 
 if (n_range~=0)

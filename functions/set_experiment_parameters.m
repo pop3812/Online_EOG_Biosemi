@@ -51,7 +51,7 @@ params.fit_type = 'linear';
 params.is_coupled = 1;
                                   
 % plot parameters
-params.y_range = 10^3; % 10^3 is optimal for Biosemi EOG
+params.y_range = 5.*10^2; % 5.*10^2 is optimal for Biosemi EOG
 
 % result parametmers
 params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data';

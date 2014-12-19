@@ -6,6 +6,7 @@ function session_calibration(isFirstSec, isLastSec)
 
 global params;
 global buffer;
+global g_handles;
 
 %% Screen Control
 if isFirstSec
@@ -29,20 +30,9 @@ if params.window ~= -1
     end
 end
 
-%% Removal of Eye Blink Detected Range
-
-ranges = blink_range_position_conversion();
-blink_detected = blink_range_to_logical_array(ranges);
-blink_detected = blink_detected(end-n_data+1:end);
-
-% Blink range removed EOG
-EOG(logical(blink_detected), :) = NaN;
-EOG_concatenated = EOG(logical(1-blink_detected), :);
-n_data_valid = size(EOG_concatenated, 1);
-
 %% Registration
-for i=1:n_data_valid
-    buffer.drift_removal_queue.add(EOG_concatenated(i,:));
+for i=1:n_data
+    buffer.drift_removal_queue.add(EOG(i,:));
 end
 
 %% Visualization
@@ -51,15 +41,31 @@ draw_realtime_signal();
 %% Parameter Re-assignment
 
 if(params.drift_removing ~= 0) && isLastSec
+    
+    %% Removal of Eye Blink Detected Range
+    n_data= buffer.drift_removal_queue.datasize;
+    EOG = buffer.drift_removal_queue.data(1:n_data, :);
+    
+    ranges = blink_range_position_conversion();
+    blink_detected = blink_range_to_logical_array(ranges);
+    blink_detected = blink_detected(end-n_data+1:end);
+
+    % Blink range removed EOG
+    EOG(logical(blink_detected), :) = NaN;
+    
+    EOG_concatenated = EOG(logical(1-blink_detected), :);
+    n_data_valid = size(EOG_concatenated, 1);
+
     % Reset Drift Value
-    params.DriftValues = params.DriftValues + nanmedian(buffer.drift_removal_queue.data);
+    params.DriftValues = params.DriftValues + nanmedian(EOG_concatenated);
     
     % Linearly Increasing Drift Removal for Vertical Signal
-    n_data= buffer.drift_removal_queue.datasize;
-    y_data = buffer.drift_removal_queue.data(1:n_data,2);
-    t = (1:n_data)';
+    
+    y_data = EOG_concatenated(:, 2);
+    t = (1:n_data_valid)';
+    
     threshold = 10^0;
-    err_threshold = 5*10^-12;
+    err_threshold = 5*10^-12; %%%
     
     buffer.drift_pol_y = polyfit(t, y_data, 1);
     est = polyval(buffer.drift_pol_y, t);
@@ -75,11 +81,19 @@ if(params.drift_removing ~= 0) && isLastSec
         end
     end
     
-    disp(['y-drift estimation : ' num2str(buffer.drift_pol_y(1)) ', err : ' num2str(err)]);
-    
-%     if abs(err)>=err_threshold %%%
-%        figure; plot(t, y_data); hold on; plot(t, est, '-r'); 
-%     end
+    draw_calibration_signal(t, y_data, est, buffer.drift_pol_y(1), err);
+
+    % Re-do calibration if error is too big
+    if abs(err)>=err_threshold 
+       
+       buffer.Calib_or_Acquisition = circshift(buffer.Calib_or_Acquisition', +(params.CalibrationTime-1));
+       buffer.Calib_or_Acquisition = buffer.Calib_or_Acquisition';
+       
+       buffer.X_train = circshift(buffer.X_train', +(params.CalibrationTime-1));
+       buffer.X_train = buffer.X_train';
+       buffer.Y_train = circshift(buffer.Y_train', +(params.CalibrationTime-1));
+       buffer.Y_train = buffer.Y_train';
+    end
     
     % Reset Linear Function's y-intercept
 %     buffer.pol_x(2) = 0; % - buffer.pol_x(1) * params.DriftValues(1);
