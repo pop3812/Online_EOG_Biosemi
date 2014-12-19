@@ -17,11 +17,9 @@ if status == 1 % Calibration Mode
     if strcmp(buffer.timer_id_displaying.Running, 'on')
         stop(buffer.timer_id_displaying)
     end
-    set(g_handles.system_message, 'String', 'Calibration Mode');
-    if isFirstSec
-        % Sound Beep
-        [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
-        sound(beep, Fs); % sound beep
+    
+    if isFirstSec && ~buffer.Recalibration_status
+        set(g_handles.system_message, 'String', 'Calibration Mode');
         buffer.n_session = buffer.n_session + 1;
         set(g_handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
         if params.DummyMode
@@ -30,11 +28,10 @@ if status == 1 % Calibration Mode
            buffer.dummy_idx = circshift(buffer.dummy_idx, -1);
            %%%
         end
+    elseif isFirstSec && buffer.Recalibration_status
+        set(g_handles.system_message, 'String', 'Re-do Calibration Mode');
     end
-    
-    if isLastSec
-        buffer.calibration_end_idx = buffer.dataqueue.index_end;
-    end
+
     session_calibration(isFirstSec, isLastSec);
     
 elseif status == 0 % Data Acquisition Mode
@@ -46,6 +43,7 @@ elseif status == 0 % Data Acquisition Mode
     
 elseif status == 2 % Result Showing
     if isFirstResultShowing
+        set(g_handles.system_message, 'String', 'Result Showing Mode');
         
         % Sound Beep
         [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
@@ -65,6 +63,7 @@ elseif status == 2 % Result Showing
             (buffer.n_session~=1 && ...
             mod((buffer.n_session-1), params.RestForEveryNSession) == 0)
         stop(timer_id_data);
+        set(g_handles.system_message, 'String', 'Subject Rest Mode');
         session_subject_rest();
         start(timer_id_data);
     end

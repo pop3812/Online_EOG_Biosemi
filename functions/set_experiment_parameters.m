@@ -33,6 +33,11 @@ params.medianfilter_size = 10; % The number of samples to take median for denois
 params.drift_filter_time = 10; % in seconds (should < BufferTime)
                                % default is 10
 
+% calibration parameters
+params.slope_threshold = 10^0;
+params.linear_baseline_slope_threshold = 10^0;
+params.linear_baseline_err_threshold = 5*10^-13;
+                               
 % screen parameters
 params.screen_width = 48; % the width of the screen (inner) [cm]
 params.screen_height = 27; % the height of the screen (inner) [cm]
@@ -51,7 +56,7 @@ params.fit_type = 'linear';
 params.is_coupled = 1;
                                   
 % plot parameters
-params.y_range = 5.*10^2; % 5.*10^2 is optimal for Biosemi EOG
+params.y_range = 5.*10^2; % 3.*10^2 is optimal for Biosemi EOG
 
 % result parametmers
 params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data';

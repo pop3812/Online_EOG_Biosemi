@@ -5,6 +5,9 @@ function screen_draw_trail()
 global params;
 global buffer;
 % tic;
+
+if params.window ~= -1
+    
 pen_width = 3.0;
 n_trail_point = fix(params.screen_trail_point_per_sec * params.DelayTime);
 n_skip = fix(params.SamplingFrequency2Use * params.DelayTime / n_trail_point);
@@ -92,5 +95,6 @@ if params.window ~= -1
     Screen('Flip', params.window);
 end
 
+end
 % toc;
 end

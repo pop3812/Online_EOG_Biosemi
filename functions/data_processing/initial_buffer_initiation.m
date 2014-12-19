@@ -42,6 +42,7 @@ buffer.selected_key = '';
 buffer.n_session = 0;
 buffer.session_data = cell(1, 1);
 buffer.calibration_end_idx = 1;
+buffer.Recalibration_status = 0;
 
 buffer.timer_id_displaying = struct;
 

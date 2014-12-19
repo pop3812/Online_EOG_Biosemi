@@ -3,11 +3,12 @@ global buffer;
 global params;
 global g_handles;
 
-deg_bound = 50;
-deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
-deg_bound_pix_y = screen_degree_to_pixel('Y', deg_bound);
-deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
-deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
+if params.window ~= -1
+% deg_bound = 50;
+% deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
+% deg_bound_pix_y = screen_degree_to_pixel('Y', deg_bound);
+% deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
+% deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
 
 %% Data Retrieve
 thePoints = buffer.session_data{buffer.n_session}.eye_position_queue_px;
@@ -148,5 +149,7 @@ else
     set(g_handles.current_position, 'XTick', []);
     set(g_handles.current_position, 'YTick', []);
     box(g_handles.current_position, 'on');
+end
+
 end
 end
