@@ -1,6 +1,6 @@
 clc; clear; clf;
 file_path = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\';
-file_name = 'data_1.mat';
+file_name = 'data_6.mat';
 
 global params;
 load([file_path file_name]);
@@ -110,6 +110,7 @@ for i_session = 1:N_Session
 
         end
         xlim([-0.5 0.5]); ylim([-0.5 0.5]); axis('tight'); axis('off');
+        text(0.01, 0.95, num2str(i_session), 'Unit', 'normalized', 'FontSize', 8);
     end
         
 
