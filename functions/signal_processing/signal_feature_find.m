@@ -1,4 +1,4 @@
-function [plateaus] = signal_feature_find(signal, feature)
+function [plateaus] = signal_feature_find(signal, feature, min_length)
 %SIGNAL_PLATEAU_FIND : finds plateau-like regions in the signal
 % INPUT ARGUMENTS
 % signal : [n_data x 1] Matrix containing EOG signal
@@ -48,7 +48,7 @@ for i = 1:length(plateaus)
     plateaus(i).length = i_length;
     
     % reject if the range length is too short
-    reject_idx(i) = plateaus(i).length < ceil(n_data * 0.1);
+    reject_idx(i) = plateaus(i).length < ceil(n_data * min_length);
 end
 
 plateaus(find(reject_idx==1)) = [];

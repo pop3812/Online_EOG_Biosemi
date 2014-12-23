@@ -24,7 +24,7 @@ text(0.05, 0.95, 'Calibration Result', 'Parent', g_handles.current_calibration, 
 
 xlim(g_handles.current_calibration, [0 length(t_total)]);
 y_range = params.y_range;
-ylim(g_handles.current_calibration, [-y_range y_range]);
+% ylim(g_handles.current_calibration, [-y_range y_range]);
 
 draw_region_ranges(plateaus);
 
@@ -39,22 +39,25 @@ end
 function draw_region_ranges(plateaus)
 global g_handles;
 
-color = [0 1 0];
-height = 0.1;
-y = get(g_handles.current_calibration,'YLim');
+color = [0 0 0];
+% height = 0.1;
+% y = get(g_handles.current_calibration,'YLim');
 
 for i = 1:length(plateaus)
-    pos = [plateaus(i).on, plateaus(i).off];
+%     pos = [plateaus(i).on, plateaus(i).off];
+    leng = plateaus(i).length;
 %     plot(g_handles.current_calibration, [pos(1) pos(1)], [y(1), y(2)], '-b', 'LineWidth', 2);
 %     plot(g_handles.current_calibration, [pos(2) pos(2)], [y(1), y(2)], '-b', 'LineWidth', 2);
-    y_lim_dat = [min(plateaus(i).est)-10 max(plateaus(i).est)+10];
-    H = area(g_handles.current_calibration, pos, height*[y(2), y(2)]);
-    H2 = area(g_handles.current_calibration, pos, height*[y(1), y(1)]);
+    y_lim_dat = [min(plateaus(i).est)-5 max(plateaus(i).est)+5];
+    height = y_lim_dat(2) - y_lim_dat(1);
+    
+    H = rectangle('Position', [plateaus(i).on, y_lim_dat(1), leng, height], 'Parent', g_handles.current_calibration);
+%     H = area(g_handles.current_calibration, pos, height*[y(2), y(2)]);
+%     H2 = area(g_handles.current_calibration, pos, height*[y(1), y(1)]);
 
     % Set alpha value for the area
-    h=get(H,'children');
-    set(h,'FaceAlpha', 0.1, 'FaceColor', color, 'LineStyle', 'none');
-    h=get(H2,'children');
-    set(h,'FaceAlpha', 0.1, 'FaceColor', color, 'LineStyle', 'none');
+    set(H,'EdgeColor', color, 'LineStyle', ':', 'LineWidth', 1);
+%     h=get(H2,'children');
+%     set(h,'FaceAlpha', 0.1, 'FaceColor', color, 'LineStyle', 'none');
 end
 end

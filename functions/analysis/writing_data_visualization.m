@@ -1,6 +1,6 @@
 clc; clear; clf;
-file_path = 'C:\Users\User\Documents\GitHub\Data\20141217_LeeKR\';
-file_name = 'data_4_reform.mat';
+file_path = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\';
+file_name = 'data_1.mat';
 
 global params;
 load([file_path file_name]);

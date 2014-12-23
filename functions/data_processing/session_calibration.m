@@ -71,7 +71,7 @@ if(params.drift_removing ~= 0) && isLastSec
     y_data = EOG_concatenated(:, 2);
     
     % Plateau Find Function
-    plateaus = signal_feature_find(y_data, 'flat');
+    plateaus = signal_feature_find(y_data, 'flat', 0.3);
     n_region = length(plateaus);
 
     if n_region > 0
@@ -99,7 +99,7 @@ if(params.drift_removing ~= 0) && isLastSec
             if buffer.drift_pol_y(1)>0
             buffer.drift_pol_y(1) = threshold;
             else
-            buffer.drift_pol_y(1) = 0;    
+            buffer.drift_pol_y(1) = -threshold;    
             end
         end
         

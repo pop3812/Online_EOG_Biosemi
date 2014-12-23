@@ -2,6 +2,9 @@ clc; clear; % clf;
 
 data_acq_time = 8; % sec
 SR = 128; % Hz
+
+D_Rate = 1;
+
 data_length = data_acq_time * SR;
 
 %% Retrieve all data
@@ -45,6 +48,9 @@ for i = 1:26
        else
            alphabet_dict_norm{i, j} = sig(1:data_length, :);
        end
+       
+       alphabet_dict_norm{i, j} = downsample(alphabet_dict_norm{i, j}, D_Rate);
+       
        alphabet_dict_norm_x{i, j} = alphabet_dict_norm{i, j}(:, 1);
        alphabet_dict_norm_y{i, j} = alphabet_dict_norm{i, j}(:, 2);
    end
@@ -59,7 +65,7 @@ tic;
 
 alphabet_seq = ('a':'z');
 
-method_distanceMetrics = 3;
+method_distanceMetrics = 1;
 mode_distance_template = 2;
 
 result = cell(26, 12);
@@ -117,18 +123,50 @@ toc;
 
 clearvars -except method_distanceMetrics mode_distance_template result
 
-save('C:\Users\User\Documents\GitHub\Data\20141217_LeeKR\temp_match_with_DPW.mat');
+%% Accuracy
+% load('C:\Users\User\Documents\GitHub\Data\20141217_LeeKR\temp_match_with_corr.mat');
 
-% for tr_idx = 1:4 % training data idx
-% 
-%     tr =  alphabet_dict_norm(:, tr_idx);
-%     test = alphabet_dict_norm(:, 1:4);
-%     
-% end
+n_correct_alphabet = zeros(26, 1);
+n_total = 12 * 26;
+for i = 1:26
+    for j = 1:12
+        if result{i, j}.alphabet_ori == result{i, j}.alphabet_decision
+            n_correct_alphabet(i) = n_correct_alphabet(i) + 1;
+        end
+    end
+end
 
-% data = File_Header.SessionData;
-% 
-% sig = data{1}.normalized_eye_position;
-% 
-% plot(sig);
+accuracy_mat = n_correct_alphabet ./ 12;
+total_acc = sum(n_correct_alphabet) / n_total;
 
+figure;
+y = bar(accuracy_mat, 0.5, 'r'); xlim([0 27]);
+title_str = sprintf('Mean Accuracy : %2.2f %%', total_acc .* 100);
+title(title_str, 'FontSize', 12, 'FontWeight', 'bold');
+
+x_loc = get(y, 'XData');
+y_height = get(y, 'YData');
+arrayfun(@(x,y) text(x-0.25, y+0.03, [num2str(fix(y*10^2)) '%'], 'Color', 'k'), x_loc, y_height);
+
+set(gca,'XTick', 1:26);
+set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 12, 'FontWeight', 'bold');
+
+%% Bad case
+min_x_mat = zeros(12, 1);
+min_y_mat = zeros(12, 1); 
+
+comp_x_dist = zeros(12, 2);
+comp_y_dist = zeros(12, 2); 
+
+idx_bad = 24;
+idx_comp = 26;
+
+for i = 1:12
+    [min_val min_x_mat(i)] = min(result{idx_bad, i}.dist_x);
+    [min_val min_y_mat(i)] = min(result{idx_bad, i}.dist_y);
+    
+    comp_x_dist(i, 1) = result{idx_bad, i}.dist_x(idx_bad);
+    comp_x_dist(i, 2) = result{idx_bad, i}.dist_x(idx_comp);
+    comp_y_dist(i, 1) = result{idx_bad, i}.dist_y(idx_bad);
+    comp_y_dist(i, 2) = result{idx_bad, i}.dist_y(idx_comp);
+end
