@@ -6,7 +6,7 @@ function test_DTW()
     max_slope_length = 2;
     speedup_mode = 1;
     tic
-    [dist, table, match_pair] = fastDPW( a, b, max_slope_length, speedup_mode, window_width );
+    [dist, table, match_pair] = fastDTW( a, b, max_slope_length, speedup_mode, window_width );
 %    [dist, table, match_pair] = fastDTW( a, b, max_slope_length, speedup_mode, window_width );
 %     [dist, table,slope] = dtw( a, b, 0,max_slope_length, 0 );
 %     [match_pair, nPair] = dtw_backtracking(table, slope,[]);

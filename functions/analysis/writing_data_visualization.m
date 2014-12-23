@@ -1,6 +1,6 @@
 clc; clear; clf;
-file_path = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\';
-file_name = 'data_6.mat';
+file_path = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\raw\';
+file_name = 'data_2.mat';
 
 global params;
 load([file_path file_name]);
@@ -12,7 +12,7 @@ params.screen_width = File_Header.ExperimentParameters.screen_width;
 params.screen_height = File_Header.ExperimentParameters.screen_height;
 
 subplot_n_col = 8;
-D_Rate = 4;
+D_Rate = 64;
 
 deg_bound = 50;
 deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);

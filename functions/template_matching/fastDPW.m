@@ -19,7 +19,9 @@ function [ dist ,table, match_pair] = fastDPW( data_ref, data_test, max_slope_le
     
 
     %DP Table °è»ê
-    table(1,1) = abs(data_ref(1,1)-data_test(1,1));
+    %table(1,1) = abs(data_ref(1,:)-data_test(1,:));
+    table(1,1) = sqrt(sum((data_ref(1,:)-data_test(1,:)).^2,2));
+    
     ratio = size_ref/size_test;
     for j=2:size_test
         %speed-up window
@@ -59,7 +61,7 @@ function [ dist ,table, match_pair] = fastDPW( data_ref, data_test, max_slope_le
                     end
                 end
             end
-            table(i, j) = min_dist + abs(v_ref(min_id_ref,i)-v_test(min_id_test,j)); %root;
+            table(i, j) = min_dist + sqrt(sum((v_ref(min_id_ref,i,:)-v_test(min_id_test,j,:)).^2,3)); %root;
         end
     end
     dist = table(size_ref, size_test);
@@ -68,8 +70,8 @@ function [ dist ,table, match_pair] = fastDPW( data_ref, data_test, max_slope_le
     else 
         match_pair = [];
     end
-    
 end
+
 
 function [match_pair] = dtwfast_backtracking(table, max_slope_length)
     size_ref = size(table,1);
