@@ -73,16 +73,20 @@ function [dist] = templateMatching(data,template, method_distanceMetrics, mode_d
         for j=template_length:nRow
             data_range = j-template_length+1:1:j;
             if method_distanceMetrics==1
-                dist(j,i) = 1-corr(data(data_range,1), template{i},'rows','complete');
+                dist_x = 1-corr(data(data_range,1), template{i}(:,1),'rows','complete');
+                dist_y = 1-corr(data(data_range,2), template{i}(:,2),'rows','complete');
+                dist(j,i) = dist_x + dist_y;
             elseif method_distanceMetrics==2
-                [ dist(j,i), table, match_pair] = fastDTW( template{i}, data(data_range,1) - data(data_range(1),1), max_slope_length, speedup_mode);
+                [ dist(j,i), table, match_pair] = fastDTW( template{i}, data(data_range,:), max_slope_length, speedup_mode);
             elseif method_distanceMetrics==3
                 %[dist(j,i), table, slope] = dtw(n_template{i}, data(data_range,1) - data(data_range(1),1), slope_mode, max_slope_length, bDPW);
-                [ dist(j,i), table, match_pair] = fastDPW( template{i}, data(data_range,1) - data(data_range(1),1), max_slope_length, speedup_mode);
-            elseif method_distanceMetrics==4
+                [ dist(j,i), table, match_pair] = fastDPW( template{i}, data(data_range,:), max_slope_length, speedup_mode);
+            elseif method_distanceMetrics==4 %%%
                 dist(j,i) = abs(kurtosis(data(data_range,1))-kurtosis(template{i}));
             elseif method_distanceMetrics==5
-                dist(j,i) = sqrt(sum((data(data_range,1)-template{i}).^2));
+                dist_x = sqrt(sum((data(data_range,1)-template{i}(:,1)).^2));
+                dist_y = sqrt(sum((data(data_range,2)-template{i}(:,2)).^2));
+                dist(j,i) = dist_x + dist_y;
             else
             end
         end

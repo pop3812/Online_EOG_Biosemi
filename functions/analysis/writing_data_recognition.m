@@ -7,8 +7,9 @@ n_set = 10; % number of alphabet set in the database
 data_acq_time = 8; % sec
 SR = 128; % Hz
 
-D_Rate = 1; % Downsample factor for fast calculation 
+D_Rate = 4; % Downsample factor for fast calculation 
 
+method_str = {'Correlation', 'DTW', 'DPW', 'Kurtosis', 'MSE'};
 data_length = data_acq_time * SR;
 
 %% Retrieve all data
@@ -60,15 +61,18 @@ clear sig x xq;
 
 %% Template Matching
 
-tic;
+t_init = tic;
+t_init_date = now;
 
 alphabet_seq = ('a':'z');
 
-for method_distanceMetrics = 2:3
+for method_distanceMetrics = 2
 % method_distanceMetrics = 1;
 mode_distance_template = 2;
 
 result = cell(26, n_set*(n_set-1));
+
+prog_bar = waitbar(0, '0 %');
 
 for tr_idx = 1:n_set
     test_idx_mat = 1:n_set;
@@ -76,7 +80,6 @@ for tr_idx = 1:n_set
     for j = 1:n_set-1
         test_idx = test_idx_mat(j);
         column_idx = (n_set-1)*(tr_idx-1) + j;
-        
         for char_idx = 1:26
 
             
@@ -99,48 +102,65 @@ for tr_idx = 1:n_set
         
         result{char_idx, column_idx} = result_struct;
         end
+        
+        if (ishandle(prog_bar))
+        progress_percentage = column_idx / (n_set*(n_set-1));
+        tt = toc(t_init);
+        expected_finish_time = datestr(t_init_date + (tt ./ (progress_percentage))/86400, 'dd-mmm-yyyy HH:MM:SS');
+        waitbar(progress_percentage, prog_bar, ...
+                [sprintf('%3.2f %% Done / Elapsed Time : %.2f sec', progress_percentage*10^2, tt), ...
+                char(10), 'Expected End : ', expected_finish_time]);
+        end
     end
 end
-toc;
+    t_calculation = toc(t_init);
 
+    if (ishandle(prog_bar))
+            waitbar(1.0, prog_bar, [num2str(100) ' % Done']);
+            close(prog_bar);
+    end
+    
     % Save results
-    save_route = [result_save_route, 'analysis_result_method_', num2str(method_distanceMetrics), '.mat'];
-    disp(['Method ', num2str(method_distanceMetrics), ' : Done']);
+    save_route = [result_save_route, 'analysis_result_method_', num2str(method_distanceMetrics), '_DR_', num2str(D_Rate), '.mat'];
+    disp('Classification Done');
+    disp(['Method : ', method_str{method_distanceMetrics}]);
+    disp(['Downsampling Factor : ', num2str(D_Rate)]);
+    disp(['Elapsed time : ', num2str(t_calculation)]);
+    
     save(save_route, 'result', 'mode_distance_template', 'method_distanceMetrics', ...
-        'n_set', 'data_acq_time', 'SR', 'D_Rate', 'data_length');
+        'n_set', 'data_acq_time', 'SR', 'D_Rate', 'data_length', 't_calculation');
 end
 
-clearvars -except method_distanceMetrics mode_distance_template result
+clearvars -except method_distanceMetrics mode_distance_template result n_set
 
-% %% Accuracy
-% % load('C:\Users\User\Documents\GitHub\Data\20141217_LeeKR\temp_match_with_corr.mat');
-% n_set = 10;
-% 
-% n_correct_alphabet = zeros(26, 1);
-% n_total = n_set*(n_set-1) * 26;
-% for i = 1:26
-%     for j = 1:n_set*(n_set-1)
-%         if result{i, j}.alphabet_ori == result{i, j}.alphabet_decision
-%             n_correct_alphabet(i) = n_correct_alphabet(i) + 1;
-%         end
-%     end
-% end
-% 
-% accuracy_mat = n_correct_alphabet ./ (n_set*(n_set-1));
-% total_acc = sum(n_correct_alphabet) / n_total;
-% 
-% figure;
-% y = bar(accuracy_mat, 0.5, 'r'); xlim([0 27]);
-% title_str = sprintf('Mean Accuracy : %2.2f %%', total_acc .* 100);
-% title(title_str, 'FontSize', 12, 'FontWeight', 'bold');
-% 
-% x_loc = get(y, 'XData');
-% y_height = get(y, 'YData');
-% arrayfun(@(x,y) text(x-0.25, y+0.03, [num2str(fix(y*10^2)) '%'], 'Color', 'k'), x_loc, y_height);
-% 
-% set(gca,'XTick', 1:26);
-% set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 12, 'FontWeight', 'bold');
-% 
+%% Accuracy
+% load('C:\Users\User\Documents\GitHub\Data\20141217_LeeKR\temp_match_with_corr.mat');
+
+n_correct_alphabet = zeros(26, 1);
+n_total = n_set*(n_set-1) * 26;
+for i = 1:26
+    for j = 1:n_set*(n_set-1)
+        if result{i, j}.alphabet_ori == result{i, j}.alphabet_decision
+            n_correct_alphabet(i) = n_correct_alphabet(i) + 1;
+        end
+    end
+end
+
+accuracy_mat = n_correct_alphabet ./ (n_set*(n_set-1));
+total_acc = sum(n_correct_alphabet) / n_total;
+
+figure;
+y = bar(accuracy_mat, 0.5, 'r'); xlim([0 27]);
+title_str = sprintf('Mean Accuracy : %2.2f %%', total_acc .* 100);
+title(title_str, 'FontSize', 12, 'FontWeight', 'bold');
+
+x_loc = get(y, 'XData');
+y_height = get(y, 'YData');
+arrayfun(@(x,y) text(x-0.25, y+0.03, [num2str(fix(y*10^2)) '%'], 'Color', 'k'), x_loc, y_height);
+
+set(gca,'XTick', 1:26);
+set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 12, 'FontWeight', 'bold');
+
 % %% Bad case
 % min_x_mat = zeros(12, 1);
 % min_y_mat = zeros(12, 1); 
@@ -148,15 +168,13 @@ clearvars -except method_distanceMetrics mode_distance_template result
 % comp_x_dist = zeros(12, 2);
 % comp_y_dist = zeros(12, 2); 
 % 
-% idx_bad = 24;
-% idx_comp = 26;
+% idx_bad = 8;
+% idx_comp = 18;
 % 
-% for i = 1:12
-%     [min_val min_x_mat(i)] = min(result{idx_bad, i}.dist_x);
-%     [min_val min_y_mat(i)] = min(result{idx_bad, i}.dist_y);
+% for i = 1:90
+%     [min_val min_mat(i)] = min(result{idx_bad, i}.dist);
 %     
-%     comp_x_dist(i, 1) = result{idx_bad, i}.dist_x(idx_bad);
-%     comp_x_dist(i, 2) = result{idx_bad, i}.dist_x(idx_comp);
-%     comp_y_dist(i, 1) = result{idx_bad, i}.dist_y(idx_bad);
-%     comp_y_dist(i, 2) = result{idx_bad, i}.dist_y(idx_comp);
+%     comp_dist(i, 1) = result{idx_bad, i}.dist(idx_bad);
+%     comp_dist(i, 2) = result{idx_bad, i}.dist(idx_comp);
+%     
 % end

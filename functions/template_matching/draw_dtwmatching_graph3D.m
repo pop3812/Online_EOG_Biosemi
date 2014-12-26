@@ -57,7 +57,7 @@ function draw_dtwmatching_graph3D(ref, test, match_pair, nMatchPair, draw_option
             z(i,:) = [ref_depth(1,1) test_depth(1,1)];
             plot3(x(i,:),y(i,:),z(i,:),'r');
         end
-        
+        hold off;
     end
     
 
