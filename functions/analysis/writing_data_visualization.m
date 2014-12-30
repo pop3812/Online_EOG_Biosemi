@@ -12,7 +12,7 @@ params.screen_width = File_Header.ExperimentParameters.screen_width;
 params.screen_height = File_Header.ExperimentParameters.screen_height;
 
 subplot_n_col = 8;
-D_Rate = 64;
+D_Rate = 8;
 
 deg_bound = 50;
 deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
@@ -100,16 +100,7 @@ for i_session = 1:N_Session
         [numPoints, two]=size(Disp_X);
 
         subaxis(subplot_n_row, subplot_n_col, i_session, 'Spacing', 0.03, 'Padding', 0, 'Margin', 0);
-        for i = 1:numPoints-1
-            color_idx = ceil(trail_dist(i));
-
-            plot([Disp_X(i), Disp_X(i+1)], ...
-                [Disp_Y(i), Disp_Y(i+1)], ...
-                '-', 'LineWidth', 3, 'Color', cc(color_idx, :));
-            hold on;
-
-        end
-        xlim([-0.5 0.5]); ylim([-0.5 0.5]); axis('tight'); axis('off');
+        draw_alphabet_on_plot([Disp_X Disp_Y]);
         text(0.01, 0.95, num2str(i_session), 'Unit', 'normalized', 'FontSize', 8);
     end
         

@@ -10,7 +10,9 @@ SR = 128; % Hz
 
 D_Rate = 32; % Downsample factor for fast calculation 
 max_slope_length = 3;
-save_tag = '_with_diff_signal';
+candidate_threshold = 0.2;
+
+save_tag = '_hist_feature';
 
 %% Retrieve all data
 
@@ -75,6 +77,7 @@ end
 %% Normalize all data length
 
 alphabet_dict_norm = cell(26, n_set);
+alphabet_dict_hist = cell(26, n_set);
 
 for i = 1:26
    for j = 1:n_set
@@ -88,15 +91,9 @@ for i = 1:26
        end
        
        alphabet_dict_norm{i, j} = downsample(alphabet_dict_norm{i, j}, D_Rate);
-       
-       % diff signal
-       alphabet_dict_diff{i, j} = zeros(length(alphabet_dict_norm{i, j}), 2);
-       
-       [dData, minmax, stats] = AnalyzeEdges(alphabet_dict_norm{i, j}(:, 1));
-       alphabet_dict_diff{i, j}(:, 1) = dData(:, end);
-       
-       [dData, minmax, stats] = AnalyzeEdges(alphabet_dict_norm{i, j}(:, 2));
-       alphabet_dict_diff{i, j}(:, 2) = dData(:, end);
+       alphabet_dict_hist{i, j} = hist3(alphabet_dict_norm{i, j});
+       alphabet_dict_hist{i, j} = alphabet_dict_hist{i, j}./sum(sum(alphabet_dict_hist{i, j}));
+
    end
 end
 
@@ -126,8 +123,8 @@ for tr_idx = 1:n_set
         for char_idx = 1:26
 
             
-        template_alphabet = alphabet_dict_diff(:, tr_idx);
-        test_alphabet = alphabet_dict_diff(char_idx, test_idx);
+        template_alphabet = alphabet_dict_norm(:, tr_idx);
+        test_alphabet = alphabet_dict_norm(char_idx, test_idx);
         
         % dist of x
         dist_mat = templateMatching(test_alphabet{1, 1}, template_alphabet, method_distanceMetrics, mode_distance_template, max_slope_length);
@@ -135,25 +132,25 @@ for tr_idx = 1:n_set
         
         [min_dist, min_idx] = min(dist_mat);
         
-%         % last point feature
-%         last_diff_threshold_val = (max(dist_mat) - min(dist_mat)) * candidate_threshold;
-%         candidate_idx = find(dist_mat < min(dist_mat) + last_diff_threshold_val);
-% 
-%         last_point_dist_mat = NaN(1, 26);
-%         if length(candidate_idx) <= 1
-%             [min_dist, min_idx] = min(dist_mat);
-%         else
-%             test_last_point = last_point_median{char_idx, test_idx};
-%             temp_last_point = {last_point_median{candidate_idx, tr_idx}};
-%             
-%             for candidate_i = 1:length(candidate_idx)
-%                 last_point_dist_mat(candidate_idx(candidate_i)) = norm(test_last_point-temp_last_point{candidate_i}, 2);
-%             end
-%             
-%             [min_dist_l, min_idx] = nanmin(last_point_dist_mat);
-%             min_dist = dist_mat(min_idx);
-%             
-%         end
+        % hist feature
+        last_diff_threshold_val = (max(dist_mat) - min(dist_mat)) * candidate_threshold;
+        candidate_idx = find(dist_mat < min(dist_mat) + last_diff_threshold_val);
+
+        last_point_dist_mat = NaN(1, 26);
+        if length(candidate_idx) <= 1
+            [min_dist, min_idx] = min(dist_mat);
+        else
+            test_last_point = alphabet_dict_hist{char_idx, test_idx};
+            temp_last_point = {alphabet_dict_hist{candidate_idx, tr_idx}};
+            
+            for candidate_i = 1:length(candidate_idx)
+                last_point_dist_mat(candidate_idx(candidate_i)) = max(max(corr2(test_last_point, temp_last_point{candidate_i})));
+            end
+            
+            [min_dist_l, min_idx] = nanmax(last_point_dist_mat);
+            min_dist = dist_mat(min_idx);
+            
+        end
         
         % result report
         result_struct.alphabet_ori = alphabet_seq(char_idx);
@@ -162,8 +159,8 @@ for tr_idx = 1:n_set
         result_struct.test_idx = test_idx;
 
         result_struct.dist = dist_mat;
-%         result_struct.candidate_num = length(candidate_idx);
-%         result_struct.last_point_dist = last_point_dist_mat;
+        result_struct.candidate_num = length(candidate_idx);
+        result_struct.last_point_dist = last_point_dist_mat;
 
         result{char_idx, column_idx} = result_struct;
         end

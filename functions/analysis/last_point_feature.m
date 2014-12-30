@@ -8,9 +8,9 @@ n_set = 10; % number of alphabet set in the database
 data_acq_time = 8; % sec
 SR = 128; % Hz
 
-D_Rate = 32; % Downsample factor for fast calculation 
+D_Rate = 16; % Downsample factor for fast calculation 
 max_slope_length = 3;
-save_tag = '_with_diff_signal';
+save_tag = '_last_padding_more';
 
 %% Retrieve all data
 
@@ -57,7 +57,7 @@ for i = 1:26
             last_point_median{i, j} = nanmedian(alphabet_dict{i, j}(on_idx:end,:));
             alphabet_dict{i, j}(on_idx:end,:) = [];
             
-            last_padding = repmat(last_point_median{i, j}, fix(on_idx * 0.1), 1);
+            last_padding = repmat(last_point_median{i, j}, fix(on_idx * 0.3), 1);
             alphabet_dict{i, j} = [alphabet_dict{i, j}; last_padding];
         end
         
@@ -88,15 +88,7 @@ for i = 1:26
        end
        
        alphabet_dict_norm{i, j} = downsample(alphabet_dict_norm{i, j}, D_Rate);
-       
-       % diff signal
-       alphabet_dict_diff{i, j} = zeros(length(alphabet_dict_norm{i, j}), 2);
-       
-       [dData, minmax, stats] = AnalyzeEdges(alphabet_dict_norm{i, j}(:, 1));
-       alphabet_dict_diff{i, j}(:, 1) = dData(:, end);
-       
-       [dData, minmax, stats] = AnalyzeEdges(alphabet_dict_norm{i, j}(:, 2));
-       alphabet_dict_diff{i, j}(:, 2) = dData(:, end);
+
    end
 end
 
@@ -126,8 +118,8 @@ for tr_idx = 1:n_set
         for char_idx = 1:26
 
             
-        template_alphabet = alphabet_dict_diff(:, tr_idx);
-        test_alphabet = alphabet_dict_diff(char_idx, test_idx);
+        template_alphabet = alphabet_dict_norm(:, tr_idx);
+        test_alphabet = alphabet_dict_norm(char_idx, test_idx);
         
         % dist of x
         dist_mat = templateMatching(test_alphabet{1, 1}, template_alphabet, method_distanceMetrics, mode_distance_template, max_slope_length);

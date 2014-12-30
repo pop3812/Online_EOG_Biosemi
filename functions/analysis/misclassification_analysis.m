@@ -11,6 +11,8 @@ method_iter = 2;
 save_route = [result_save_route, 'analysis_result_method_', num2str(method_iter), '_DR_', num2str(D_Rate_iter), '.mat'];
 load(save_route);
 
+%%
+
 error_mat = zeros(26, 26);
 
 for i = 1:26
@@ -43,9 +45,9 @@ set(hfig, 'Units', 'inches', ...
     'Color', [1,1,1], 'Position', [1 1 width height]);
 
 set(gca, 'Ytick', (1:26));
-set(gca,'YTickLabel', cellstr(('a':'z').'), 'FontName', Fontname, 'FontSize', Fontsize);
+set(gca,'YTickLabel', cellstr(('a':'z').'), 'FontName', 'Courier', 'FontSize', Fontsize);
 set(gca, 'Xtick', (1:26));
-set(gca,'XTickLabel', cellstr(('a':'z').'), 'FontName', Fontname, 'FontSize', Fontsize);
+set(gca,'XTickLabel', cellstr(('a':'z').'), 'FontName', 'Courier', 'FontSize', Fontsize);
 
 % Set labels
 ylabel(cb,'Error Rate [%]', 'FontName', Fontname, 'FontSize', Fontsize, 'FontWeight', Fontweight);
@@ -91,3 +93,22 @@ order_tree = get(h_gca, 'XTickLabel');
 order_tree = str2num(order_tree);
 
 set(h_gca, 'XTickLabel', alphabet_set(order_tree));
+
+%% Dist Comparison between two class
+interest_idx = 18; % 8 22
+
+for i = 1:n_set*(n_set-1)
+    dist(i) = result{interest_idx, i}.dist(interest_idx) - result{interest_idx, i}.dist(8);
+end
+
+figure; stem(dist);
+
+% dist mean
+dist_mean = zeros(1, 26);
+for i = 1:n_set*(n_set-1)
+    dist_mean = dist_mean + result{interest_idx, i}.dist;
+end
+
+dist_mean = dist_mean ./ (n_set*(n_set-1));
+
+figure; plot(dist_mean);

@@ -106,6 +106,9 @@ if numPoints > 1
 
     for i = 1:numPoints-1
         color_idx = ceil(trail_dist(i));
+        if color_idx == 0
+            color_idx = 1;
+        end
         try
         plot(g_handles.current_position, [DispPoints(i, 1), DispPoints(i+1, 1)], ...
             [DispPoints(i, 2), DispPoints(i+1, 2)], ...

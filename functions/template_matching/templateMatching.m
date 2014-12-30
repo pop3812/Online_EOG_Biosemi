@@ -8,7 +8,7 @@
 % mode_distance_template=1: min
 %                       =2: average
 %                       =3: average with normalized distance
-function [dist] = templateMatching(data,template, method_distanceMetrics, mode_distance_template)
+function [dist] = templateMatching(data,template, method_distanceMetrics, mode_distance_template, max_slope_length)
 
 %     global max_slope_length;
 %     global speedup_mode;
@@ -17,8 +17,10 @@ function [dist] = templateMatching(data,template, method_distanceMetrics, mode_d
     nTemplate   = size(template,1);
     
     %DTW 계열인 경우 변수 설정
-    if method_distanceMetrics==2 || method_distanceMetrics==3
+    if (method_distanceMetrics==2 || method_distanceMetrics==3) && nargin <= 4
         max_slope_length = 3;
+        speedup_mode = 1;
+    elseif (method_distanceMetrics==2 || method_distanceMetrics==3) && nargin == 5
         speedup_mode = 1;
     end
     

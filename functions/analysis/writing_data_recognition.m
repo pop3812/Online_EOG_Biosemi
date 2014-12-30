@@ -1,13 +1,14 @@
 clc; clear; % clf;
 
 database_path = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\alphabet_dataset\';
-result_save_route = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\';
+result_save_route = 'C:\Users\User\Documents\GitHub\Data\20141223_LeeKR\padding\';
 
 n_set = 10; % number of alphabet set in the database
 data_acq_time = 8; % sec
 SR = 128; % Hz
 
-D_Rate = 4; % Downsample factor for fast calculation 
+D_Rate = 32; % Downsample factor for fast calculation 
+max_slope_length = 3;
 
 method_str = {'Correlation', 'DTW', 'DPW', 'Kurtosis', 'MSE'};
 data_length = data_acq_time * SR;
@@ -37,6 +38,32 @@ end
 
 clear file_path file_name data File_Header norm_pos;
 
+%% Retrieve Data Region Only (Remove Stop Points from Signal)
+
+for i = 1:26
+    for j = 1:n_set
+
+        flat_regions_x = signal_feature_find(alphabet_dict{i, j}(:,1), 'flat', 0.01, 0.005);
+        flat_regions_y = signal_feature_find(alphabet_dict{i, j}(:,2), 'flat', 0.01, 0.005);
+        
+        % Remove the last flat region
+        if ~isempty(flat_regions_x) && ~isempty(flat_regions_y)
+            % Remove the last flat regions as it contains stop point signal
+            on_idx = max([flat_regions_x(length(flat_regions_x)).on, flat_regions_y(length(flat_regions_y)).on]);
+            alphabet_dict{i, j}(on_idx:end,:) = [];
+        end
+        
+        % Remove the first flat region
+        if ~isempty(flat_regions_x) && ~isempty(flat_regions_y)
+            % Remove the first flat regions as it contains fixation point signal
+            off_idx = min([flat_regions_x(1).off, flat_regions_y(1).off]);
+            alphabet_dict{i, j}(1:off_idx,:) = [];
+        end
+
+    end
+end
+
+
 %% Normalize all data length
 
 alphabet_dict_norm = cell(26, n_set);
@@ -53,7 +80,7 @@ for i = 1:26
        end
        
        alphabet_dict_norm{i, j} = downsample(alphabet_dict_norm{i, j}, D_Rate);
-       
+
    end
 end
 
@@ -87,7 +114,7 @@ for tr_idx = 1:n_set
         test_alphabet = alphabet_dict_norm(char_idx, test_idx);
         
         % dist of x
-        dist_mat = templateMatching(test_alphabet{1, 1}, template_alphabet, method_distanceMetrics, mode_distance_template);
+        dist_mat = templateMatching(test_alphabet{1, 1}, template_alphabet, method_distanceMetrics, mode_distance_template, max_slope_length);
         dist_mat = dist_mat(end, :);
         
         [min_dist, min_idx] = min(dist_mat);
@@ -129,12 +156,48 @@ end
     
     save(save_route, 'result', 'mode_distance_template', 'method_distanceMetrics', ...
         'n_set', 'data_acq_time', 'SR', 'D_Rate', 'data_length', 't_calculation');
+    
+    %% Accuracy
+
+    n_correct_alphabet = zeros(26, 1);
+    n_total = n_set*(n_set-1) * 26;
+    for i = 1:26
+        for j = 1:n_set*(n_set-1)
+            if result{i, j}.alphabet_ori == result{i, j}.alphabet_decision
+                n_correct_alphabet(i) = n_correct_alphabet(i) + 1;
+            end
+        end
+    end
+
+    accuracy_mat = n_correct_alphabet ./ (n_set*(n_set-1));
+    total_acc = sum(n_correct_alphabet) / n_total;
+
+    figure;
+    y = bar(accuracy_mat, 0.5, 'r'); xlim([0 27]);
+    title_str = sprintf('Mean Accuracy : %2.2f %%', total_acc .* 100);
+    title(title_str, 'FontSize', 12, 'FontWeight', 'bold');
+
+    x_loc = get(y, 'XData');
+    y_height = get(y, 'YData');
+    arrayfun(@(x,y) text(x-0.25, y+0.03, [num2str(fix(y*10^2)) '%'], 'Color', 'k'), x_loc, y_height);
+
+    set(gca,'XTick', 1:26);
+    set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 12, 'FontWeight', 'bold');
+    
+    % Report results by e-mail
+    message = ['Method : ', method_str{method_distanceMetrics}, char(10), ...
+        'Downsampling Factor : ', num2str(D_Rate), char(10),...
+        'Max Slope Length : ', num2str(max_slope_length), char(10),...
+        'Elapsed time : ', num2str(t_calculation), char(10),...
+        'Mean Accuracy : ', num2str(fix(total_acc .* 10^4)/100), ' %'];
+    send_email('pop3812@gmail.com', ['Analysis Results Report ', ...
+        method_str{method_distanceMetrics}, ' DR_', num2str(D_Rate), ...
+        ], message);
 end
 
 clearvars -except method_distanceMetrics mode_distance_template result n_set
 
 %% Accuracy
-% load('C:\Users\User\Documents\GitHub\Data\20141217_LeeKR\temp_match_with_corr.mat');
 
 n_correct_alphabet = zeros(26, 1);
 n_total = n_set*(n_set-1) * 26;
@@ -160,21 +223,3 @@ arrayfun(@(x,y) text(x-0.25, y+0.03, [num2str(fix(y*10^2)) '%'], 'Color', 'k'), 
 
 set(gca,'XTick', 1:26);
 set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 12, 'FontWeight', 'bold');
-
-% %% Bad case
-% min_x_mat = zeros(12, 1);
-% min_y_mat = zeros(12, 1); 
-% 
-% comp_x_dist = zeros(12, 2);
-% comp_y_dist = zeros(12, 2); 
-% 
-% idx_bad = 8;
-% idx_comp = 18;
-% 
-% for i = 1:90
-%     [min_val min_mat(i)] = min(result{idx_bad, i}.dist);
-%     
-%     comp_dist(i, 1) = result{idx_bad, i}.dist(idx_bad);
-%     comp_dist(i, 2) = result{idx_bad, i}.dist(idx_comp);
-%     
-% end

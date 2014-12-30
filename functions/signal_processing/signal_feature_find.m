@@ -1,4 +1,4 @@
-function [plateaus] = signal_feature_find(signal, feature, min_length)
+function [plateaus] = signal_feature_find(signal, feature, min_length, slope_threshold)
 %SIGNAL_PLATEAU_FIND : finds plateau-like regions in the signal
 % INPUT ARGUMENTS
 % signal : [n_data x 1] Matrix containing EOG signal
@@ -9,10 +9,7 @@ function [plateaus] = signal_feature_find(signal, feature, min_length)
 % plateaus : [N x 1] structure that contains the information of detected
 %            ranges (including onset & offset time and length)
 
-global params;
-
 [n_data, two] = size(signal);
-slope_threshold = params.slope_threshold;
 [dData, minmax, stats] = AnalyzeEdges(signal);
 
 dif_f = dData(:,end);
