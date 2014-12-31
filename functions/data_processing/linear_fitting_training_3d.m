@@ -15,11 +15,16 @@ Vv=[];
 
 %% Stimulus
 
+n_repeat = 2;
+
 X_degree_training = [linspace(-pos, pos, 3), linspace(-pos, pos, 3), linspace(-pos, pos, 3)];
 Y_degree_training = [linspace(pos, pos, 3), linspace(0, 0, 3), linspace(-pos, -pos, 3)];
 
 X_degree_training = [X_degree_training, fliplr(X_degree_training)];
 Y_degree_training = [Y_degree_training, fliplr(Y_degree_training)];
+
+X_degree_training = repmat(X_degree_training, 1, n_repeat);
+Y_degree_training = repmat(Y_degree_training, 1, n_repeat);
 
 n_training = length(X_degree_training); % the number of training stimuli
 
@@ -67,8 +72,8 @@ Screen('Flip', window);
 WaitSecs(3.0);
 
 for train_idx = 1:n_training
-    % Rest for every 15 data point
-    if mod(train_idx-1, 15) == 0 && train_idx ~= 1
+    % Rest for every 10 data point
+    if mod(train_idx-1, 10) == 0 && train_idx ~= 1
         session_subject_rest();
         set(g_handles.console, 'String', 'Calibration');
     end
@@ -76,12 +81,15 @@ for train_idx = 1:n_training
     % Calibration for every 5 data point
     if mod(train_idx-1, 5) == 0
         sound(beep, Fs); % sound beep
-        for calib_sec = 1:params.CalibrationTime
-           isFirst = (calib_sec == 1);
-           isLast = (calib_sec == params.CalibrationTime);
-           
-           session_calibration(isFirst, isLast);
-           WaitSecs(1.0);
+        buffer.Recalibration_status = 1;
+        while buffer.Recalibration_status == 1
+            for calib_sec = 1:params.CalibrationTime
+               isFirst = (calib_sec == 1);
+               isLast = (calib_sec == params.CalibrationTime);
+
+               session_calibration(isFirst, isLast);
+               WaitSecs(1.0);
+            end
         end
     end
     
@@ -247,6 +255,9 @@ buffer.X_train = [linspace(params.default_fixation_y, ...
 
 buffer.X_train = buffer.X_train';
 buffer.Y_train = buffer.Y_train';
+
+ExtendFactor = fix(1/params.DelayTime);
+buffer.Calib_or_Acquisition = [ones(1, ExtendFactor*params.CalibrationTime), zeros(1, ExtendFactor*params.DataAcquisitionTime), 2.* ones(1, ExtendFactor*params.ResultShowTime)];
 
 %% Calculate Transformation Matrix
 

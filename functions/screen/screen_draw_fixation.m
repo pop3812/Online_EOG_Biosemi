@@ -105,23 +105,25 @@ global buffer;
     
     type = 'Rectangle'; % or 'Circle'
     boarder = 10;
+    width = 3;
 
     if strcmp(type, 'Rectangle')
+
     % Draw Number Keyboard on the Screen
     % '3 x 4 Rectangle' Keyboard
     size_x = 4;
-    size_y = 3;
+    size_y = 4;
     
-    number_matrix = 1:size_x*size_y;
-    number_matrix = reshape(number_matrix, size_y, size_x);
-    
-    %%%
-    number_matrix(:, 1:3) = number_matrix(:, 1:3)';
-    number_matrix = num2cell(number_matrix);
-    number_matrix{1, size_x} = 'SPACE';
-    number_matrix{2, size_x} = 'BACKSPACE'; % BACKSPACE
-    number_matrix{3, size_x} = 'ENTER'; % ENTER
-    %%%
+%     number_matrix = 1:size_x*size_y;
+%     number_matrix = reshape(number_matrix, size_y, size_x);
+%     
+%     %%%
+%     number_matrix(:, 1:3) = number_matrix(:, 1:3)';
+%     number_matrix = num2cell(number_matrix);
+%     number_matrix{1, size_x} = 'SPACE';
+%     number_matrix{2, size_x} = 'BACKSPACE'; % BACKSPACE
+%     number_matrix{3, size_x} = 'ENTER'; % ENTER
+%     %%%
     
     x_L = params.screen_width/2;
     x_max_degree = atan(x_L/params.screen_distance) * 180 / pi;
@@ -165,11 +167,19 @@ global buffer;
 %             key_rect);
 %     end
     
+    % Draw Grids
+    for x_grid = 1:size_x-1
+        Screen('DrawLine', params.window, [255 255 255 32], x_grid*width_pixel, 0, x_grid*width_pixel, y_max_pixel, width);
+    end
+    for y_grid = 1:size_y-1 
+        Screen('DrawLine', params.window, [255 255 255 32], 0, y_grid*height_pixel, x_max_pixel, y_grid*height_pixel, width);
+    end
+    
     % Draw Touch Screen
     buffer.key_rect = [0+boarder 0+boarder ...
             x_max_pixel-boarder y_max_pixel-boarder];
     Screen('FrameRect', params.window, 255, ...
-        buffer.key_rect, boarder);
+        [0 0 x_max_pixel y_max_pixel], boarder);
     
     buffer.selected_key = key_buffer;
     

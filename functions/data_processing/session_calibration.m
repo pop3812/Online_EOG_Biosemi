@@ -6,6 +6,7 @@ function session_calibration(isFirstSec, isLastSec)
 
 global params;
 global buffer;
+global raw_signal_reserve;
 
 %% Screen Control
 if isFirstSec
@@ -25,7 +26,10 @@ end
 EOG = signal_processing_main();
 n_data = size(EOG, 1);
 
-% Registration to the queue
+%% Data Registration to Raw Signal Reserve
+raw_signal_reserve.mat(raw_signal_reserve.n_data-n_data+1:raw_signal_reserve.n_data,3) = 100.*ones(n_data, 1);
+
+%% Registration to the queue
 if params.window ~= -1
     for i=1:n_data
         buffer.eye_position_queue.add([NaN NaN]);

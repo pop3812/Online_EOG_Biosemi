@@ -8,7 +8,7 @@ n_set = 10; % number of alphabet set in the database
 data_acq_time = 8; % sec
 SR = 128; % Hz
 
-D_Rate = 16; % Downsample factor for fast calculation 
+D_Rate = 8; % Downsample factor for fast calculation 
 max_slope_length = 3;
 save_tag = '_last_padding_more';
 
@@ -101,7 +101,7 @@ t_init_date = now;
 
 alphabet_seq = ('a':'z');
 
-for method_distanceMetrics = 2
+for method_distanceMetrics = 3
 % method_distanceMetrics = 1;
 mode_distance_template = 2;
 

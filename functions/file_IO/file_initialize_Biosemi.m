@@ -3,6 +3,7 @@ function GDF_Header = file_initialize_Biosemi()
 %   Detailed explanation goes here
 global params;
 global buffer;
+global raw_signal_reserve;
 
 % S = biosemix; % run biosemi
 
@@ -26,3 +27,5 @@ GDF_Header.ExperimentBuffers = rmfield(GDF_Header.ExperimentBuffers, 'session_da
 GDF_Header.ExperimentBuffers = rmfield(GDF_Header.ExperimentBuffers, 'timer_id_displaying');
 
 GDF_Header.SessionData = buffer.session_data;
+
+GDF_Header.RawSignalReserve = raw_signal_reserve;

@@ -2,6 +2,7 @@ function [EOG] = signal_processing_main()
 %SIGNAL_PROCESSING_MAIN
 global params;
 global buffer;
+global raw_signal_reserve;
 
 %% EOG Components Calculation
 if (params.DummyMode)
@@ -71,6 +72,11 @@ else
     EOG = signal_receive_Biosemi();
     n_data = size(EOG, 1);
 end
+
+%% Data Registration to Raw Signal Reserve
+raw_signal_reserve.mat(raw_signal_reserve.n_data+1:raw_signal_reserve.n_data+n_data, :) = [EOG, zeros(n_data, 1)];
+raw_signal_reserve.n_data = raw_signal_reserve.n_data + n_data;
+
 
 %% EOG Denoising
 if(params.denosing)

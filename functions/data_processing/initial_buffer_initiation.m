@@ -4,6 +4,7 @@ function initial_buffer_initiation()
 
 global buffer;
 global params;
+global raw_signal_reserve;
 
 buffer.X = 0; buffer.X_train = 0;
 buffer.Y = params.default_fixation_y; buffer.Y_train = 0;
@@ -45,6 +46,9 @@ buffer.calibration_end_idx = 1;
 buffer.Recalibration_status = 0;
 
 buffer.timer_id_displaying = struct;
+
+raw_signal_reserve.mat = zeros(params.SamplingFrequency2Use * 3600, 3);
+raw_signal_reserve.n_data = 0;
 
 end
 
