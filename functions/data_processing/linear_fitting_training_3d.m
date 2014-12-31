@@ -15,7 +15,7 @@ Vv=[];
 
 %% Stimulus
 
-n_repeat = 2;
+n_repeat = 1;
 
 X_degree_training = [linspace(-pos, pos, 3), linspace(-pos, pos, 3), linspace(-pos, pos, 3)];
 Y_degree_training = [linspace(pos, pos, 3), linspace(0, 0, 3), linspace(-pos, -pos, 3)];
@@ -71,7 +71,7 @@ DrawFormattedText(window, 'Look at the point after the beep.', 'center', ...
 Screen('Flip', window);  
 WaitSecs(3.0);
 
-for train_idx = 1:n_training
+for train_idx = 1:n_training+1
     % Rest for every 10 data point
     if mod(train_idx-1, 10) == 0 && train_idx ~= 1
         session_subject_rest();

@@ -56,7 +56,7 @@ elseif y_max
 end
 
 % Draw Keyboards
-if ~strcmp(type, '.')
+if ~strcmp(type, '.') && ~strcmp(type, '+')
     screen_draw_keyboard(X, Y);
 end
 
@@ -75,6 +75,10 @@ else
     if strcmp(type, '.')
         % 'Dot' pointer
         Screen('DrawDots', window, [X, Y], size, color, [0, 0], 2);
+    elseif strcmp(type, '+')    
+        % '+' pointer
+            Screen('DrawLine', window, color, X, Y-size, X, Y+size, width);
+            Screen('DrawLine', window, color, X-size, Y, X+size, Y, width);
     elseif strcmp(type, '-')
         if (x_min || x_max || y_min || y_max)
             % 'X' pointer
