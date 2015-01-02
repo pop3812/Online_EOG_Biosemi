@@ -1,4 +1,4 @@
-function [error_dist_mat, err_distances] = fitting_check()
+function [error_dist_mat, err_distances, eye_pos_mat] = fitting_check()
 %SCREEN_FITTING_CHECK Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -20,14 +20,20 @@ buffer.Y_train = 0;
 
 %% Stimulus
 
-n_stim = 8;
-
-X_stim_train = randi([-pos pos], 1, n_stim);
-Y_stim_train = randi([-pos pos], 1, n_stim);
+X_stim_train = [-pos 0 pos -pos 0 pos -pos 0 pos];
+Y_stim_train = [pos pos pos 0 0 0 -pos -pos -pos];
 
 n_training = length(X_stim_train); % the number of training stimuli
 
-error_dist_mat = zeros(n_stim, 2);
+R_perm = randperm(n_training);
+X_stim_train = X_stim_train(R_perm);
+Y_stim_train = Y_stim_train(R_perm);
+
+% X_stim_train = randi([-pos pos], 1, n_stim);
+% Y_stim_train = randi([-pos pos], 1, n_stim);
+
+error_dist_mat = zeros(n_training, 2);
+eye_pos_mat = zeros(n_training, 2);
 err_distances = zeros(1, n_training);
 
 black = BlackIndex(window);
@@ -149,6 +155,7 @@ for train_idx = 1:n_training
     
     error_dist_mat(train_idx, :) = [buffer.X, buffer.Y]-[median_eye_pos(1), median_eye_pos(2)];
     err_distances(train_idx) = norm(error_dist_mat(train_idx,:), 2);
+    eye_pos_mat(train_idx, :) = [median_eye_pos(1), median_eye_pos(2)];
     
     DrawFormattedText(window, sprintf('Error Distance : %2.2f%c', ...
         err_distances(train_idx), char(176)), 'center', ...
@@ -158,13 +165,39 @@ for train_idx = 1:n_training
     WaitSecs(2.0);
 end
 
-screen_init_psy(sprintf('Mean distance : %2.2f%c', mean(err_distances), char(176)));
+screen_init_psy(sprintf('Check Done.%cMean distance : %2.2f%c', char(10), mean(err_distances), char(176)));
 disp('CHECK DONE');
 fprintf('Mean distance : %2.2f%c', mean(err_distances), char(176));
+
+iri(R_perm) = 1:n_training;
+X_stim_train = X_stim_train(iri);
+Y_stim_train = Y_stim_train(iri);
+eye_pos_mat(:, 1) = eye_pos_mat(iri, 1);
+eye_pos_mat(:, 2) = eye_pos_mat(iri, 2);
+error_dist_mat(:, 1) = error_dist_mat(iri, 1);
+error_dist_mat(:, 2) = error_dist_mat(iri, 2);
+err_distances = err_distances(iri);
+
+figure;
+cc = jet(n_training);
+for train_idx = 1:n_training
+    scatter(X_stim_train(train_idx), Y_stim_train(train_idx), 100, cc(train_idx, :), 'filled', 'o'); hold on;
+    scatter(eye_pos_mat(train_idx, 1), eye_pos_mat(train_idx, 2), 100, cc(train_idx, :), 'd', 'MarkerEdgeColor','r'); hold on;
+end
+xlim([-20 20]); ylim([-20 20]); grid on;
 
 %% Reset X, Y Train
 buffer.X_train = temp_X_train;
 buffer.Y_train = temp_Y_train;
+
+%% Fitting Correction
+
+corr_or_not = input('Do you want to adjust the fitting function? [y/n] ','s');
+
+if strcmp(corr_or_not, 'y')
+    fitting_correction(error_dist_mat, eye_pos_mat);
+    disp('Successfully adjusted the fitting function.');
+end
 
 end
 

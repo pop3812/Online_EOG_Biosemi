@@ -35,8 +35,8 @@ params.drift_filter_time = 10; % in seconds (should < BufferTime)
 
 % calibration parameters
 params.slope_threshold = 10^0;
-params.linear_baseline_slope_threshold = 1.0 * 10^-1;
-params.linear_baseline_err_threshold = 10^-12;
+params.linear_baseline_slope_threshold = 0.0 * 10^-1; % 1.0 * 10^-1;
+params.linear_baseline_err_threshold = 10^-10; % 10^-12;
                                
 % screen parameters
 params.screen_width = 48; % the width of the screen (inner) [cm]
