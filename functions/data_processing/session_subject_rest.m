@@ -11,7 +11,7 @@ if params.window ~= -1
 
     if params.default_fixation_y > 0
         Y = screen_degree_to_pixel('Y', params.default_fixation_y-3);
-    elseif params.default_fixation_y < 0
+    elseif params.default_fixation_y <= 0
         Y = screen_degree_to_pixel('Y', params.default_fixation_y+3);
     else
         Y = Y_center;

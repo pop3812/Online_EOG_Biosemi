@@ -55,18 +55,31 @@ elseif status == 2 % Result Showing
         
         session_retrieve_data();
         draw_touchscreen_trail();
-    
+        
     end
     
-    % Rest Session
-    if isLastResultShowing && ...
-            (buffer.n_session~=1 && ...
-            mod((buffer.n_session-1), params.RestForEveryNSession) == 0)
+    % Check User's Feedback
+    if isLastResultShowing
         stop(timer_id_data);
-        set(g_handles.system_message, 'String', 'Subject Rest Mode');
-        session_subject_rest();
+        
+        FlushEvents('keyDown');
+        ListenChar(2);
+        str_input = GetChar;
+        disp(['User Input : ', str_input]);
+        ListenChar(0);
+        
+        % Reject
+        if strcmp(str_input, 'X') || strcmp(str_input, 'x') 
+            buffer.n_session = buffer.n_session - 1;
+            str_show = 'The previous session was rejected.';
+            disp(str_show);
+            screen_init_psy(str_show);
+            WaitSecs(1.0);
+        end
+        
         start(timer_id_data);
     end
+
 %     num_char = number_recognition();
 %     string_to_keyboard_input(buffer.selected_key);
 end

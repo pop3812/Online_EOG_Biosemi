@@ -4,60 +4,43 @@ global params;
 global g_handles;
 
 if params.window ~= -1
-deg_bound = 50;
-deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
-deg_bound_pix_y = screen_degree_to_pixel('Y', deg_bound);
-deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
-deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
 
 %% Data Retrieve
 thePoints = buffer.session_data{buffer.n_session}.eye_position_queue_px;
 
 %% Concatenation of Out of Bound Data
 key_rect = buffer.key_rect;
-thePoints(isnan(thePoints(:, 1)) | isnan(thePoints(:, 2)), :) = [];
-thePoints(thePoints(:, 1)<=deg_bound_pix_x_neg | thePoints(:, 1)>=deg_bound_pix_x, :) = [];
-thePoints(thePoints(:, 2)>=deg_bound_pix_y_neg | thePoints(:, 2)<=deg_bound_pix_y, :) = [];
 
-% thePoints(thePoints(:, 1)<=key_rect(1), 1) = key_rect(1);
-% thePoints(thePoints(:, 1)>=key_rect(3), 1) = key_rect(3);
-% thePoints(thePoints(:, 2)<=key_rect(2), 2) = key_rect(2);
-% thePoints(thePoints(:, 2)>=key_rect(4), 2) = key_rect(4);
+%% Boundary Set
+if params.without_bound
+
+    thePoints(isnan(thePoints(:, 1)) | isnan(thePoints(:, 2)), :) = [];
+
+    deg_bound = 50;
+    deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
+    deg_bound_pix_y = screen_degree_to_pixel('Y', deg_bound);
+    deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
+    deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
+
+    thePoints(thePoints(:, 1)<=deg_bound_pix_x_neg | thePoints(:, 1)>=deg_bound_pix_x, :) = [];
+    thePoints(thePoints(:, 2)>=deg_bound_pix_y_neg | thePoints(:, 2)<=deg_bound_pix_y, :) = [];
+
+else
+    
+    thePoints(thePoints(:, 1)<=key_rect(1), 1) = key_rect(1);
+    thePoints(thePoints(:, 1)>=key_rect(3), 1) = key_rect(3);
+    thePoints(thePoints(:, 2)<=key_rect(2), 2) = key_rect(2);
+    thePoints(thePoints(:, 2)>=key_rect(4), 2) = key_rect(4);
+
+end
 
 pen_width = 4;
 D_Rate = 4;
-n_mark = 16;
+
 NormalizedPoints = [];
 [numPoints, two]=size(thePoints);
-n_trail_point = fix(params.screen_trail_point_per_sec * params.DelayTime);
-n_skip = fix(params.SamplingFrequency2Use * params.DelayTime / n_trail_point);
 
 if numPoints > 1
-    
-%% Visualization on Psychtoolbox Screen
-text = ['Your input', buffer.selected_key];
-Screen('TextSize', params.window, 15);
-Screen('TextStyle', params.window, 1);
-
-% Make a default fixation point (center)
-[X,Y] = RectCenter(params.rect);
-
-if params.default_fixation_y > 0
-    Y = screen_degree_to_pixel('Y', params.default_fixation_y-3);
-elseif params.default_fixation_y < 0
-    Y = screen_degree_to_pixel('Y', params.default_fixation_y+3);
-end
-    
-DrawFormattedText(params.window, text, 'center', Y, [255, 255, 255]);
-
-for i= 1:n_skip:numPoints
-    if i<=numPoints-n_skip
-                Screen(params.window,'DrawLine', [255 255 255 255], ...
-                    thePoints(i,1),thePoints(i,2), ...
-                    thePoints(i+n_skip,1),thePoints(i+n_skip,2), pen_width);
-    end
-end
-Screen('Flip', params.window);
 
 %% Eye Position Normailization
 
@@ -80,6 +63,10 @@ buffer.session_data{buffer.n_session}.normalized_eye_position = NormalizedPoints
 %% Downsampling for Displaying
 DispPoints = [NormalizedPoints(1:D_Rate:end,1), NormalizedPoints(1:D_Rate:end,2)];
 [numPoints, two]=size(DispPoints);
+
+%% Visualization on Psychtoolbox Screen
+
+screen_draw_result(DispPoints);
 
 %% Plot the contour in a Matlab figure
 
