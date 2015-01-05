@@ -45,9 +45,9 @@ else
     EOG_x = raw_signal(:, 1) - raw_signal(:, 2);
 
     if params.numEEG == 6 % Vertical Component is the sum of L, R eyes
-        EOG_y_L = raw_signal(:, 3) - raw_signal(:, 4);
+%         EOG_y_L = raw_signal(:, 3) - raw_signal(:, 4);
         EOG_y_R = raw_signal(:, 5) - raw_signal(:, 6);
-        EOG_y = EOG_y_L + EOG_y_R;
+        EOG_y = EOG_y_R; % EOG_y_L + 
     else
         EOG_y = raw_signal(:, 3) - raw_signal(:, 4);
     end

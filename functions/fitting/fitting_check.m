@@ -68,7 +68,7 @@ for train_idx = 1:n_training
     end
     
     % Calibration for every 5 data point
-    if mod(train_idx-1, 5) == 0
+    if mod(train_idx-1, 1) == 0
         sound(beep, Fs); % sound beep
         buffer.Recalibration_status = 1;
         while buffer.Recalibration_status == 1

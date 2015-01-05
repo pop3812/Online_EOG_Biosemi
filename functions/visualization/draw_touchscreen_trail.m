@@ -4,11 +4,11 @@ global params;
 global g_handles;
 
 if params.window ~= -1
-% deg_bound = 50;
-% deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
-% deg_bound_pix_y = screen_degree_to_pixel('Y', deg_bound);
-% deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
-% deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
+deg_bound = 50;
+deg_bound_pix_x = screen_degree_to_pixel('X', deg_bound);
+deg_bound_pix_y = screen_degree_to_pixel('Y', deg_bound);
+deg_bound_pix_x_neg = screen_degree_to_pixel('X', -deg_bound);
+deg_bound_pix_y_neg = screen_degree_to_pixel('Y', -deg_bound);
 
 %% Data Retrieve
 thePoints = buffer.session_data{buffer.n_session}.eye_position_queue_px;
@@ -16,13 +16,13 @@ thePoints = buffer.session_data{buffer.n_session}.eye_position_queue_px;
 %% Concatenation of Out of Bound Data
 key_rect = buffer.key_rect;
 thePoints(isnan(thePoints(:, 1)) | isnan(thePoints(:, 2)), :) = [];
-% thePoints(thePoints(:, 1)<=deg_bound_pix_x_neg | thePoints(:, 1)>=deg_bound_pix_x, :) = [];
-% thePoints(thePoints(:, 2)>=deg_bound_pix_y_neg | thePoints(:, 2)<=deg_bound_pix_y, :) = [];
+thePoints(thePoints(:, 1)<=deg_bound_pix_x_neg | thePoints(:, 1)>=deg_bound_pix_x, :) = [];
+thePoints(thePoints(:, 2)>=deg_bound_pix_y_neg | thePoints(:, 2)<=deg_bound_pix_y, :) = [];
 
-thePoints(thePoints(:, 1)<=key_rect(1), 1) = key_rect(1);
-thePoints(thePoints(:, 1)>=key_rect(3), 1) = key_rect(3);
-thePoints(thePoints(:, 2)<=key_rect(2), 2) = key_rect(2);
-thePoints(thePoints(:, 2)>=key_rect(4), 2) = key_rect(4);
+% thePoints(thePoints(:, 1)<=key_rect(1), 1) = key_rect(1);
+% thePoints(thePoints(:, 1)>=key_rect(3), 1) = key_rect(3);
+% thePoints(thePoints(:, 2)<=key_rect(2), 2) = key_rect(2);
+% thePoints(thePoints(:, 2)>=key_rect(4), 2) = key_rect(4);
 
 pen_width = 4;
 D_Rate = 4;

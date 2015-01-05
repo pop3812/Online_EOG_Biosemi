@@ -15,7 +15,7 @@ params.use_real_dummy = 0; % 1 = realistic EOG sample signal, ...
 params.SamplingFrequency2Use = 128; % default is 128
                                     % Sampling frequency limit for Biosemi is 2024
 
-params.numEEG = 6; % number of EEG channels
+params.numEEG = 4; % number of EEG channels
 params.numAIB = 0; % number of external channel
 params.CompNum = 2; % Number of Components / Horizontal, Vertical
 
@@ -35,8 +35,8 @@ params.drift_filter_time = 10; % in seconds (should < BufferTime)
 
 % calibration parameters
 params.slope_threshold = 10^0;
-params.linear_baseline_slope_threshold = 0.0 * 10^-1; % 1.0 * 10^-1;
-params.linear_baseline_err_threshold = 10^-10; % 10^-12;
+params.linear_baseline_slope_threshold = 1.0 * 10^-1; % 1.0 * 10^-1;
+params.linear_baseline_err_threshold = 10^-11; % 10^-12;
                                
 % screen parameters
 params.screen_width = 48; % the width of the screen (inner) [cm]
@@ -44,7 +44,7 @@ params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
 params.screen_refresh_frequency = 32; % should be 2^N.
 params.screen_trail_point_per_sec = 32;
-params.default_fixation_y = -10; % in degree
+params.default_fixation_y = 0; % in degree
 
 % training parameters
 params.time_per_stimulus = 1; % the length of each training stimulus [sec]
