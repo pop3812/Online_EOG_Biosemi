@@ -3,6 +3,7 @@ function GDF_Header = file_save_parameters()
 %   Detailed explanation goes here
 global params;
 global buffer;
+global raw_signal_reserve;
 
 % S = biosemix; % run biosemi
 
@@ -21,8 +22,10 @@ end
 
 GDF_Header.ExperimentParameters = params;
 GDF_Header.ExperimentBuffers = buffer;
+GDF_Header.RawSignalReserve = raw_signal_reserve;
 
 % Remove Queues
 
 GDF_Header.ExperimentBuffers = rmfield(GDF_Header.ExperimentBuffers, 'session_data');
 GDF_Header.ExperimentBuffers = rmfield(GDF_Header.ExperimentBuffers, 'timer_id_displaying');
+

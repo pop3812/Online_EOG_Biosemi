@@ -31,20 +31,16 @@ params.medianfilter_size = 20; % The number of samples to take median for denois
                                % default is 10
 params.drift_filter_time = 10; % in seconds (should < BufferTime)
                                % default is 10
-
-% calibration parameters
-params.slope_threshold = 10^0;
-params.linear_baseline_slope_threshold = 1.0 * 10^-1; % 1.0 * 10^-1;
-params.linear_baseline_err_threshold = 10^-11; % 10^-12;
-                               
+ 
 % screen parameters
 params.screen_width = 48; % the width of the screen (inner) [cm]
 params.screen_height = 27; % the height of the screen (inner) [cm]
 params.screen_distance = 50; % the viewer's distance from the screen's center [cm]
+
+% screen display setup
 params.screen_refresh_frequency = 32; % should be 2^N.
-params.screen_trail_point_per_sec = 32;
+params.screen_trail_point_per_sec = 16;
 params.default_fixation_y = 0; % in degree
-params.without_bound = 1;
 
 % training parameters
 params.time_per_stimulus = 1; % the length of each training stimulus [sec]
@@ -59,6 +55,17 @@ params.is_coupled = 1;
 params.y_range = 5.*10^2; % 3.*10^2 is optimal for Biosemi EOG
 
 % result parametmers
-params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data';
+params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\';
+
+% calibration parameters
+params.slope_threshold = 10^0;
+params.linear_baseline_slope_threshold = 1.0 * 10^-1; % 1.0 * 10^-1;
+params.linear_baseline_err_threshold = 10^-10; % 10^-12;
+                              
+% experiment paradigm
+params.pointer_feedback = 1;
+params.trail_feedback = 1;
+params.without_bound = 1;
+
 end
 

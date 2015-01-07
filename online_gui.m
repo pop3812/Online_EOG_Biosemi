@@ -217,11 +217,6 @@ set(handles.stop_button, 'Enable', 'off');
 sound(beep, Fs); % sound beep
 set(handles.system_message, 'String', 'Calibration has been done successfully.');
 
-% --- Executes on button press in renew_button.
-function renew_button_Callback(hObject, eventdata, handles)
-% hObject    handle to renew_button (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
 
 % --- Executes on button press in start_button.
 function start_button_Callback(hObject, eventdata, handles)
@@ -263,7 +258,6 @@ switch choice
 end
 
 
-
 % --- Executes on button press in stop_button.
 function stop_button_Callback(hObject, eventdata, handles)
 % hObject    handle to stop_button (see GCBO)
@@ -284,6 +278,9 @@ switch choice
             stop(timerfind);
             delete(timerfind);
         end
+        
+        ListenChar(0);
+        
 %         stop(timer_id_data);
 %         delete(timer_id_data);
 %         if strcmp(buffer.timer_id_displaying.Running, 'on')

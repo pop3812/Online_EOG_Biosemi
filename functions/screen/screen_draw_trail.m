@@ -6,7 +6,7 @@ global params;
 global buffer;
 % tic;
 
-if params.window ~= -1
+if params.window ~= -1 && params.pointer_feedback
     
 pen_width = 3.0;
 n_trail_point = fix(params.screen_trail_point_per_sec * params.DelayTime);
@@ -63,21 +63,15 @@ if params.window ~= -1
     eye_pos_trail_disp(isnan(eye_pos_trail_disp(:, 1)) | isnan(eye_pos_trail_disp(:, 2)), :) = [];
     [n_trail_disp, two] = size(eye_pos_trail_disp);
     
-    if n_trail_disp >= 2
-    for i = 1:1:length(eye_pos_trail_disp)-1
-        Screen(params.window,'DrawLine', [255 128 128 128], ...
-            eye_pos_trail_disp(i,1), eye_pos_trail_disp(i,2), ...
-            eye_pos_trail_disp(i+1,1),eye_pos_trail_disp(i+1,2), pen_width);
+    if params.trail_feedback
+        if n_trail_disp >= 2
+            for i = 1:1:length(eye_pos_trail_disp)-1
+                Screen(params.window,'DrawLine', [255 128 128 128], ...
+                    eye_pos_trail_disp(i,1), eye_pos_trail_disp(i,2), ...
+                    eye_pos_trail_disp(i+1,1),eye_pos_trail_disp(i+1,2), pen_width);
+            end
+        end
     end
-    end
-%     for i= 1:n_skip:end_idx% numPoints
-%         if i<=end_idx-n_skip && all(~isnan(eye_pos_trail(i, :))) && ...
-%                 all(~isnan(eye_pos_trail(i+n_skip, :)))
-%             Screen(params.window,'DrawLine', [255 128 128 128], ...
-%                 eye_pos_trail(i,1), eye_pos_trail(i,2), ...
-%                 eye_pos_trail(i+n_skip,1),eye_pos_trail(i+n_skip,2), pen_width);
-%         end
-%     end
     
     % Draw Pointer
     if ~isnan(X) && ~isnan(Y)
@@ -93,8 +87,14 @@ if params.window ~= -1
     end
     
     Screen('Flip', params.window);
+
 end
 
+elseif  params.window ~= -1 && ~params.pointer_feedback
+    
+    screen_draw_keyboard();
+    Screen('Flip', params.window);
+    
 end
 % toc;
 end

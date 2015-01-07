@@ -213,13 +213,14 @@ accuracy_mat = n_correct_alphabet ./ (n_set*(n_set-1));
 total_acc = sum(n_correct_alphabet) / n_total;
 
 figure;
-y = bar(accuracy_mat, 0.5, 'r'); xlim([0 27]);
+y = bar(accuracy_mat, 1.0, 'r'); xlim([0 27]);
 title_str = sprintf('Mean Accuracy : %2.2f %%', total_acc .* 100);
-title(title_str, 'FontSize', 12, 'FontWeight', 'bold');
+title(title_str, 'FontSize', 14, 'FontWeight', 'bold');
 
 x_loc = get(y, 'XData');
 y_height = get(y, 'YData');
-arrayfun(@(x,y) text(x-0.25, y+0.03, [num2str(fix(y*10^2)) '%'], 'Color', 'k'), x_loc, y_height);
+arrayfun(@(x,y) text(x, y./2, [num2str(fix(y*10^2)) '%'], 'Color', 'w', 'Rotation', 90), x_loc, y_height);
 
+set(gca, 'YTickLabel', 100.*get(gca,'YTick'), 'fontsize', 14, 'FontWeight', 'bold');
 set(gca,'XTick', 1:26);
-set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 12, 'FontWeight', 'bold');
+set(gca,'XTickLabel', cellstr(('a':'z').'), 'fontsize', 14, 'FontWeight', 'bold');

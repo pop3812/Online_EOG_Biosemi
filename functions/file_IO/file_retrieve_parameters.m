@@ -3,6 +3,7 @@ function file_retrieve_parameters(File_Header)
 %   Detailed explanation goes here
 global params;
 global buffer;
+global raw_signal_reserve;
 
 param_names = fieldnames(File_Header.ExperimentParameters);
 buffer_names = fieldnames(File_Header.ExperimentBuffers);
@@ -42,5 +43,8 @@ disp(buffer);
 
 buffer.n_session = 0;
 buffer.session_data = cell(1, 1);
+
+%% Raw Signal
+raw_signal_reserve = File_Header.RawSignalReserve;
 
 end

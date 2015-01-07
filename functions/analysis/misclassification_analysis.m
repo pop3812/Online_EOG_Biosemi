@@ -29,7 +29,7 @@ end
 error_mat = error_mat./n_set*(n_set-1);
 
 %% Template
-Fontsize = 12;
+Fontsize = 14;
 Fontname = 'Cambria';
 Fontweight = 'bold';
 width = 8; % inches

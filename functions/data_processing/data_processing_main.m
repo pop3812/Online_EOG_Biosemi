@@ -13,6 +13,8 @@ isFirstSec = status > buffer.Calib_or_Acquisition(end) ...
 isFirstResultShowing = (status - buffer.Calib_or_Acquisition(end) == 2);
 isLastResultShowing = (status == 2 && buffer.Calib_or_Acquisition(2) == 1);
 
+isFirstAcq = (status == 0 && buffer.Calib_or_Acquisition(end) == 1);
+
 if status == 1 % Calibration Mode
     if strcmp(buffer.timer_id_displaying.Running, 'on')
         stop(buffer.timer_id_displaying)
@@ -39,20 +41,26 @@ elseif status == 0 % Data Acquisition Mode
         start(buffer.timer_id_displaying);
     end
     set(g_handles.system_message, 'String', 'Data Acquisition Mode');
+    
+    if isFirstAcq
+        [beep, Fs] = audioread([pwd, '\resources\sound\phone_connect.wav']);
+        sound(beep, Fs);
+    end
     session_data_acquisition();
     
 elseif status == 2 % Result Showing
     if isFirstResultShowing
+                
+        if strcmp(buffer.timer_id_displaying.Running, 'on')
+            stop(buffer.timer_id_displaying)
+        end
+        
         set(g_handles.system_message, 'String', 'Result Showing Mode');
         
         % Sound Beep
         [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
         sound(beep, Fs); % sound beep
-        
-        if strcmp(buffer.timer_id_displaying.Running, 'on')
-            stop(buffer.timer_id_displaying)
-        end
-        
+
         session_retrieve_data();
         draw_touchscreen_trail();
         
@@ -66,7 +74,6 @@ elseif status == 2 % Result Showing
         ListenChar(2);
         str_input = GetChar;
         disp(['User Input : ', str_input]);
-        ListenChar(0);
         
         % Reject
         if strcmp(str_input, 'X') || strcmp(str_input, 'x') 
