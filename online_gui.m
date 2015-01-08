@@ -22,7 +22,7 @@ function varargout = online_gui(varargin)
 
 % Edit the above text to modify the response to help online_gui
 
-% Last Modified by GUIDE v2.5 16-Dec-2014 14:09:58
+% Last Modified by GUIDE v2.5 08-Jan-2015 17:38:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -202,7 +202,7 @@ end
 % GUI Control
 set(handles.initialize_button, 'Enable', 'off');
 set(handles.start_button, 'Enable', 'off');
-set(handles.stop_button, 'Enable', 'off');
+set(handles.stop_button, 'Enable', 'on');
 
 % Data Calibration
 clear biosemix;
@@ -233,7 +233,7 @@ global buffer;
 g_handles = handles;
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
-timer_id_data= timer('TimerFcn','data_processing_main', ...
+timer_id_data= timer('TimerFcn','session_control_main', ...
         'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 
 screen_refresh_period = fix(1.0 / params.screen_refresh_frequency * 10^3)/10^3;
@@ -266,35 +266,14 @@ function stop_button_Callback(hObject, eventdata, handles)
 global program_name;
 global timer_id_data;
 global buffer;
-[beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
 choice = questdlg('Do you want to stop data acquisition?', program_name, ...
     'Yes', 'No', 'No');
 
 switch choice
     case 'Yes'
-        clear biosemix;
-        if ~isempty(timerfind)
-            stop(timerfind);
-            delete(timerfind);
-        end
         
-        ListenChar(0);
-        
-%         stop(timer_id_data);
-%         delete(timer_id_data);
-%         if strcmp(buffer.timer_id_displaying.Running, 'on')
-%             stop(buffer.timer_id_displaying);
-%         end
-%         delete(buffer.timer_id_displaying);
-
-        set(handles.start_button, 'Enable', 'on');
-        set(handles.stop_button, 'Enable', 'off');
-        set(handles.initialize_button, 'Enable', 'on');
-        set(handles.calib_button, 'Enable', 'on');
-        
-        sound(beep, Fs); % sound beep
-        set(handles.system_message, 'String', 'Data acquisition has been stopped.');
+        session_stop();
 
     case 'No'
         return;
@@ -362,6 +341,35 @@ catch me
 end
 
 % --------------------------------------------------------------------
+function OpenParameterMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to OpenParameterMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+[file, path] = uigetfile('*.mat', 'Open from a file');
+save_path = fullfile(path, file);
+
+if ~isequal(file, 0)
+    try
+        loaded_struct = load(save_path);
+        file_retrieve_parameters(loaded_struct.File_Header);
+        set(handles.system_message, 'String', ['Parameter Setting has been loaded successfully from ' file ' file.']);
+        clear loaded_struct;
+        
+        % GUI Control
+        set(handles.initialize_button, 'Enable', 'on');
+        set(handles.calib_button, 'Enable', 'on');
+        set(handles.start_button, 'Enable', 'on');
+        set(handles.stop_button, 'Enable', 'off');
+        
+    catch me
+        set(handles.system_message, 'String', me.message);
+
+%         errordlg(me.message, program_name);
+    end
+end
+
+% --------------------------------------------------------------------
 function CloseMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to CloseMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -376,6 +384,83 @@ if strcmp(selection,'No')
 end
 
 delete(handles.figure1)
+
+
+% --------------------------------------------------------------------
+function SessionMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to SessionMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% --------------------------------------------------------------------
+function NewSetMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to NewSetMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    global program_name;
+    selection = questdlg(['Do you want to record a new set?'; ...
+                    'You might lose the current data.'], program_name,...
+                    'Yes','No','No');
+    if strcmp(selection,'Yes')
+        session_initialize();
+        set(handles.system_message, 'String', ...
+            'All session data has been reset. Prepared for new set recording.');
+        
+        [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+        sound(beep, Fs);
+    end
+
+% --------------------------------------------------------------------
+function PrevMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to PrevMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    message = session_go_prev();
+    set(handles.system_message, 'String', message);
+
+    [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+    sound(beep, Fs);
+
+% --------------------------------------------------------------------
+function SessionMoveMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to SessionMoveMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    
+    input_num = -1;
+    while ~(input_num > 0 && input_num < 30)
+    x = inputdlg('Enter the number :',...
+             'Move to specific session', [1 50]);
+    input_num = str2num(x{:});
+    end
+    message = session_go_prev(input_num);
+    set(handles.system_message, 'String', message);
+
+    [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+    sound(beep, Fs);
+   
+
+% --------------------------------------------------------------------
+function VisualizationMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to VisualizationMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% --------------------------------------------------------------------
+function CalibResultsMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to CalibResultsMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+
+% --------------------------------------------------------------------
+function AlphabetPlotMenuItem_Callback(hObject, eventdata, handles)
+% hObject    handle to AlphabetPlotMenuItem (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+    draw_alphabet_set(handles);
+    
+%%%%%%%%%%%%%%%%%%%% Do not touch Below Here %%%%%%%%%%%%%%%%%%%%
 
 
 % --- Executes on selection change in popupmenu1.
@@ -457,68 +542,4 @@ function system_message_CreateFcn(hObject, eventdata, handles)
 %       See ISPC and COMPUTER.
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
-end
-
-
-% --------------------------------------------------------------------
-function ParameterMenu_Callback(hObject, eventdata, handles)
-% hObject    handle to ParameterMenu (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-
-% --------------------------------------------------------------------
-function SaveParameterMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to SaveParameterMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-global File_Header;
-
-verbose_time = strjoin(strsplit((mat2str(fix(clock))), ' '), '_');
-verbose_time = strrep(verbose_time, '[', '');
-verbose_time = strrep(verbose_time, ']', '');
-
-[file, path] = uiputfile('*.mat', 'Save Current Parameter Setting As', ...
-                ['EOG_Parameters_', verbose_time]);
-save_path = fullfile(path, file);
-
-if ~isequal(file, 0)
-    try
-        File_Header = file_save_parameters();
-        save(save_path, 'File_Header');
-        set(handles.system_message, 'String', 'Parameter Setting has been saved successfully.');
-    catch me
-        set(handles.system_message, 'String', me.message);
-
-%         errordlg(me.message, program_name);
-    end
-end
-
-% --------------------------------------------------------------------
-function OpenParameterMenuItem_Callback(hObject, eventdata, handles)
-% hObject    handle to OpenParameterMenuItem (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-[file, path] = uigetfile('*.mat', 'Open Parameter Setting from a File');
-save_path = fullfile(path, file);
-
-if ~isequal(file, 0)
-    try
-        loaded_struct = load(save_path);
-        file_retrieve_parameters(loaded_struct.File_Header);
-        set(handles.system_message, 'String', ['Parameter Setting has been loaded successfully from ' file ' file.']);
-        clear loaded_struct;
-        
-        % GUI Control
-        set(handles.initialize_button, 'Enable', 'on');
-        set(handles.calib_button, 'Enable', 'on');
-        set(handles.start_button, 'Enable', 'on');
-        set(handles.stop_button, 'Enable', 'off');
-        
-    catch me
-        set(handles.system_message, 'String', me.message);
-
-%         errordlg(me.message, program_name);
-    end
 end

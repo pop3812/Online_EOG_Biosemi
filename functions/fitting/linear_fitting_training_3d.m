@@ -68,7 +68,11 @@ end
 
 DrawFormattedText(window, 'Look at the point after the beep.', 'center', ...
     Y_center, [255, 255, 255]);
-Screen('Flip', window);  
+Screen('Flip', window);
+
+[voice, Fs] = audioread([pwd, '\resources\sound\voice\beep_start_point.wav']);
+Snd('Play', voice', Fs); WaitSecs(length(voice)/Fs);
+            
 WaitSecs(3.0);
 
 for train_idx = 1:n_training+1

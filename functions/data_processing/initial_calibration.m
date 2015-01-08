@@ -26,6 +26,9 @@ cla(g_handles.current_position);
 
 screen_init_psy('Blink your eyes.');
 
+[beep, Fs] = audioread([pwd, '\resources\sound\voice\blink.wav']);
+Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
+
 timer_id_data= timer('TimerFcn','data_processing_for_calibration', ...
     'StartDelay', 0, 'Period', params.DelayTime, 'ExecutionMode', 'FixedRate');
 start(timer_id_data);
@@ -34,9 +37,19 @@ if(params.drift_removing ~= 0)
     median_window_size = params.drift_filter_time * params.SamplingFrequency2Use;
     blink_window_size = params.blink_calibration_time * params.SamplingFrequency2Use;
     
+    screen_turn = 0;
+    
     while(buffer.dataqueue.datasize < median_window_size)
-        if (buffer.dataqueue.datasize > blink_window_size)
+        if (buffer.dataqueue.datasize > blink_window_size) && ~screen_turn
             screen_init_psy();
+            
+            [beep, Fs] = audioread([pwd, '\resources\sound\voice\beep_start_center.wav']);
+            Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
+            
+            [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
+            Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
+            
+            screen_turn = 1;
         end
         progress_percentage = buffer.dataqueue.datasize / params.QueueLength * 0.15;
         progress_percentage_val = fix(progress_percentage * 10^4)/100;
@@ -81,6 +94,10 @@ if (ishandle(g_handles.prog_bar))
 end
 
 screen_init_psy('Calibration has been done. Take a rest.');
+
+[beep, Fs] = audioread([pwd, '\resources\sound\voice\wait.wav']);
+Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
+
 set(g_handles.console, 'String', 'Resting');
 
 end

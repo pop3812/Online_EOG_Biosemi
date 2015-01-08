@@ -66,7 +66,9 @@ DispPoints = [NormalizedPoints(1:D_Rate:end,1), NormalizedPoints(1:D_Rate:end,2)
 
 %% Visualization on Psychtoolbox Screen
 
-screen_draw_result(DispPoints);
+if params.draw_result_on_screen
+    screen_draw_result(DispPoints);
+end
 
 %% Plot the contour in a Matlab figure
 

@@ -3,6 +3,19 @@ function set_experiment_parameters()
 % Experiment Parameter Settings
 global params;
 
+%% Subject Dependent Information
+% subject info
+params.subject = 'LeeKwangRyeol';
+
+% result parametmers
+params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\';
+
+% calibration parameters
+params.slope_threshold = 10^0;
+params.linear_baseline_slope_threshold = 1.0 * 10^-1; % 1.0 * 10^-1;
+params.linear_baseline_err_threshold = 10^-10; % 10^-12;
+                              
+%% Experiment Parameters
 % modes
 params.denosing = 1; % 1 = denoising, 0 = none
 params.drift_removing = 1; % 1 = offline drift removing, ...
@@ -21,9 +34,9 @@ params.CompNum = 2; % Number of Components / Horizontal, Vertical
 
 params.DelayTime = 0.25; % in sec
 params.BufferTime = 15; % in sec
-params.CalibrationTime = 4; % in sec
+params.CalibrationTime = 3; % in sec
 params.DataAcquisitionTime = 8; % in sec
-params.ResultShowTime = 5; % in sec
+params.ResultShowTime = 1; % in sec
 
 % pre-processing parameters
 params.blink_calibration_time = 5; % in sec
@@ -54,17 +67,10 @@ params.is_coupled = 1;
 % plot parameters
 params.y_range = 5.*10^2; % 3.*10^2 is optimal for Biosemi EOG
 
-% result parametmers
-params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\';
-
-% calibration parameters
-params.slope_threshold = 10^0;
-params.linear_baseline_slope_threshold = 1.0 * 10^-1; % 1.0 * 10^-1;
-params.linear_baseline_err_threshold = 10^-10; % 10^-12;
-                              
 % experiment paradigm
 params.pointer_feedback = 1;
 params.trail_feedback = 1;
+params.draw_result_on_screen = 0;
 params.without_bound = 1;
 
 end

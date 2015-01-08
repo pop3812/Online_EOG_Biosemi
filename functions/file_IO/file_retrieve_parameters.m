@@ -39,10 +39,10 @@ end
 
 disp(buffer);
 
-%% Reset Session Data
+%% Load Session Data
 
-buffer.n_session = 0;
-buffer.session_data = cell(1, 1);
+buffer.session_data = File_Header.SessionData;
+buffer.n_session = length(File_Header.SessionData) + 1;
 
 %% Raw Signal
 raw_signal_reserve = File_Header.RawSignalReserve;

@@ -40,7 +40,7 @@ buffer.current_buffer_end_idx = 1;
 buffer.dummy_idx = (0:9)';
 buffer.selected_key = '';
 
-buffer.n_session = 0;
+buffer.n_session = 1;
 buffer.session_data = cell(1, 1);
 buffer.calibration_end_idx = 1;
 buffer.Recalibration_status = 0;

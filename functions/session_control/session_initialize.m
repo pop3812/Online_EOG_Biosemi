@@ -3,7 +3,7 @@ function session_initialize()
 global buffer;
 global params;
 
-buffer.n_session = 0;
+buffer.n_session = 1;
 buffer.session_data = cell(1, 1);
 
 ExtendFactor = fix(1/params.DelayTime);
