@@ -94,12 +94,16 @@ function initialize_button_Callback(hObject, eventdata, handles)
 % hObject    handle to initialize_button (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-clear params buffer File_Header;
-
-global program_name;
 global params;
 global buffer;
 global File_Header;
+global g_handles;
+
+params = [];
+buffer = [];
+File_Header = [];
+
+g_handles = handles;
 
 params.DummyMode = 0; % 0 : biosemi, 1 : Dummy
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
@@ -184,9 +188,7 @@ function calib_button_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 global program_name;
-global g_handles;
 
-g_handles = handles;
 [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
 
 set(handles.system_message, 'String', 'Calibration');
@@ -398,6 +400,8 @@ function NewSetMenuItem_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     global program_name;
+    global buffer;
+    
     selection = questdlg(['Do you want to record a new set?'; ...
                     'You might lose the current data.'], program_name,...
                     'Yes','No','No');
@@ -405,6 +409,7 @@ function NewSetMenuItem_Callback(hObject, eventdata, handles)
         session_initialize();
         set(handles.system_message, 'String', ...
             'All session data has been reset. Prepared for new set recording.');
+        set(handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
         
         [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
         sound(beep, Fs);
@@ -415,9 +420,12 @@ function PrevMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to PrevMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    global buffer;
+    
     message = session_go_prev();
     set(handles.system_message, 'String', message);
-
+    set(handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
+    
     [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
     sound(beep, Fs);
 
@@ -426,6 +434,7 @@ function SessionMoveMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to SessionMoveMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+    global buffer;
     
     input_num = -1;
     while ~(input_num > 0 && input_num < 30)
@@ -435,6 +444,7 @@ function SessionMoveMenuItem_Callback(hObject, eventdata, handles)
     end
     message = session_go_prev(input_num);
     set(handles.system_message, 'String', message);
+    set(handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
 
     [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
     sound(beep, Fs);
@@ -451,7 +461,7 @@ function CalibResultsMenuItem_Callback(hObject, eventdata, handles)
 % hObject    handle to CalibResultsMenuItem (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
+    draw_fitting_plot_3d();
 
 % --------------------------------------------------------------------
 function AlphabetPlotMenuItem_Callback(hObject, eventdata, handles)
@@ -459,8 +469,15 @@ function AlphabetPlotMenuItem_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
     draw_alphabet_set(handles);
+
+    
+    
+    
     
 %%%%%%%%%%%%%%%%%%%% Do not touch Below Here %%%%%%%%%%%%%%%%%%%%
+
+
+
 
 
 % --- Executes on selection change in popupmenu1.

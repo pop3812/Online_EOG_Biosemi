@@ -8,13 +8,13 @@ if nargin < 1
    input_num = buffer.n_session - 1;
 end
 
-if input_num > 0 && input_num <= buffer.n_session
+if input_num > 0 && input_num <= 29
     buffer.n_session = input_num;
     message = ['Moved to the designated session. Current session # : ', num2str(buffer.n_session)];
 elseif input_num <= 0
     message = ['This is the first session. Current session # : ', num2str(buffer.n_session)];
-elseif input_num > buffer.n_session
-    message = ['You can only move to previous sessions. Current session # : ', num2str(buffer.n_session)];
+elseif input_num > 29
+    message = ['You can only move to 1-29 sessions. Current session # : ', num2str(buffer.n_session)];
 end
 
 ExtendFactor = fix(1/params.DelayTime);

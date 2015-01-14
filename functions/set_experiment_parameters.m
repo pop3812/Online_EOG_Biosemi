@@ -5,14 +5,14 @@ global params;
 
 %% Subject Dependent Information
 % subject info
-params.subject = 'LeeKwangRyeol';
+params.subject = 'KimSK';
 
 % result parametmers
-params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\';
+params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\20150109_KimSK';
 
 % calibration parameters
-params.slope_threshold = 10^0;
-params.linear_baseline_slope_threshold = 1.0 * 10^-1; % 1.0 * 10^-1;
+params.slope_threshold = 3.*10^0;
+params.linear_baseline_slope_threshold = 10^-1; % 1.0 * 10^-1;
 params.linear_baseline_err_threshold = 10^-10; % 10^-12;
                               
 %% Experiment Parameters
@@ -35,7 +35,7 @@ params.CompNum = 2; % Number of Components / Horizontal, Vertical
 params.DelayTime = 0.25; % in sec
 params.BufferTime = 15; % in sec
 params.CalibrationTime = 3; % in sec
-params.DataAcquisitionTime = 8; % in sec
+params.DataAcquisitionTime = 9; % in sec
 params.ResultShowTime = 1; % in sec
 
 % pre-processing parameters

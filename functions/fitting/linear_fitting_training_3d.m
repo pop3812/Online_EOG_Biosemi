@@ -78,7 +78,7 @@ WaitSecs(3.0);
 for train_idx = 1:n_training+1
     % Rest for every 10 data point
     if mod(train_idx-1, 10) == 0 && train_idx ~= 1
-        session_subject_rest();
+        session_subject_rest(20);
         set(g_handles.console, 'String', 'Calibration');
     end
     
@@ -212,35 +212,6 @@ Surf_struct.Y = Y;
 Surf_struct.Vh = Vh;
 Surf_struct.Vv = Vv;
 
-% Draw
-
-figure('name', '3D Fitting Results', 'NumberTitle', 'off');
-subplot(1,2,1);
-colormap(hot(256));
-L=surf(XGrid,YGrid,Vh_surf);
-
-hold on;
-
-set(get(get(L,'parent'),'XLabel'),'String','x','FontSize',14,'FontWeight','bold')
-set(get(get(L,'parent'),'YLabel'),'String','y','FontSize',14,'FontWeight','bold')
-set(get(get(L,'parent'),'ZLabel'),'String','V_h','FontSize',14,'FontWeight','bold')
-% title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vh),'FontWeight','bold','FontSize',12)
-grid on;
-axis square;
-    
-subplot(1,2,2);
-colormap(hot(256));
-L=surf(XGrid,YGrid,Vv_surf);
-
-hold on;
-
-set(get(get(L,'parent'),'XLabel'),'String','x','FontSize',14,'FontWeight','bold')
-set(get(get(L,'parent'),'YLabel'),'String','y','FontSize',14,'FontWeight','bold')
-set(get(get(L,'parent'),'ZLabel'),'String','V_v','FontSize',14,'FontWeight','bold')
-% title(sprintf('Normal Vector: <%0.9f, %0.9f, %0.9f>', n_Vv),'FontWeight','bold','FontSize',12)
-grid on;
-axis square;
-
 else
     throw(MException('TrainingDataFitting:InvalidFittingType',...
     'Invalid fitting type has been requested.'));
@@ -276,17 +247,15 @@ T_const = [0; T_const(2)];
 % T_const = [0; nanmean(Vv)];
 
 if det(A)==0
-   disp('Warning : Transformation Matrix might not exist. It is an insoluable problem.');
+   disp('Warning : Transformation Matrix might not exist. This might be an insoluable problem.');
 end
 
-disp('Transformation Matrix T ([x; y] = T x ([V_h; V_v] - C)) : ');
-disp(inv(A));
-
-disp('Transformation Matrix C ([x; y] = T x ([V_h; V_v] - C)) : ');
-disp(T_const);
-
 buffer.Surf_struct = Surf_struct;
-buffer.T_matrix= inv(A);
+buffer.T_matrix = inv(A);
 buffer.T_const = T_const;
+
+%% Fitting Results Visualization
+
+draw_fitting_plot_3d();
 
 end

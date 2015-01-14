@@ -4,6 +4,10 @@ function draw_alphabet_set(handles)
 
 global params;
 global buffer;
+global g_handles;
+
+if isfield(buffer, 'session_data') && ~isempty(buffer.session_data{1})
+set(handles.system_message, 'String', 'Visualizing the Data ... Wait.');
 
 subplot_n_col = 8;
 D_Rate = 8;
@@ -66,7 +70,14 @@ end
 
 %% Visualization
 
-figure('name', 'Alphabet Set Visualization', 'NumberTitle', 'off');
+if isfield(g_handles, 'alphabet_plot') && ishandle(g_handles.alphabet_plot)
+    figure(g_handles.alphabet_plot);
+    clf(g_handles.alphabet_plot);
+else
+g_handles.alphabet_plot = figure('name', 'Alphabet Set Visualization', 'NumberTitle', 'off');
+end
+
+% set(g_handles.alphabet_plot, 'Color', [1, 1, 1]);
 
 for i_session = 1:N_Session
     
@@ -93,13 +104,23 @@ for i_session = 1:N_Session
         cc = flipud(cc);
         [numPoints, two]=size(Disp_X);
 
-        subaxis(subplot_n_row, subplot_n_col, i_session, 'Spacing', 0.03, 'Padding', 0, 'Margin', 0);
+        subaxis(subplot_n_row, subplot_n_col, i_session, 'Spacing', 0.05, 'Padding', 0, 'Margin', 0.05);
         draw_alphabet_on_plot([Disp_X Disp_Y]);
-        text(0.01, 0.95, num2str(i_session), 'Unit', 'normalized', 'FontSize', 8);
+        text(-0.5, 0.95, num2str(i_session), 'Unit', 'normalized', 'FontSize', 10, 'FontWeight', 'bold');
     end
 
 end
 
+[beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+sound(beep, Fs);
+
 set(handles.system_message, 'String', 'Alphabet set visualization has been done.')
+
+else
+    [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
+    sound(beep, Fs);
+
+    set(handles.system_message, 'String', 'There is no data to plot.')
+end
 
 end

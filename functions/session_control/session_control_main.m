@@ -23,6 +23,12 @@ if status == 1 % Calibration Mode
     
     if isFirstSec && ~buffer.Recalibration_status
         tic_t = tic;
+    
+        if buffer.n_session == 1
+        [ready_beep, Fs] = audioread([pwd, '\resources\sound\voice\beep_start_center.wav']);
+        Snd('Play', ready_beep', Fs); WaitSecs(length(ready_beep)/Fs);
+        end
+        
         set(g_handles.system_message, 'String', 'Calibration Mode');
         set(g_handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
         if params.DummyMode
@@ -58,9 +64,10 @@ elseif status == 0 % Data Acquisition Mode
                 num2str(buffer.n_session), '.wav']]);
             Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
         end
-        [beep, Fs] = audioread([pwd, '\resources\sound\beep.wav']);
-%         Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
-        Beeper();
+        
+        [beep, Fs] = audioread([pwd, '\resources\sound\voice\start.wav']);
+        Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
+        Beeper(2000, 0.8, 0.1);
     end
     session_data_acquisition();
     
@@ -84,6 +91,9 @@ elseif status == 2 % Result Showing
             session_subject_rest(20);
         elseif buffer.n_session == 29
             [beep, Fs] = audioread([pwd, '\resources\sound\voice\set_end.wav']);
+            Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
+            
+            [beep, Fs] = audioread([pwd, '\resources\sound\voice\wait.wav']);
             Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
             
             session_stop();

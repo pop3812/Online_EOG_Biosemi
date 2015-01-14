@@ -11,9 +11,15 @@ screenNumbers=Screen('Screens');
 
 if(length(screenNumbers) > 2) % Double monitor
     
+    if  ~isfield(params, 'window')
+        Screen('CloseAll');
+    end
+    
     % Check if the window is open
     windowPtrs=Screen('Windows');
+    
     if isempty(windowPtrs)
+        
         % New Window Open
         % Initial Preference Setup
         Screen('Preference', 'SkipSyncTests', 2);

@@ -36,9 +36,9 @@ if params.window ~= -1
     
     [beep, Fs] = audioread([pwd, '\resources\sound\voice\' voice_name '.wav']);
     [ready_beep, Fs] = audioread([pwd, '\resources\sound\voice\beep_start_center.wav']);
-    Snd('Play', beep', Fs); 
+    Snd('Play', beep', Fs); WaitSecs(length(beep)/Fs);
     
-    WaitSecs(resting_sec-length(ready_beep)/Fs);
+    WaitSecs(resting_sec);
 
     DrawFormattedText(window, 'Get ready.', 'center', ...
         Y, [255, 255, 255]);
