@@ -76,7 +76,7 @@ if(params.drift_removing ~= 0) && isLastSec
     
     % Plateau Find Function
     plateaus = signal_feature_find(y_data, 'flat', 0.3, params.slope_threshold);
-    n_region = length(plateaus);
+    [dim, n_region] = size(plateaus);
 
     if n_region > 0
         slope_mat = zeros(n_region, 1);

@@ -1,9 +1,9 @@
 clc; clear; % clf;
 
 database_path = 'C:\Users\User\Documents\GitHub\Data\DB\KimSK\reform\';
-result_save_route = 'C:\Users\User\Documents\GitHub\Data\Analysis_Results\new_set\';
+result_save_route = 'C:\Users\User\Documents\GitHub\Data\Analysis_Results\wo_norm\';
 
-n_set = 3; % number of alphabet set in the database
+n_set = 4; % number of alphabet set in the database
 n_char = 29;
 data_acq_time = 8; % sec
 SR = 128; % Hz
@@ -11,11 +11,10 @@ SR = 128; % Hz
 D_Rate = 16; % Downsample factor for fast calculation 
 max_slope_length = 2;
 smoothing_window = 1;
-last_padding_sec = 1.0;
+last_padding_sec = 0.0;
 
 data_concatenation = 1;
 
-%% 
 method_str = {'Correlation', 'DTW', 'DPW', 'Kurtosis', 'MSE'};
 data_length = data_acq_time * SR;
 
@@ -25,13 +24,23 @@ norm_pos = cell(n_char, 1);
 alphabet_dict = cell(n_char, n_set);
 
 for i = 1:n_set
+
     file_name = ['data_' num2str(i) '.mat'];
     load([database_path file_name]);
-    
+
     for j = 1:n_char
-       norm_pos{j, 1} =  File_Header.SessionData{j}.normalized_eye_position;
+        pos_dat =  File_Header.SessionData{j}.eye_position_queue;
+
+        pos_dat = blink_remnant_removal(pos_dat);
+        pos_dat(isnan(pos_dat(:,1)),:) = [];
+
+        % normalize
+        AbsolutePoints = pos_dat;
+        
+        NormalizedPoints = character_normalization(AbsolutePoints);
+        norm_pos{j, 1} = NormalizedPoints;
     end
-    
+
     data{i, 1} = norm_pos;
     
 end
@@ -50,37 +59,13 @@ if data_concatenation
     
 for i = 1:n_char
     for j = 1:n_set
-
-        flat_regions_x = signal_feature_find(alphabet_dict{i, j}(:,1), 'flat', 0.01, 0.005);
-        flat_regions_y = signal_feature_find(alphabet_dict{i, j}(:,2), 'flat', 0.01, 0.005);
-        
-        % Remove the last flat region
-        if ~isempty(flat_regions_x) && ~isempty(flat_regions_y)
-            % Remove the last flat regions as it contains stop point signal
-            on_idx = max([flat_regions_x(length(flat_regions_x)).on, flat_regions_y(length(flat_regions_y)).on]);
-            
-            last_point_median{i, j} = nanmedian(alphabet_dict{i, j}(on_idx:end,:));
-            
-            alphabet_dict{i, j}(on_idx:end,:) = [];
-            
-            % Add last point padding as it contains critical information
-            last_padding = repmat(last_point_median{i, j}, fix(SR * last_padding_sec), 1);
-            alphabet_dict{i, j} = [alphabet_dict{i, j}; last_padding];
-        end
-        
-        % Remove the first flat region
-        if ~isempty(flat_regions_x) && ~isempty(flat_regions_y)
-            % Remove the first flat regions as it contains fixation point signal
-            off_idx = min([flat_regions_x(1).off, flat_regions_y(1).off]);
-            alphabet_dict{i, j}(1:off_idx,:) = [];
-        end
-
+        alphabet_dict{i, j} = character_signal_concatenation(alphabet_dict{i, j}, SR, last_padding_sec);
     end
 end
 
 end
 
-%% Smoothing & Normalize all data length
+%% Normalize All Characters
 
 alphabet_dict_norm = cell(n_char, n_set);
 
@@ -89,18 +74,22 @@ for i = 1:n_char
        sig = alphabet_dict{i, j};
        if length(sig) < data_length
            x = 1:length(sig);
-           xq = 1:length(sig)/(data_length+1):length(sig);
+           xq = 1:(length(sig)-1)/(data_length-1):length(sig);
            alphabet_dict_norm{i, j} = interp1(x, sig, xq);
        else
-           alphabet_dict_norm{i, j} = sig(1:data_length, :);
+           x = 1:length(sig);
+           xq = 1:(length(sig)-1)/(data_length-1):length(sig);
+           alphabet_dict_norm{i, j} = interp1(x, sig, xq);
        end
-        
+       
        % Smoothing
        alphabet_dict_norm{i, j} = medfilt1(alphabet_dict_norm{i, j}, smoothing_window);
        
        % Downsampling
        alphabet_dict_norm{i, j} = downsample(alphabet_dict_norm{i, j}, D_Rate);
-
+       
+       % Normalization
+       alphabet_dict_norm{i, j} = character_normalization(alphabet_dict_norm{i, j});
    end
 end
 
@@ -168,16 +157,14 @@ end
     end
     
     % Save results
-    save_name = ['analysis_result_method_', num2str(method_distanceMetrics), '_DR_', num2str(D_Rate), '_slope_', num2str(max_slope_length), '.mat'];
-    save_route = [result_save_route, save_name];
+    save_route = [result_save_route, 'analysis_result_method_', num2str(method_distanceMetrics), '_DR_', num2str(D_Rate), '_slope_', num2str(max_slope_length), '.mat'];
     disp('Classification Done');
     disp(['Method : ', method_str{method_distanceMetrics}]);
     disp(['Downsampling Factor : ', num2str(D_Rate)]);
     disp(['Elapsed time : ', num2str(t_calculation)]);
-
+    
     save(save_route, 'result', 'mode_distance_template', 'method_distanceMetrics', ...
         'n_set', 'data_acq_time', 'SR', 'D_Rate', 'data_length', 't_calculation');
-
     
 %     %% Accuracy
 % 

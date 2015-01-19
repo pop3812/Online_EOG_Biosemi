@@ -31,7 +31,8 @@ for i = 1:numPoints-1
     hold on;
 
 end
-xlim([-0.5 0.5]); ylim([-0.5 0.5]); axis('tight'); axis('off');
-
+xlim([-0.5 0.5]); ylim([-0.5 0.5]);
+axis('tight'); 
+axis('off');
 end
 

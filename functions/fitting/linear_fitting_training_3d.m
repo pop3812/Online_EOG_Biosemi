@@ -170,7 +170,7 @@ for train_idx = 1:n_training+1
      
     % Update Progress Bar
     if (ishandle(g_handles.prog_bar))
-    prog_ratio = 0.15 + 0.85 * train_idx/n_training;
+    prog_ratio = 0.15 + 0.85 * train_idx/(n_training+1);
     prog_ratio_val = fix(prog_ratio * 10^4)/100;
     waitbar(prog_ratio, g_handles.prog_bar, [num2str(prog_ratio_val) ' % Done']);
     %['Stimulus : ' num2str(train_idx) ' / ' num2str(n_training)]);
