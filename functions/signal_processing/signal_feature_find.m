@@ -39,13 +39,17 @@ df = diff([0; plateau_detection; 0]);
 plateaus = struct('on',num2cell(find(df==1)), ...
     'off',num2cell(find(df==-1)-1));
 
-reject_idx = zeros(length(plateaus), 1);
-for i = 1:length(plateaus)
+[n_plateaus, one] = size(plateaus);
+reject_idx = zeros(n_plateaus, 1);
+
+if n_plateaus>=1
+for i = 1:n_plateaus
     i_length = plateaus(i).off - plateaus(i).on + 1;
     plateaus(i).length = i_length;
     
     % reject if the range length is too short
     reject_idx(i) = plateaus(i).length < ceil(n_data * min_length);
+end
 end
 
 plateaus(find(reject_idx==1)) = [];

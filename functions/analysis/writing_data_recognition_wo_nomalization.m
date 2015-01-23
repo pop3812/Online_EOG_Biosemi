@@ -1,9 +1,9 @@
 clc; clear; % clf;
 
-database_path = 'C:\Users\User\Documents\GitHub\Data\DB\KimSK\reform\';
-result_save_route = 'C:\Users\User\Documents\GitHub\Data\Analysis_Results\wo_norm\';
+database_path = 'C:\Users\User\Documents\GitHub\Data\DB\ImCH\';
+result_save_route = 'C:\Users\User\Documents\GitHub\Data\Analysis_Results\ImCH\';
 
-n_set = 4; % number of alphabet set in the database
+n_set = 5; % number of alphabet set in the database
 n_char = 29;
 data_acq_time = 8; % sec
 SR = 128; % Hz
@@ -29,14 +29,22 @@ for i = 1:n_set
     load([database_path file_name]);
 
     for j = 1:n_char
+
         pos_dat =  File_Header.SessionData{j}.eye_position_queue;
 
-        pos_dat = blink_remnant_removal(pos_dat);
-        pos_dat(isnan(pos_dat(:,1)),:) = [];
-
-        % normalize
-        AbsolutePoints = pos_dat;
+        if data_concatenation
+            % Retrieve data region only
+            AbsolutePoints = character_signal_concatenation_new(pos_dat, 20, 0.05);
+        else
+            AbsolutePoints = pos_dat;
+        end
         
+        if i == 2 && j == 16
+            AAA = pos_dat;
+            pos_dat = character_signal_concatenation_new(pos_dat, 20, 0.05, 1);
+        end
+            
+        % Normalize
         NormalizedPoints = character_normalization(AbsolutePoints);
         norm_pos{j, 1} = NormalizedPoints;
     end
@@ -53,24 +61,12 @@ end
 
 clear file_path file_name data File_Header norm_pos;
 
-%% Retrieve Data Region Only (Remove Stop Points from Signal)
-
-if data_concatenation
-    
-for i = 1:n_char
-    for j = 1:n_set
-        alphabet_dict{i, j} = character_signal_concatenation(alphabet_dict{i, j}, SR, last_padding_sec);
-    end
-end
-
-end
-
 %% Normalize All Characters
 
 alphabet_dict_norm = cell(n_char, n_set);
 
 for i = 1:n_char
-   for j = 1:n_set
+    for j = 1:n_set
        sig = alphabet_dict{i, j};
        if length(sig) < data_length
            x = 1:length(sig);
@@ -90,7 +86,7 @@ for i = 1:n_char
        
        % Normalization
        alphabet_dict_norm{i, j} = character_normalization(alphabet_dict_norm{i, j});
-   end
+    end
 end
 
 clear sig x xq;

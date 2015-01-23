@@ -437,18 +437,35 @@ function SessionMoveMenuItem_Callback(hObject, eventdata, handles)
     global buffer;
     
     input_num = -1;
-    while ~(input_num > 0 && input_num < 30)
-    x = inputdlg('Enter the number :',...
+    possible = [double('a'):double('z'), double('S'), double('B'), double('E')];
+    while (0 == sum(possible==input_num))
+    x = inputdlg('Enter the character :',...
              'Move to specific session', [1 50]);
-    input_num = str2num(x{:});
+    if ~isempty(x)
+        input_num = double(x{:});
+    else
+        input_num = -1;
+        break;
     end
+    end
+    
+    if input_num ~= -1
+        if input_num >= double('a') && input_num <= double('z')
+            input_num = input_num - double('a')+1;
+        elseif input_num == double('S')
+            input_num = 27;
+        elseif input_num == double('B')
+            input_num = 28;
+        elseif input_num == double('E')
+            input_num = 29;
+        end
     message = session_go_prev(input_num);
     set(handles.system_message, 'String', message);
     set(handles.console, 'String', ['Session # : ' num2str(buffer.n_session)]);
 
     [beep, Fs] = audioread([pwd, '\resources\sound\alert.wav']);
     sound(beep, Fs);
-   
+    end
 
 % --------------------------------------------------------------------
 function VisualizationMenu_Callback(hObject, eventdata, handles)

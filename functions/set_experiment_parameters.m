@@ -5,15 +5,15 @@ global params;
 
 %% Subject Dependent Information
 % subject info
-params.subject = 'KimSK';
+params.subject = 'ByunDY';
 
 % result parametmers
-params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\DB\KimSK\';
+params.emergency_save_path = 'C:\Users\User\Documents\GitHub\Data\DB\ByunDY\';
 
 % calibration parameters
-params.slope_threshold = 3.*10^0; % 10^0
+params.slope_threshold = 3.*10^0; % 3.*10^0
 params.linear_baseline_slope_threshold = 10^-1; % 1.0 * 10^-1;
-params.linear_baseline_err_threshold = 10^-10; % 10^-12;
+params.linear_baseline_err_threshold = 10^-10; % 10^-10;
                               
 %% Experiment Parameters
 % modes
@@ -28,7 +28,7 @@ params.use_real_dummy = 0; % 1 = realistic EOG sample signal, ...
 params.SamplingFrequency2Use = 128; % default is 128
                                     % Sampling frequency limit for Biosemi is 2024
 
-params.numEEG = 4; % number of EEG channels
+params.numEEG = 6; % number of EEG channels
 params.numAIB = 0; % number of external channel
 params.CompNum = 2; % Number of Components / Horizontal, Vertical
 

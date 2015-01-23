@@ -78,7 +78,7 @@ WaitSecs(3.0);
 for train_idx = 1:n_training+1
     % Rest for every 10 data point
     if mod(train_idx-1, 10) == 0 && train_idx ~= 1
-        session_subject_rest(20);
+        session_subject_rest(5);
         set(g_handles.console, 'String', 'Calibration');
     end
     

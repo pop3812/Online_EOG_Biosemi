@@ -12,12 +12,14 @@ for i = 1:n_blink
     
     flats = signal_feature_find(eye_blink_contain_signal(offset_idx(i):end, 2), 'flat', 0.01, 0.03);  
 
-    [dim, n_flat] = size(flats);
+    [n_flat, dim] = size(flats);
     
-    if n_flat > 0 && flats(1).on < 0.05 * n_data
-    % remove middle region
-    eye_blink_contain_signal(offset_idx(i):offset_idx(i)+flats(1).on, 1) = NaN;
-    eye_blink_contain_signal(offset_idx(i):offset_idx(i)+flats(1).on, 2) = NaN;
+    if n_flat > 0
+        if flats(1).on < 0.05 * n_data
+        % remove middle region
+        eye_blink_contain_signal(offset_idx(i):offset_idx(i)+flats(1).on, 1) = NaN;
+        eye_blink_contain_signal(offset_idx(i):offset_idx(i)+flats(1).on, 2) = NaN;
+        end
     end
 end
 
