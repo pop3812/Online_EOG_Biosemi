@@ -1,7 +1,7 @@
 clc; clear; % clf;
 
-database_path = 'C:\Users\User\Documents\GitHub\Data\DB\ImCH\';
-result_save_route = 'C:\Users\User\Documents\GitHub\Data\Analysis_Results\ImCH\';
+database_path = 'C:\Users\User\Documents\GitHub\Data\DB\HongHM\';
+result_save_route = 'C:\Users\User\Documents\GitHub\Data\Analysis_Results\HongHM\';
 
 n_set = 5; % number of alphabet set in the database
 n_char = 29;
@@ -34,14 +34,14 @@ for i = 1:n_set
 
         if data_concatenation
             % Retrieve data region only
-            AbsolutePoints = character_signal_concatenation_new(pos_dat, 20, 0.05);
+            AbsolutePoints = character_signal_concatenation_new(pos_dat, 20, 0.05, 0.05);
         else
             AbsolutePoints = pos_dat;
         end
         
-        if i == 2 && j == 16
+        if i == 5 && j == 8
             AAA = pos_dat;
-            pos_dat = character_signal_concatenation_new(pos_dat, 20, 0.05, 1);
+            pos_dat = character_signal_concatenation_new(pos_dat, 20, 0.05, 0.05, 1);
         end
             
         % Normalize

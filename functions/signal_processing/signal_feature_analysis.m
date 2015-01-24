@@ -1,7 +1,7 @@
-function [feature_matrix] = signal_feature_analysis(signal, min_n_points, slope_threshold)
+function [feature_matrix, slopes_x, slopes_y] = signal_feature_analysis(signal, min_n_points, x_slope_threshold, y_slope_threshold)
 %SIGNAL_PLATEAU_FIND : finds plateau-like regions in the signal
 % INPUT ARGUMENTS
-% signal : [n_data x 1] Matrix containing EOG signal
+% signal : [n_data x 2] Matrix containing EOG signal
 % min_n_points : minimum length of feature to be classified not a noise
 % slope_threshold : slope threshold
 %
@@ -10,6 +10,7 @@ function [feature_matrix] = signal_feature_analysis(signal, min_n_points, slope_
 %           signal features (increasing, decreasing, flat, noise, blink)
 %           0: flat, 1: increasing, -1: decreasing, 2: blink
 
+min_step = 5; % in degree
 
 [n_data, two] = size(signal);
 feature_matrix = nan(n_data, 2);
@@ -23,15 +24,15 @@ slopes_y = dData(:,end);
 
 % Horizontal features
 feature_matrix(isnan(signal(:,2)), 1) = 2; % blink
-feature_matrix(slopes_x>slope_threshold, 1) = 1; % increasing
-feature_matrix(slopes_x<-slope_threshold, 1) = -1; % decreasing
-feature_matrix(slopes_x<=slope_threshold & slopes_x>=-slope_threshold, 1) = 0; % flat
+feature_matrix(slopes_x>x_slope_threshold, 1) = 1; % increasing
+feature_matrix(slopes_x<-x_slope_threshold, 1) = -1; % decreasing
+feature_matrix(slopes_x<=x_slope_threshold & slopes_x>=-x_slope_threshold, 1) = 0; % flat
 
 % Vertical features 
 feature_matrix(isnan(signal(:,2)), 2) = 2; % blink
-feature_matrix(slopes_y>slope_threshold, 2) = 1; % increasing
-feature_matrix(slopes_y<-slope_threshold, 2) = -1; % decreasing
-feature_matrix(slopes_y<=slope_threshold & slopes_y>=-slope_threshold, 2) = 0; % flat
+feature_matrix(slopes_y>y_slope_threshold, 2) = 1; % increasing
+feature_matrix(slopes_y<-y_slope_threshold, 2) = -1; % decreasing
+feature_matrix(slopes_y<=y_slope_threshold & slopes_y>=-y_slope_threshold, 2) = 0; % flat
 
 %% Eye blink vicinity check
 % Check blink detected regions' vicinity
@@ -54,16 +55,16 @@ unknown_regions = struct('on',num2cell(find(df==1)), ...
 for i = 1:n_regions
     % boundary check
     if unknown_regions(i).off < n_data && unknown_regions(i).on > 1
-        % check the rightside of the blink
+        % the leftside of the blink
         if feature_matrix(unknown_regions(i).off+1, 1) == 2
                 x_flag = feature_matrix(unknown_regions(i).on-1, 1);
                 y_flag = feature_matrix(unknown_regions(i).on-1, 2);
                 if y_flag == 1 && abs(x_flag) ~= 1
-                   x_flag = 2;
-                   y_flag = 2;
+                   x_flag = 0;
+                   y_flag = 1;
                 end
         
-        % check the leftside of the blink
+        % the rightside of the blink
         elseif feature_matrix(unknown_regions(i).on-1, 1) == 2
                 x_flag = feature_matrix(unknown_regions(i).off+1, 1);
                 y_flag = feature_matrix(unknown_regions(i).off+1, 2);
@@ -78,10 +79,18 @@ for i = 1:n_regions
         x_flag = 0;
         y_flag = 0;
     end
-    
+
     feature_matrix(unknown_regions(i).on:unknown_regions(i).off, 1) = x_flag;
     feature_matrix(unknown_regions(i).on:unknown_regions(i).off, 2) = y_flag;
 end
+
+%% Feature extraction
+
+% Horizontal
+[xf_start_idx, xf_length, xf_end_idx, xfeatures, xn_feature] = signal_feature_info_extractor(feature_matrix(:, 1));
+% Vertical
+[f_start_idx, f_length, f_end_idx, features, n_feature] = signal_feature_info_extractor(feature_matrix(:, 2));
+
 
 %% False increase and decrease removal (Noise)
 %  noise is classified with -2: noise flag
@@ -90,49 +99,28 @@ end
 % features (will be removed later by looking vicinity of the noise region)
 
 % Horizontal
-unknown_regions = zeros(n_data, 1);
-unknown_regions(abs(feature_matrix(:,1))==1) = 1;
-df = diff([0; unknown_regions; 0]);
-
-unknown_regions = struct('on',num2cell(find(df==1)), ...
-    'off',num2cell(find(df==-1)-1));
-
-[n_regions, dim] = size(unknown_regions);
-
-for i = 1:n_regions
-    sig_length = (unknown_regions(i).off - unknown_regions(i).on + 1);
-    if sig_length < min_n_points
-        feature_matrix(unknown_regions(i).on:unknown_regions(i).off, 1) = -2;
+for i = 1:xn_feature
+    sig_length = xf_length(i);
+    if sig_length < min_n_points && abs(xfeatures(i)) ~= 2
+        feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = -2;
     end
 end
 
 % Vertical
 
-unknown_regions = zeros(n_data, 1);
-unknown_regions(abs(feature_matrix(:,2))==1) = 1;
-df = diff([0; unknown_regions; 0]);
-
-unknown_regions = struct('on',num2cell(find(df==1)), ...
-    'off',num2cell(find(df==-1)-1));
-
-[n_regions, dim] = size(unknown_regions);
-
-for i = 1:n_regions
-    sig_length = (unknown_regions(i).off - unknown_regions(i).on + 1);
-    if sig_length < min_n_points
-        feature_matrix(unknown_regions(i).on:unknown_regions(i).off, 2) = -2;
+for i = 1:n_feature
+    sig_length = f_length(i);
+    if sig_length < min_n_points && abs(features(i)) ~= 2
+        feature_matrix(f_start_idx(i):f_end_idx(i), 2) = -2;
     end
 end
 
-%% Feature Extraction
+%% Feature update
 
-sig = feature_matrix(:, 2);
-
-diff_f = diff([10 sig']);
-f_start_idx = find(diff_f);
-f_length = diff([f_start_idx, length(sig)+1]);
-f_end_idx = f_start_idx + f_length-1;
-features = sig(f_start_idx);
+% Horizontal
+[xf_start_idx, xf_length, xf_end_idx, xfeatures, xn_feature] = signal_feature_info_extractor(feature_matrix(:, 1));
+% Vertical
+[f_start_idx, f_length, f_end_idx, features, n_feature] = signal_feature_info_extractor(feature_matrix(:, 2));
 
 %% Eye blink vicinity re-check with noises and Vertical Noise Removal
 
@@ -143,17 +131,25 @@ features = sig(f_start_idx);
 % of them. for example, if noise region is in between increasing regions,
 % it is re-classified as increasing
 
-n_feature = length(f_start_idx);
-
 % Noise removal
 if n_feature > 1
     if features(1)==-2
-        feature_matrix(f_start_idx(1):f_end_idx(1), 2) = 0;
-        features(1) = 0;
+        if features(2) == 2
+            feature_matrix(f_start_idx(1):f_end_idx(1), 2) = 2;
+            features(1) = 2;
+        else
+            feature_matrix(f_start_idx(1):f_end_idx(1), 2) = 0;
+            features(1) = 0;
+        end
     end
     if features(end)==-2
-        feature_matrix(f_start_idx(end):f_end_idx(end), 2) = 0;
-        features(end) = 0;
+        if features(end-1) == 2
+            feature_matrix(f_start_idx(end):f_end_idx(end), 2) = 2;
+            features(1) = 2;
+        else
+            feature_matrix(f_start_idx(end):f_end_idx(end), 2) = 0;
+            features(1) = 0;
+        end
     end
 end
 
@@ -173,16 +169,18 @@ if n_feature > 3
                end
            % if leftside remnent exists
            elseif (features(i-1)==1 || features(i-1)==-2) && ...
-                   (features(i+1)==0 || features(i+1)==-2)
-               if isempty(find(abs(feature_matrix(f_start_idx(i-1):f_end_idx(i-1), 1)) == 1, 1))
+                   (features(i+1)~=1 && features(i+1)~=-1)
+               if isempty(find(abs(feature_matrix(f_start_idx(i-1):f_end_idx(i-1), 1)) == 1, 1)) && ...
+                       min_step > max(signal(f_start_idx(i-1):f_end_idx(i-1), 2)) - min(signal(f_start_idx(i-1):f_end_idx(i-1), 2))
                   feature_matrix(f_start_idx(i-1):f_end_idx(i-1), 1) = 2;
                   feature_matrix(f_start_idx(i-1):f_end_idx(i-1), 2) = 2;
                   features(i-1) = 2;
                end
           % if rightside remnent exists
-           elseif (features(i-1)==0 || features(i-1)==-2) && ...
+           elseif (features(i-1)~=1 && features(i-1)~=-1) && ...
                    (features(i+1)==-1 || features(i+1)==-2)
-               if isempty(find(abs(feature_matrix(f_start_idx(i+1):f_end_idx(i+1), 1)) == 1, 1))
+               if isempty(find(abs(feature_matrix(f_start_idx(i+1):f_end_idx(i+1), 1)) == 1, 1)) && ...
+                       min_step > max(signal(f_start_idx(i+1):f_end_idx(i+1), 2)) - min(signal(f_start_idx(i+1):f_end_idx(i+1), 2))
                   feature_matrix(f_start_idx(i+1):f_end_idx(i+1), 1) = 2;
                   feature_matrix(f_start_idx(i+1):f_end_idx(i+1), 2) = 2;
                   features(i+1) = 2;
@@ -192,14 +190,31 @@ if n_feature > 3
         
         % Noise removal
         if features(i) == -2
-           if (features(i-1)~=2 && features(i+1)~=2)
-               if (features(i-1)==0 || features(i+1)==0)
+           if (abs(features(i-1))==1) 
+               feature_matrix(f_start_idx(i):f_end_idx(i), 2) = features(i-1);
+               features(i) = features(i-1);
+           elseif (abs(features(i+1))==1)
+               feature_matrix(f_start_idx(i):f_end_idx(i), 2) = features(i+1);
+               features(i) = features(i+1);
+           elseif (features(i-1)==0 && features(i+1)==0)
+               % if noise is in btw flat but changing signal (increasing)
+               if min_step <= nanmean(signal(f_start_idx(i+1):f_end_idx(i+1),2)) ...
+                       - nanmean(signal(f_start_idx(i+1):f_end_idx(i+1),2))
+                   feature_matrix(f_start_idx(i):f_end_idx(i), 2) = 1;
+                   features(i) = 1;
+                   
+               % if noise is in btw flat but changing signal (decreasing)  
+               elseif -min_step >= nanmean(signal(f_start_idx(i+1):f_end_idx(i+1),2)) ...
+                       - nanmean(signal(f_start_idx(i+1):f_end_idx(i+1),2))
+                   feature_matrix(f_start_idx(i):f_end_idx(i), 2) = -1;
+                   features(i) = -1;
+               else
                    feature_matrix(f_start_idx(i):f_end_idx(i), 2) = 0;
                    features(i) = 0;
-               else
-                   feature_matrix(f_start_idx(i):f_end_idx(i), 2) = features(i-1);
-                   features(i) = features(i-1);
                end
+           else
+               feature_matrix(f_start_idx(i):f_end_idx(i), 2) = 2;
+               features(i) = 2; 
            end
         end
         
@@ -212,25 +227,27 @@ end
 % of them. for example, if noise region is in between increasing regions,
 % it is re-classified as increasing
 
-sig = feature_matrix(:, 1);
-
-diff_f = diff([10 sig']);
-xf_start_idx = find(diff_f);
-xf_length = diff([xf_start_idx, length(sig)+1]);
-xf_end_idx = xf_start_idx + xf_length-1;
-xfeatures = sig(xf_start_idx);
-
-xn_feature = length(xf_start_idx);
-
 % Noise removal
+
+        
 if xn_feature > 1
     if xfeatures(1)==-2
-        feature_matrix(xf_start_idx(1):xf_end_idx(1), 1) = 0;
-        xfeatures(1) = 0;
+        if xfeatures(2) == 2
+            feature_matrix(xf_start_idx(1):xf_end_idx(1), 1) = 2;
+            xfeatures(1) = 2;
+        else
+            feature_matrix(xf_start_idx(1):xf_end_idx(1), 1) = 0;
+            xfeatures(1) = 0;
+        end
     end
     if xfeatures(end)==-2
-        feature_matrix(xf_start_idx(end):xf_end_idx(end), 1) = 0;
-        xfeatures(end) = 0;
+        if xfeatures(end-1) == 2
+            feature_matrix(xf_start_idx(end):xf_end_idx(end), 1) = 2;
+            xfeatures(end) = 2;
+        else
+            feature_matrix(xf_start_idx(end):xf_end_idx(end), 1) = 0;
+            xfeatures(end) = 0;
+        end 
     end
 end
     
@@ -239,19 +256,46 @@ if xn_feature > 3
 
         % Noise removal
         if xfeatures(i) == -2
-           if (xfeatures(i-1)~=2 && xfeatures(i+1)~=2)
-               if (xfeatures(i-1)==0 || xfeatures(i+1)==0)
+           if (abs(xfeatures(i-1))==1) 
+               feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = xfeatures(i-1);
+               xfeatures(i) = xfeatures(i-1);
+           elseif (abs(xfeatures(i+1))==1)
+               feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = xfeatures(i+1);
+               xfeatures(i) = xfeatures(i+1);
+           elseif (xfeatures(i-1)==0 && xfeatures(i+1)==0)
+               
+               % if noise is in btw flat but changing signal (increasing)
+               if min_step <= nanmean(signal(xf_start_idx(i+1):xf_end_idx(i+1),1)) ...
+                       - nanmean(signal(xf_start_idx(i+1):xf_end_idx(i+1),1))
+                   feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = 1;
+                   xfeatures(i) = 1;
+                   
+               % if noise is in btw flat but changing signal (decreasing)  
+               elseif -min_step >= nanmean(signal(xf_start_idx(i+1):xf_end_idx(i+1),1)) ...
+                       - nanmean(signal(xf_start_idx(i+1):xf_end_idx(i+1),1))
+                   feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = -1;
+                   xfeatures(i) = -1;
+               else
                    feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = 0;
                    xfeatures(i) = 0;
-               else
-                   feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = xfeatures(i-1);
-                   xfeatures(i) = xfeatures(i-1);
                end
+               
+           else
+               feature_matrix(xf_start_idx(i):xf_end_idx(i), 1) = 2;
+               xfeatures(i) = 2; 
+
            end
         end
         
     end
 end
+
+%% Feature update
+
+% Horizontal
+[xf_start_idx, xf_length, xf_end_idx, xfeatures, xn_feature] = signal_feature_info_extractor(feature_matrix(:, 1));
+% Vertical
+[f_start_idx, f_length, f_end_idx, features, n_feature] = signal_feature_info_extractor(feature_matrix(:, 2));
 
 %% End point blink removal
 
@@ -261,10 +305,12 @@ end
 % classified as blink region.
 
 if n_feature > 1
-   if features(n_feature) == 1 && features(n_feature-1) == 0 && xn_feature > 0
+   if features(n_feature) == 1 && (features(n_feature-1) == 0 || features(n_feature-1) == 2) && xn_feature > 1
       cut_min_idx =  f_start_idx(n_feature-1);
       cut_idx = n_data;
-      for i = xn_feature:-1:1
+      
+      
+      for i = xn_feature-1:-1:1
           % if x is changing
           if abs(xfeatures(i)) == 1
              cut_idx = xf_start_idx(i+1);
@@ -283,13 +329,13 @@ if n_feature > 1
 
             fixation_length = f_start_idx(n_feature) - cut_idx + 1;
             if fixation_length > 128 % minimum : 1 sec
-                feature_matrix(f_start_idx(n_feature):n_data, 2) = 0;
+                feature_matrix(f_start_idx(n_feature):n_data, 1) = 2;
+                feature_matrix(f_start_idx(n_feature):n_data, 2) = 2;
             end
         end
    end
-
-
 end
+
 end
 
 

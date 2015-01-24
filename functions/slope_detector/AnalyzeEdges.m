@@ -84,21 +84,21 @@ end
 % figure;
 % imagesc(dData);
 % colormap bone;
-% 
-% % Plot final transitions over most coarse derivative
+
+% Plot final transitions over most coarse derivative
 % figure;
 % plot(dData(:,end));
 % hold on;
 % plot(0.5 * minmax * max(dData(:,end)), 'r');
 % hold off;
-% 
+
 % % Plot detected transitions over original data
 % figure;
 % plot(data);
 % hold on;
 % plot(1.0 * minmax * max(data(:,end)), 'r');
 % hold off;
-
+% 
 % Print region statistics
 % disp(sprintf(' Time\t Mean\t Stdv'))
 % for i = 1:length(minmaxIdx);
